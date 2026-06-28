@@ -9,7 +9,8 @@ import asyncio
 import aiosqlite
 import json
 import threading
-import garena_api as bot_module
+# নতুন নিরাপদ ইম্পোর্ট
+import bot_core as bot_module
 from app.decorators import bp_login_required
 from app.helpers import get_bot_token_smart, trigger_instant_friend_sync
 
