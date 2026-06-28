@@ -327,20 +327,18 @@ def get_active_token(username=None):
         try:
             decoded = jwt.decode(token, options={"verify_signature": False})
             exp = decoded.get("exp", 0)
-            if exp > datetime.utcnow().timestamp() + 300:
+            import time
+            # ১. টোকেনের মেয়াদ থাকলে প্যানেল সরাসরি সেটি রিড করবে
+            if exp > time.time() + 300:
                 return token, None
+            else:
+                # ২. টোকেনের মেয়াদ শেষ হয়ে গেলে আমরা কোনো অটো-লগইন করব না
+                # কারণ main.py অনলাইন থাকলে সে নিজেই ফাইলটি রি-লগইন করে আপডেট করে দেবে।
+                return None, "Token expired. Please wait for main.py to reconnect."
         except:
-            pass
+            return None, "Token decoding error or token is invalid."
             
-    new_token, error = get_token_from_uid_password(uid, password)
-    if error:
-        return None, f"Dynamic login failed: {error}"
-        
-    session["token"] = new_token
-    session["uid"] = str(uid)
-    save_session(session, username)
-    return new_token, None
-
+    return None, "No cached token found. Bot might be offline."
 # ==========================================
 # AUTHENTICATION APIs
 # ==========================================
