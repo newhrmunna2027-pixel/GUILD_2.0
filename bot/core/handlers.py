@@ -7,11 +7,10 @@ import time
 from bot.packets import team_packets, chat_packets, base_handler
 from bot.status_parser import parse_status_response
 from utils.helpers import (
-    format_uid_for_chat, sync_team_to_saved_uids, add_uids_to_list, 
-    remove_single_saved_uid, save_saved_uids, save_bot_room_state, load_bot_room_state
+    format_uid_for_chat, save_bot_room_state, load_bot_room_state
 )
 from bot.commands.actions_look import equip_random_bundle
-from bot.core.logic import manage_team_file, load_saved_guild_members, execute_solo_logic
+from bot.core.logic import manage_team_file, execute_solo_logic
 from utils import admin_manager
 from utils.api_client import fetch_player_info
 from utils.team_logger import log_team_info
@@ -21,7 +20,6 @@ import random
 def get_val(data_dict, key, default=None):
     if not isinstance(data_dict, dict): 
         return default
-    # স্ট্রিং এবং ইন্টিজার উভয় ধরনের কী সাপোর্ট করার জন্য ডাবল চেক লজিক
     val = data_dict.get(str(key))
     if val is None:
         try:
@@ -43,14 +41,12 @@ async def handle_0400_roster(bot, hex_data):
             # ROOM CHAT GHOSTING PROTECTION
             if not getattr(bot, 'is_magic_mode', False) and not getattr(bot, 'is_in_room', False) and not getattr(bot, 'is_joining_room', False):
                 await manage_team_file(bot, "clear")
-                await save_saved_uids(bot.my_uid, [])
         return
 
     bot.is_in_team = True
     bot.saved_uids = current_team_uids
     bot.team_uids = current_team_uids
     await manage_team_file(bot, "sync_full_team", t_uid=current_team_uids)
-    await sync_team_to_saved_uids(bot.my_uid, current_team_uids)
 
 async def handle_0f00_status(bot, data):
     from bot.core.manager import send_chat_message
@@ -253,8 +249,6 @@ async def handle_0500_events(bot, hex_data):
                 elif event_action in [8, 9]: 
                     await _on_member_leave(bot, nested_data)
                 elif event_action == 10:
-                    # 🔴 EMOTE PACKET ID FIELD MARKER (event_action = 10)
-                    # ইমোট দিলে কোন মেম্বার এড/রিমুভ হয় না, তাই লুক চেঞ্জ হবে না।
                     pass
                     
     except Exception:
@@ -329,7 +323,6 @@ async def _on_member_add(bot, data):
         if is_new_member:
             bot.team_uids.append(member_uid_int)
             await manage_team_file(bot, "add_member", t_uid=member_uid)
-            await add_uids_to_list(bot.my_uid, [member_uid_int])
 
             # 🟢 টিমে অন্য মেম্বার জয়েন করলে বটের লুক চেঞ্জ হবে
             if getattr(bot, 'auto_look_enabled', True) and not bot.suppress_auto_actions:
@@ -364,7 +357,6 @@ async def _on_member_leave(bot, data):
     if is_member_leaving:
         bot.team_uids.remove(left_uid_int)
         await manage_team_file(bot, "remove_member", t_uid=left_uid_str)
-        await remove_single_saved_uid(bot.my_uid, left_uid_str)
 
         if not getattr(bot, 'is_magic_mode', False) and not getattr(bot, 'is_in_room', False) and not getattr(bot, 'is_joining_room', False):
             bot.team_chat_authed = False
@@ -416,7 +408,7 @@ async def _on_chat_code_update(bot, data):
                 if auth_pkt and await send_chat_packet(bot, auth_pkt): 
                     bot.team_chat_authed = True
                             
-        asyncio.create_task(auth_and_welcome())
+            asyncio.create_task(auth_and_welcome())
     else:
         if bot.is_in_team and not bot.team_chat_authed and bot.chat_connected and bot.current_chat_owner and bot.current_chat_code: 
             auth_pkt = await chat_packets.AuthTeam(bot.current_chat_owner, bot.current_chat_code, bot.key, bot.iv)
@@ -458,13 +450,6 @@ async def _on_team_invite(bot, data):
         if admin_manager.can_auto_join(bot.my_uid, uid):
             should_join = True
             break
-            
-    if not should_join:
-        try:
-            saved_members = load_saved_guild_members(bot.my_uid)
-            if inviter_uid in saved_members:
-                should_join = True
-        except Exception: pass
 
     if should_join:
         if not getattr(bot, 'is_magic_mode', False):
