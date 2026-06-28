@@ -11,8 +11,7 @@ import time
 import aiosqlite
 from bot.commands.bomber_task import trigger_all_bombs
 from utils.helpers import (
-    format_uid_for_chat, resolve_uids, get_pet_default_name,
-    add_uids_to_list, remove_uids_from_list, load_saved_uids         
+    format_uid_for_chat, resolve_uids, get_pet_default_name
 )
 
 from utils import admin_manager
@@ -162,45 +161,6 @@ async def handle_help(client, ctx, args=None):
     await asyncio.sleep(0.5)
     
     await client.send_chat_message(t(client, 'help_menu_2'), ctx)
-    
-async def handle_add_uid(client, ctx, args):
-    if len(args) < 2:
-        await client.send_chat_message(t(client, 'invalid_usage', usage="/add [uid1] [uid2]..."), ctx)
-        return
-    uids_to_add = args[1:]
-    current_list, count = await add_uids_to_list(client.my_uid, uids_to_add)
-    if count > 0:
-        await client.send_chat_message(t(client, "add_uid_success", count=count, size=len(current_list)), ctx)
-    else:
-        await client.send_chat_message(t(client, "add_uid_fail"), ctx)
-
-async def handle_remove_uid(client, ctx, args):
-    if len(args) < 2:
-        await client.send_chat_message(t(client, 'invalid_usage', usage="/rev [number] or [uid]..."), ctx)
-        return
-    args_to_remove = args[1:]
-    new_list, removed_uids = await remove_uids_from_list(client.my_uid, args_to_remove)
-    
-    if removed_uids:
-        msg_body = ""
-        for r_uid in removed_uids:
-            f_uid = await format_uid_for_chat(r_uid)
-            msg_body += f"[b][FFFFFF]   ❌ {f_uid}\n"
-        await client.send_chat_message(t(client, "remove_uid_success", msg_body=msg_body, size=len(new_list)), ctx)
-    else:
-        await client.send_chat_message(t(client, "remove_uid_fail"), ctx)
-
-async def handle_show_list(client, ctx, args):
-    uids_list = await load_saved_uids(client.my_uid)
-    if not uids_list:
-        await client.send_chat_message(t(client, "saved_list_empty"), ctx)
-        return
-    list_body = ""
-    for i, uid in enumerate(uids_list):
-        fmt_uid = await format_uid_for_chat(uid)
-        num_str = f"{i+1:02d}" 
-        list_body += f"[b][FFFF00] {num_str}.[FFFFFF]{fmt_uid}\n"
-    await client.send_chat_message(t(client, "saved_list_header", list_body=list_body), ctx)
 
 async def handle_status_check(client, ctx, args):
     target_uids = await resolve_uids(client, args[1:], ctx)
@@ -210,7 +170,6 @@ async def handle_status_check(client, ctx, args):
     await client.send_chat_message(t(client, "checking_status", count=len(target_uids)), ctx)
     from bot.packets import team_packets
 
-    # 🟢 sequential execution background task with 10s delay if multiple uids are present
     async def process_sequential_status():
         for index, uid in enumerate(target_uids):
             if index > 0:
