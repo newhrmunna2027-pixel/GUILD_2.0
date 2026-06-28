@@ -6,7 +6,8 @@ import json
 import os
 import threading
 import aiohttp
-import garena_api as bot_module
+# নতুন নিরাপদ ইম্পোর্ট
+import bot_core as bot_module
 import mongo_sync
 from app.database import get_db
 from app.decorators import login_required
