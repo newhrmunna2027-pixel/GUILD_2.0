@@ -1,0 +1,180 @@
+<!-- templates/modals/edit_bot.html -->
+<div id="editModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm">
+    <div class="cyber-glass p-6 rounded-[2rem] w-full max-w-md shadow-2xl relative" id="editModalContent">
+        <!-- Injected dynamically via JS -->
+    </div>
+</div>
+
+<script>
+    let currentOldName = "";
+
+    async function secureCopyToClipboard(text, element) {
+        if (window.event) window.event.stopPropagation();
+        if (!text || text === "N/A" || text === "0" || text === "") return;
+        
+        try {
+            await navigator.clipboard.writeText(text);
+            const originalHTML = element.innerHTML;
+            element.innerHTML = `<span class="font-mono text-emerald-400 text-xs">Copied!</span><i class="fa-solid fa-check text-emerald-400 text-xs ml-1"></i>`;
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+            }, 1500);
+        } catch (err) {
+            // Fallback for non-https/termux environment
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const originalHTML = element.innerHTML;
+            element.innerHTML = `<span class="font-mono text-emerald-400 text-xs">Copied!</span><i class="fa-solid fa-check text-emerald-400 text-xs ml-1"></i>`;
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+            }, 1500);
+        }
+    }
+
+    function openEditModal(oldName, uid, pass, currentFolder) {
+        currentOldName = oldName;
+        const shortPass = pass ? pass.substring(0, 8) + "..." : "No Password";
+        
+        let dynamicInputs = '';
+        
+        if (CURRENT_ROLE === 'owner') {
+            const folderOptions = systemUsersList.map(user => 
+                `<option value="${user}" ${user === currentFolder ? 'selected' : ''}>📁 ${user}</option>`
+            ).join('');
+
+            dynamicInputs = `
+                <form autocomplete="off" onsubmit="event.preventDefault();" class="space-y-4 mt-2">
+                    <div class="p-3 bg-[#0f121a] border border-white/5 rounded-2xl shadow-inner">
+                        <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest block mb-2">Bot Config Name (Filename)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="editFileName" value="${oldName}" placeholder="No spaces, e.g. Bot_01" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl focus:border-yellow-400 outline-none text-xs font-mono font-bold">
+                            <button onclick="submitEdit('filename')" class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 font-black rounded-xl transition text-[10px] uppercase tracking-wider shrink-0">SAVE</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-[#0f121a] border border-white/5 rounded-2xl shadow-inner">
+                        <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest block mb-2">Login Details</label>
+                        <input type="number" id="editUid" placeholder="Login UID" value="${uid}" class="w-full p-2.5 mb-2 border border-white/10 bg-[#161a24] text-white rounded-xl font-mono text-xs font-bold focus:border-yellow-400 outline-none">
+                        <div class="flex gap-2">
+                            <input type="password" id="editPass" placeholder="New Pass (Keep blank to skip)" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl text-xs font-bold focus:border-yellow-400 outline-none">
+                            <button onclick="submitEdit('credentials')" class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 font-black rounded-xl transition text-[10px] uppercase tracking-wider shrink-0">SAVE</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-[#0f121a] border border-white/5 rounded-2xl shadow-inner">
+                        <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest block mb-2">Reassign Folder</label>
+                        <div class="flex gap-2">
+                            <select id="editFolderSelect" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl focus:border-yellow-400 outline-none font-bold text-xs cursor-pointer">
+                                ${folderOptions}
+                            </select>
+                            <button onclick="submitEdit('folder')" class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 font-black rounded-xl transition text-[10px] uppercase tracking-wider shrink-0">SAVE</button>
+                        </div>
+                    </div>
+                </form>
+            `;
+        } else {
+            dynamicInputs = `
+                <div class="text-center p-5 border border-white/5 bg-[#0f121a] rounded-2xl mt-4 shadow-inner">
+                    <i class="fa-solid fa-lock text-gray-500 text-2xl mb-2"></i>
+                    <p class="text-gray-400 text-[10px] font-bold leading-relaxed">Modification restricted.<br>Only Super Owner can edit configurations.</p>
+                </div>
+            `;
+        }
+        
+        const content = `
+            <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3 relative">
+                <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest">
+                    <i class="fa-solid ${CURRENT_ROLE === 'owner' ? 'fa-pen-to-square' : 'fa-eye'} mr-2"></i>
+                    ${CURRENT_ROLE === 'owner' ? 'Edit Configuration' : 'View Configuration'}
+                </h2>
+                <button onclick="closeEditModal()" class="text-gray-500 hover:text-red-500 text-2xl absolute right-0 top-0">&times;</button>
+            </div>
+            
+            <div class="mb-4 p-3 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl shadow-inner">
+               <span class="text-yellow-400/80 text-[8px] uppercase font-black tracking-widest block mb-2">Current Garena Data (Click to Copy)</span>
+               <div class="flex justify-between items-center bg-[#1e2230] p-2.5 rounded-xl border border-white/5 mb-2 cursor-pointer hover:bg-gray-800 transition-all duration-300" onclick="secureCopyToClipboard('${uid}', this)">
+                   <span class="font-mono text-yellow-500 text-xs">ID: ${uid}</span>
+                   <i class="fa-regular fa-copy text-gray-500 text-xs"></i>
+               </div>
+               <div class="flex justify-between items-center bg-[#1e2230] p-2.5 rounded-xl border border-white/5 cursor-pointer hover:bg-gray-800 transition-all duration-300" onclick="secureCopyToClipboard('${pass}', this)">
+                   <span class="font-mono text-gray-400 text-xs">Pass: ${shortPass}</span>
+                   <i class="fa-regular fa-copy text-gray-500 text-xs"></i>
+               </div>
+            </div>
+            
+            <div class="max-h-[45vh] overflow-y-auto custom-scroll pr-1">
+                ${dynamicInputs}
+            </div>
+            <p id="eError" class="text-rose-400 text-[10px] mt-3 font-bold text-center hidden bg-rose-950/20 py-2 rounded-xl border border-rose-900/10"></p>
+        `;
+        
+        document.getElementById('editModalContent').innerHTML = content;
+        document.getElementById('editModalWrapper').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModalWrapper').classList.add('hidden');
+    }
+
+    async function submitEdit(editType) {
+        const errEl = document.getElementById('eError');
+        errEl.classList.add('hidden');
+        
+        let payload = { 
+            edit_type: editType, 
+            bot_name: currentOldName 
+        };
+
+        if (editType === 'filename') {
+            const newName = document.getElementById('editFileName').value.trim();
+            if (!newName) { 
+                errEl.innerText = "Config Name cannot be empty."; 
+                errEl.classList.remove('hidden'); 
+                return; 
+            }
+            if (!/^[a-zA-Z0-9_]+$/.test(newName)) { 
+                errEl.innerText = "Letters, numbers, and underscores only."; 
+                errEl.classList.remove('hidden'); 
+                return; 
+            }
+            payload.old_name = currentOldName;
+            payload.new_name = newName;
+            
+        } else if (editType === 'credentials') {
+            const uid = document.getElementById('editUid').value.trim();
+            const pass = document.getElementById('editPass').value;
+            if (!uid) { 
+                errEl.innerText = "UID cannot be empty."; 
+                errEl.classList.remove('hidden'); 
+                return; 
+            }
+            payload.uid = uid;
+            payload.password = pass;
+            
+        } else if (editType === 'folder') {
+            payload.folder = document.getElementById('editFolderSelect').value;
+        }
+
+        const res = await fetch(`${API_BASE}/edit_bot`, { 
+            method: "POST", 
+            headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify(payload) 
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === 'success') { 
+            closeEditModal(); 
+            fetchAndRender(); 
+            showToast("Bot updated successfully!"); 
+        } else { 
+            errEl.innerText = data.msg;
+            errEl.classList.remove('hidden');
+        }
+    }
+</script>

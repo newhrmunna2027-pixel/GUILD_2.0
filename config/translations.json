@@ -1,0 +1,250 @@
+{
+    "ui_header": {
+        "en": "[b][c][FF007F]─────────────────\n",
+        "bn": "[b][c][FF007F]─────────────────\n"
+    },
+    "ui_box_top": {
+        "en": "[b][c][C0C0C0]─────[FFFF00] OUT OF LAW[C0C0C0] ─────\n[00FFFF]═════════════════\n",
+        "bn": "[b][c][C0C0C0]─────OUT OF LAW─────\n[00FFFF]═════════════════\n"
+    },
+    "ui_box_bottom": {
+        "en": "[b][c][00FFFF]═════════════════\n",
+        "bn": "[b][c][00FFFF]═════════════════\n"
+    },
+    "ui_bullet": {
+        "en": "[b][FFFFFF]  ➔ ",
+        "bn": "[b][FFFFFF]  ➔ "
+    },
+    "ui_footer": {
+        "en": "\n[b][c][FF007F]─────────────────",
+        "bn": "\n[b][c][FF007F]─────────────────"
+    },
+    "no_permission": {
+        "en": "[FF0000]Restriction: Only Boss can use this command.",
+        "bn": "[FF0000]সতর্কতা: শুধুমাত্র বস এই কমান্ড ব্যবহার করতে পারবে।"
+    },
+    "invalid_usage": {
+        "en": "[FF0000]Usage: {usage}",
+        "bn": "[FF0000]ব্যবহারের নিয়ম: {usage}"
+    },
+    "sys_error": {
+        "en": "[FF0000]System Error: {error}",
+        "bn": "[FF0000]সিস্টেম এরর: {error}"
+    },
+    "lang_en": {
+        "en": "[00FF00]Language changed to: ENGLISH.",
+        "bn": "[00FF00]ভাষা পরিবর্তন করে ENGLISH করা হয়েছে।"
+    },
+    "lang_bn": {
+        "en": "[00FF00]Language changed to: BENGALI.",
+        "bn": "[00FF00]ভাষা পরিবর্তন করে বাংলা করা হয়েছে।"
+    },
+    "solo_already": {
+        "en": "[FFFF00]Bot is already solo.",
+        "bn": "[FFFF00]বট আগে থেকেই সোলো আছে।"
+    },
+    "solo_done": {
+        "en": "[FFFF00]Bot is now Solo.",
+        "bn": "[FFFF00]বট এখন সোলো হয়ে গেছে।"
+    },
+    "team_create": {
+        "en": "[00FF00]Created {size}-Member Team. Inviting commander...",
+        "bn": "[00FF00]{size}-জনের টিম তৈরি হয়েছে। বসকে ইনভাইট দেওয়া হচ্ছে..."
+    },
+    "join_req": {
+        "en": "[00FF00]Request Sent for Team: {code}",
+        "bn": "[00FF00]টিমে জয়েন রিকোয়েস্ট পাঠানো হয়েছে: {code}"
+    },
+    "joining": {
+        "en": "[FFFF00]Joining team...",
+        "bn": "[FFFF00]টিমে জয়েন হচ্ছে..."
+    },
+    "leave_join": {
+        "en": "[FFFF00]Leaving current team before joining...",
+        "bn": "[FFFF00]নতুন টিমে জয়েন করার জন্য আগের টিম থেকে বের হচ্ছি..."
+    },
+    "spam_limit_reached": {
+        "en": "[FF0000]Limit is max, try after some time later.",
+        "bn": "[FF0000]লিমিট ফুল হয়ে গেছে, কিছুক্ষণ পর আবার চেষ্টা করুন।"
+    },
+    "law_start": {
+        "en": "[b][c][FF0000]╭━[FFFFFF]OUT_OF_LAW[FF0000]━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][00FFFF]  MOST POWERFUL SPAM\n[b][c][FFFFFF]        ON FIRE\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][FFFF00] TARGET UID: {uid}\n[b][c][00FF00]    SPAM ACTIVATED\n[b][c][FF0000]╰━━━━━━━━━━━╯",
+        "bn": "[b][c][FF0000]╭━[FFFFFF]OUT_OF_LAW[FF0000]━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][00FFFF]  সবচেয়ে শক্তিশালী স্প্যাম\n[b][c][FFFFFF]        চালু হয়েছে\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][FFFF00] টার্গেট UID: {uid}\n[b][c][00FF00]      স্প্যাম শুরু হয়েছে\n[b][c][FF0000]╰━━━━━━━━━━━╯"
+    },
+    "law_complete": {
+        "en": "[b][c][FF0000]╭━[FFFFFF]OUT_OF_LAW[FF0000]━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][FFFF00] TARGET UID: {uid}\n[b][c][00FF00]   SPAM COMPLETED\n[b][c][FF0000]╰━━━━━━━━━━━╯",
+        "bn": "[b][c][FF0000]╭━[FFFFFF]OUT_OF_LAW[FF0000]━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][c][FFFF00] টার্গেট UID: {uid}\n[b][c][00FF00]    স্প্যাম শেষ হয়েছে\n[b][c][FF0000]╰━━━━━━━━━━━╯"
+    },
+    "spam_stop": {
+        "en": "[FFFF00]Spam task stopped.",
+        "bn": "[FFFF00]স্প্যাম টাস্ক বন্ধ করা হয়েছে।"
+    },
+    "spam_no": {
+        "en": "[FF0000]No spam task is running.",
+        "bn": "[FF0000]কোনো স্প্যাম টাস্ক চলছে না।"
+    },
+    "gali_start": {
+        "en": "[FFFF00]Starting Gali Spam for {name}...",
+        "bn": "[FFFF00]{name}-এর জন্য গালি স্প্যাম শুরু হচ্ছে..."
+    },
+    "gali_finish": {
+        "en": "[00FF00]Gali Spam Finished.",
+        "bn": "[00FF00]গালি স্প্যাম শেষ হয়েছে।"
+    },
+    "love_start": {
+        "en": "[FF1493]Sending love to {name}...",
+        "bn": "[FF1493]{name}-কে লাভ মেসেজ দেওয়া শুরু হচ্ছে..."
+    },
+    "love_finish": {
+        "en": "[00FF00]Love Spam Finished.",
+        "bn": "[00FF00]লাভ স্প্যাম শেষ হয়েছে।"
+    },
+    "flat_done": {
+        "en": "[00FF00]Flirt Message Sent to {name}.",
+        "bn": "[00FF00]{name}-কে ফ্লার্ট মেসেজ পাঠানো হয়েছে।"
+    },
+    "fetch_error": {
+        "en": "[FF0000]Failed to fetch Name for UID.",
+        "bn": "[FF0000]UID থেকে নাম বের করা সম্ভব হয়নি।"
+    },
+    "greeting_msg": {
+        "en": "{ui_header}{ui_box_top}\n [b][c][C0C0C0]╭━ [FFFF00]{greeting}\n [C0C0C0]╰━━ [FFFF99]{name}\n\n[b][c][FFFFFF]    [FFFFFF] I AM ACTIVE NOW!\n\n [b][c][C0C0C0]╭━ [FFFF00]Replay with: \n [C0C0C0]╰━━ [00FF00]/help{ui_footer}",
+        "bn": "{ui_header}[b][c][00FF00]   {greeting}, {name}\n{ui_box_top}[b][c][FFFFFF]       আমি এখন সক্রিয় আছি!\n{ui_box_bottom}[b][c][FFFF00]      টাইপ করুন: [00FF00]/help{ui_footer}"
+    },
+    "help_menu_1": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF] Choose a Category (1-15)\n{ui_box_bottom}[b][FFFF00]  1. [FFFFFF]Lobby Control\n[b][FFFF00]  2. [FFFFFF]Lobby Bypass / Ghost\n[b][FFFF00]  3. [FFFFFF]Spam & Fun\n[b][FFFF00]  4. [FFFFFF]Emote Control\n[b][FFFF00]  5. [FFFFFF]Emote Moods\n[b][FFFF00]  6. [FFFFFF]Lobby Look Changer\n[b][FFFF00]  7. [FFFFFF]Admin & List Manager\n[b][FFFF00]  8. [FFFFFF]Server Utility Tools\n[b][FFFF00]  9. [FFFFFF]Visual Modifiers\n[b][FFFF00] 10. [FFFFFF]Matchmaking Mods\n[b][c][00FF00]Send Number (e.g. 1) to open!\n[b][c][00FF00]{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF] একটি তালিকা সিলেক্ট করুন (১-১০)\n{ui_box_bottom}[b][FFFF00]  ১. [FFFFFF]লবি কন্ট্রোল\n[b][FFFF00]  ২. [FFFFFF]লবি বাইপাস / গোস্ট\n[b][FFFF00]  ৩. [FFFFFF]স্প্যাম এবং ফান কমান্ড\n[b][FFFF00]  ৪. [FFFFFF]ইমোট কন্ট্রোল\n[b][FFFF00]  ৫. [FFFFFF]ইমোট মুডসমূহ\n[b][FFFF00]  ৬. [FFFFFF]লুক এবং ডিলে কনফিগ\n[b][FFFF00]  ৭. [FFFFFF]লিস্ট এবং অ্যাডমিন মডিউল\n[b][FFFF00]  ৮. [FFFFFF]সার্ভার ইউটিলিটি টুলস\n[b][FFFF00]  ৯. [FFFFFF]ভিজুয়াল মডিফায়ার\n[b][FFFF00]  ১০. [FFFFFF]ভিজুয়াল মডিফায়ার\n[b][c][00FF00]খুলতে যেকোনো একটি সংখ্যা পাঠান!\n[b][c][00FF00]{ui_footer}"
+    },
+    "help_menu_2": {
+        "en": "[b][c][400C4C]✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿\n\n\n[b][c][C0C0C0]     █▀█  █       █ ▀█▀   █▀█   █▀▀    █        █▀█    █    █   █   \n[b][c][C0C0C0]     █▄█  ▀▄▄▀     █      █▄█   █▀        █▄▄ █▀█    ▀▄▀▄▀   \n\n\n[b][c][FF0000]☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯",
+        "bn": "[b][c][400C4C]✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿✿\n\n\n[b][c][C0C0C0]     █▀█  █       █ ▀█▀   █▀█   █▀▀    █        █▀█    █    █   █   \n[b][c][C0C0C0]      █▄█  ▀▄▄▀      █     █▄█   █▀       █▄▄ █▀█    ▀▄▀▄▀   \n\n\n[b][c][FF0000]☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯☯"
+    },
+    "add_uid_success": {
+        "en": "[00FF00]Added {count} UID(s). List size: {size}/10",
+        "bn": "[00FF00]সফলভাবে {count}টি UID যুক্ত করা হয়েছে। তালিকার সাইজ: {size}/১০"
+    },
+    "add_uid_fail": {
+        "en": "[FFFF00]No new valid UIDs added (Duplicate/Invalid).",
+        "bn": "[FFFF00]কোনো নতুন বৈধ ইউআইডি যুক্ত করা যায়নি (ডুপ্লিকেট বা অবৈধ)।"
+    },
+    "remove_uid_success": {
+        "en": "[00FF00]Successfully Removed:\n{msg_body}[FFFF00]Remaining List: {size}/10",
+        "bn": "[00FF00]সফলভাবে রিমুভ করা হয়েছে:\n{msg_body}[FFFF00]অবशिष्ट তালিকা: {size}/১০"
+    },
+    "remove_uid_fail": {
+        "en": "[FF0000]Nothing removed. Check index (1-10) or UID.",
+        "bn": "[FF0000]কোনো আইডি রিমুভ করা যায়নি। ইনডেক্স নম্বর (১-১০) অথবা ইউআইডি চেক করুন।"
+    },
+    "saved_list_empty": {
+        "en": "[FFFF00]Saved list is empty.",
+        "bn": "[FFFF00]সংরক্ষিত ইউআইডি তালিকাটি সম্পূর্ণ খালি।"
+    },
+    "saved_list_header": {
+        "en": "{ui_header}{list_body}{ui_footer}",
+        "bn": "{ui_header}{list_body}{ui_footer}"
+    },
+    "checking_status": {
+        "en": "[FFFF00]Checking {count} players...",
+        "bn": "[FFFF00]{count} জন প্লেয়ারের লাইভ স্ট্যাটাস চেক করা হচ্ছে..."
+    },
+    "fetching_info": {
+        "en": "[FFFF00]Fetching info for {count} player(s)...",
+        "bn": "[FFFF00]{count} জন প্লেয়ারের গেম প্রোফাইল লোড করা হচ্ছে..."
+    },
+    "fetch_info_fail": {
+        "en": "[FF0000]Failed to fetch info for UID: {uid}",
+        "bn": "[FF0000]প্রোফাইল লোড করা সম্ভব হয়নি, ইউআইডি: {uid}"
+    },
+    "info_basic_template": {
+        "en": "[b][c][FF0000]╭━━[FFFFFF]  BASIC_INFO[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ Name\n[b][FFFFFF]   ╰━━[FFD700]{name}\n[b][FFFF00]   ╭ UID\n[b][FFFFFF]   ╰━━[FFD700]{uid}\n[b][FFFF00]   ╭ Level\n[b][FFFFFF]   ╰━━[FFD700]{level}\n[b][FFFF00]   ╭ Exp\n[b][FFFFFF]   ╰━━[FFD700]{exp}\n[b][FFFF00]   ╭ Likes\n[b][FFFFFF]   ╰━━[FFD700]{likes}{ui_footer}",
+        "bn": "[b][c][FF0000]╭━━[FFFFFF]  বেসিক প্রোফাইল[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ নাম\n[b][FFFFFF]   ╰━━[FFD700]{name}\n[b][FFFF00]   ╭ ইউআইডি\n[b][FFFFFF]   ╰━━[FFD700]{uid}\n[b][FFFF00]   ╭ লেভেল\n[b][FFFFFF]   ╰━━[FFD700]{level}\n[b][FFFF00]   ╭ এক্সপি\n[b][FFFFFF]   ╰━━[FFD700]{exp}\n[b][FFFF00]   ╭ লাইক\n[b][FFFFFF]   ╰━━[FFD700]{likes}{ui_footer}"
+    },
+    "info_data_template": {
+        "en": "[b][c][FF0000]╭━━[FFFFFF]  DATA_INFO[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ Honor\n[b][FFFFFF]   ╰━━[FFD700]{honor}\n[b][FFFF00]   ╭ Pet Name\n[b][FFFFFF]   ╰━━[FFD700]{pet_name}\n[b][FFFF00]   ╭ Last Login\n[b][FFFFFF]   ╰━━[FFD700]{login}\n[b][FFFF00]   ╭ Created At\n[b][FFFFFF]   ╰━━[FFD700]{create}\n{bio_display}{ui_footer}",
+        "bn": "[b][c][FF0000]╭━━[FFFFFF]  ডাটা প্রোফাইল[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ অনার পয়েন্ট\n[b][FFFFFF]   ╰━━[FFD700]{honor}\n[b][FFFF00]   ╭ পেটের নাম\n[b][FFFFFF]   ╰━━[FFD700]{pet_name}\n[b][FFFF00]   ╭ শেষ লগইন\n[b][FFFFFF]   ╰━━[FFD700]{login}\n[b][FFFF00]   ╭ আইডি খোলার তারিখ\n[b][FFFFFF]   ╰━━[FFD700]{create}\n{bio_display}{ui_footer}"
+    },
+    "info_guild_template": {
+        "en": "[b][c][FF0000]╭━━[FFFFFF]  GUILD_INFO[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ Guild Name\n[b][FFFFFF]   ╰━━ [FFD700]{guild_name}\n[b][FFFF00]   ╭ Leader Name\n[b][FFFFFF]   ╰━━[FFD700]{leader_name}\n[b][FFFF00]   ╭ Leader UID\n[b][FFFFFF]   ╰━━[FFD700]{leader_uid}\n[b][FFFF00]   ╭ Guild Size\n[b][FFFFFF]   ╰━━[FFD700]{size}{ui_footer}",
+        "bn": "[b][c][FF0000]╭━━[FFFFFF]  গিল্ড প্রোফাইল[FF0000]━━╮\n[b][c][FF0000]┣━━━━━━━━━━━┫\n[b][FFFF00]   ╭ গিল্ডের নাম\n[b][FFFFFF]   ╰━━ [FFD700]{guild_name}\n[b][FFFF00]   ╭ গিল্ড লিডার\n[b][FFFFFF]   ╰━━[FFD700]{leader_name}\n[b][FFFF00]   ╭ লিডার ইউআইডি\n[b][FFFFFF]   ╰━━[FFD700]{leader_uid}\n[b][FFFF00]   ╭ গিল্ড সাইজ\n[b][FFFFFF]   ╰━━[FFD700]{size}{ui_footer}"
+    },
+    "processing_like": {
+        "en": "[FFFF00]Processing Like for UID: {uid}[{region}]...",
+        "bn": "[FFFF00]{uid}[{region}] আইডিতে লাইক বুস্টার ফায়ার করা হচ্ছে..."
+    },
+    "like_success_template": {
+        "en": "{ui_header}[b][c][00FF00]LIKE SUCCESSFUL\n{ui_box_top}[b][FFFFFF]Name: [FFD700]{name}\n[b][FFFFFF]UID:[FFD700]{uid}\n[b][FFFFFF]Past Likes:[FFD700]{past}\n[b][FFFFFF]Likes Added:[00FF00]+{added}\n[b][FFFFFF]Total Likes:[FFD700]{total}\n{ui_box_bottom}{ui_footer}",
+        "bn": "{ui_header}[b][c][00FF00]লাইক বুস্ট সফল হয়েছে\n{ui_box_top}[b][FFFFFF]নাম: [FFD700]{name}\n[b][FFFFFF]ইউআইডি:[FFD700]{uid}\n[b][FFFFFF]আগের লাইক:[FFD700]{past}\n[b][FFFFFF]লাইক পাঠানো হয়েছে:[00FF00]+{added}\n[b][FFFFFF]মোট লাইক সংখ্যা:[FFD700]{total}\n{ui_box_bottom}{ui_footer}"
+    },
+    "admin_add_success": {
+        "en": "[00FF00]Added {added} Admin(s).",
+        "bn": "[00FF00]সফলভাবে {added} জন অ্যাডমিন যুক্ত করা হয়েছে।"
+    },
+    "admin_rev_success": {
+        "en": "[FFFF00]Removed {removed} Admin(s).",
+        "bn": "[FFFF00]সফলভাবে {removed} জন অ্যাডমিন নিষ্ক্রিয় করা হয়েছে।"
+    },
+    "admin_list_empty": {
+        "en": "[FFFF00]Admin list is empty.",
+        "bn": "[FFFF00]বটের অ্যাডমিন তালিকাটি সম্পূর্ণ খালি।"
+    },
+    "admin_list_header": {
+        "en": "[b][c][00FF00]BOT ADMINS\n{list_body}",
+        "bn": "[b][c][00FF00]বট অ্যাডমিন তালিকা\n{list_body}"
+    },
+    "boom_invalid_num": {
+        "en": "[FF0000]Invalid number! Must be 11 digits.",
+        "bn": "[FF0000]অবৈধ মোবাইল নম্বর! অবশ্যই ১১ সংখ্যার হতে হবে।"
+    },
+    "boom_attempts_complete": {
+        "en": "[FF0000]Attempts for this number are complete. Try after {time_str}",
+        "bn": "[FF0000]এই নম্বরের জন্য আজকের লিমিট শেষ। অনুগ্রহ করে {time_str} পর চেষ্টা করুন।"
+    },
+    "boom_start": {
+        "en": "[00FF00]start 7 boom for [FFFFFF]{phone}",
+        "bn": "[00FF00]{phone} নম্বরে একযোগে ৭টি এপিআই বম্বিং শুরু হয়েছে..."
+    },
+    "boom_complete": {
+        "en": "[FFFF00]complete 7 boom for [FFFFFF]{phone}",
+        "bn": "[FFFF00]{phone} নম্বরে একযোগে ৭টি এপিআই বম্বিং শেষ হয়েছে।"
+    },
+    "help_cat_1": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]   1. LOBBY CONTROL\n{ui_box_bottom}{ui_bullet}[00FF00]/5 [FFFFFF]: Create 5-member Squad\n{ui_bullet}[00FF00]/6 [FFFFFF]: Create 6-member Squad\n{ui_bullet}[00FF00]/j [code] [FFFFFF]: Join Team by Code\n{ui_bullet}[00FF00]/s [FFFFFF]: Solo Bot / Graceful Exit\n{ui_bullet}[00FF00]/inv [uid] [FFFFFF]: Invite Player to lobby{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]    ১. লবি কন্ট্রোল\n{ui_box_bottom}{ui_bullet}[00FF00]/5 [FFFFFF]: ৫-মেম্বার স্কোয়াড তৈরি করুন\n{ui_bullet}[00FF00]/6 [FFFFFF]: ৬-মেম্বার স্কোয়াড তৈরি করুন\n{ui_bullet}[00FF00]/j [কোড] [FFFFFF]: কোড দিয়ে টিমে জয়েন করুন\n{ui_bullet}[00FF00]/s [FFFFFF]: সোলো মোড / লবি থেকে বের হোন\n{ui_bullet}[00FF00]/inv [আইডি] [FFFFFF]: প্লেয়ারকে লবিতে ইনভাইট করুন{ui_footer}"
+    },
+    "help_cat_2": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF] 2. BYPASS & GHOST CLIENT\n{ui_box_bottom}{ui_bullet}[00FF00]/magic [code] [FFFFFF]: Active Ghost Join\n{ui_bullet}[00FF00]/ghost [FFFFFF]: Fire Bypass Ghost Packet\n{ui_bullet}[00FF00]/lock [FFFFFF]: Lock Bot inside lobby\n{ui_bullet}[00FF00]/unlock [FFFFFF]: Unlock Bot Lobby\n{ui_bullet}[00FF00]/lag [FFFFFF]: Flood Lag Packets to lobby{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]  ২. লবি বাইপাস / গোস্ট\n{ui_box_bottom}{ui_bullet}[00FF00]/magic [কোড] [FFFFFF]: গোস্ট চ্যাট সক্রিয় করুন\n{ui_bullet}[00FF00]/ghost [FFFFFF]: বাইপাস গোস্ট প্যাকেট পাঠান\n{ui_bullet}[00FF00]/lock [FFFFFF]: লবিতে বোতের মুভমেন্ট লক করুন\n{ui_bullet}[00FF00]/unlock [FFFFFF]: বোতের মুভমেন্ট আনলক করুন\n{ui_bullet}[00FF00]/lag [FFFFFF]: টিম লবি ক্রাশ ল্যাগ ফায়ার করুন{ui_footer}"
+    },
+    "help_cat_3": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]    3. SPAM & ATTACK\n{ui_box_bottom}{ui_bullet}[00FF00]/law [uid] [FFFFFF]: Spam Target with Invites\n{ui_bullet}[00FF00]/stop [FFFFFF]: Stop current spam loop\n{ui_bullet}[00FF00]/gali [name] [FFFFFF]: Auto Spam fun abuses\n{ui_bullet}[00FF00]/mg [name] [FFFFFF]: Command Abuse Menu\n{ui_bullet}[00FF00]/love [name] [FFFFFF]: Auto love messages spam\n{ui_bullet}[00FF00]/flirt [name] [FFFFFF]: Command Love Menu\n{ui_bullet}[00FF00]/jj [text] [FFFFFF]: Ultra Color Spam loops{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]   ৩. স্প্যাম এবং অ্যাটাক\n{ui_box_bottom}{ui_bullet}[00FF00]/law [আইডি] [FFFFFF]: ইনভাইট স্প্যাম লুপ\n{ui_bullet}[00FF00]/stop [FFFFFF]: সব স্প্যাম কার্যক্রম বন্ধ করুন\n{ui_bullet}[00FF00]/gali [নাম] [FFFFFF]: অটোমেটিক ফানি মেসেজ স্প্যাম\n{ui_bullet}[00FF00]/mg [নাম] [FFFFFF]: ট্রিগার অ্যাটাক রিপ্লাই বক্স\n{ui_bullet}[00FF00]/love [নাম] [FFFFFF]: অটোমেটিক লাভ মেসেজ স্প্যাম\n{ui_bullet}[00FF00]/flirt [নাম] [FFFFFF]: ট্রিগার কলিজা লাভ বক্স\n{ui_bullet}[00FF00]/jj [লেখা] [FFFFFF]: আলট্রা কালার স্প্যাম লুপ{ui_footer}"
+    },
+    "help_cat_4": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]    4. EMOTE CONTROL\n{ui_box_bottom}{ui_bullet}[00FF00]/e [FFFFFF]: Play Emote Reference\n{ui_bullet}[00FF00]/a [uids] [emotes] [FFFFFF]: Play Emote\n{ui_bullet}[00FF00]/b [uids] [emotes] [tm] [FFFFFF]: Stealth Emote\n{ui_bullet}[00FF00]/v [uids] [FFFFFF]: Start Evo Showcases\n{ui_bullet}[00FF00]/st [FFFFFF]: Stop all showcase tasks{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]     ৪. ইমোট কন্ট্রোল\n{ui_box_bottom}{ui_bullet}[00FF00]/e [FFFFFF]: ইমোট বুক ডিরেক্টরি\n{ui_bullet}[00FF00]/a [আইডি] [ইমোট] [FFFFFF]: লবিতে ইমোট প্লে করুন\n{ui_bullet}[00FF00]/b [আইডি] [ইমোট] [কোড] [FFFFFF]: স্টিলথ ইমোট\n{ui_bullet}[00FF00]/v [আইডি] [FFFFFF]: ইভো শোকেস লুপ ফায়ার করুন\n{ui_bullet}[00FF00]/st [FFFFFF]: চলমান শোকেস টাস্ক বন্ধ করুন{ui_footer}"
+    },
+    "help_cat_5": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]     5. EMOTE MOODS\n{ui_box_bottom}{ui_bullet}[00FF00]/ea [FFFFFF]: Set Emote Mood to ALL\n{ui_bullet}[00FF00]/es [FFFFFF]: Set Emote Mood to SENDER\n{ui_bullet}[00FF00]/el [del] [att] [FFFFFF]: Mood: Sender Loop\n{ui_bullet}[00FF00]/ef [del] [att] [FFFFFF]: Mood: All Loop\n{ui_bullet}[00FF00]/end [FFFFFF]: Terminate all active moods{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]      ৫. ইমোট মুডসমূহ\n{ui_box_bottom}{ui_bullet}[00FF00]/ea [FFFFFF]: ইমোট মুড ALL সক্রিয় করুন\n{ui_bullet}[00FF00]/es [FFFFFF]: ইমোট মুড SENDER সক্রিয় করুন\n{ui_bullet}[00FF00]/el [ডিলে] [বার] [FFFFFF]: সেন্ডার ইমোট লুপ মুড\n{ui_bullet}[00FF00]/ef [ডিলে] [বার] [FFFFFF]: গ্লোবাল মেম্বার ইমোট লুপ মুড\n{ui_bullet}[00FF00]/end [FFFFFF]: সক্রিয় ইমোট মুডসমূহ নিষ্ক্রিয় করুন{ui_footer}"
+    },
+    "help_cat_6": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF] 6. LOOKS & DYNAMIC DELAYS\n{ui_box_bottom}{ui_bullet}[00FF00]/look [id/name] [FFFFFF]: Equip Bundle\n{ui_bullet}[00FF00]/ani [id/name] [FFFFFF]: Play Entrance Only\n{ui_bullet}[00FF00]/look_on [FFFFFF]: Auto Look: [ON]\n{ui_bullet}[00FF00]/look_off [FFFFFF]: Auto Look: [OFF]\n{ui_bullet}[C0C0C0]Live Delay: config/bundle_delays.json{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]    ৬. লুক এবং ডিলে কনফিগ\n{ui_box_bottom}{ui_bullet}[00FF00]/look [আইডি/নাম] [FFFFFF]: লবিতে বান্ডিল ইকুইপ করুন\n{ui_bullet}[00FF00]/ani [আইডি/নাম] [FFFFFF]: শুধু এন্ট্রান্স এনিমেশন প্লে করুন\n{ui_bullet}[00FF00]/look_on [FFFFFF]: অটো লুক চেঞ্জার সক্রিয় করুন\n{ui_bullet}[00FF00]/look_off [FFFFFF]: অটো লুক চেঞ্জার নিষ্ক্রিয় করুন\n{ui_bullet}[C0C0C0]লাইভ ডিলে ফাইল: config/bundle_delays.json{ui_footer}"
+    },
+    "help_cat_7": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]  7. LISTS & PERMISSIONS\n{ui_box_bottom}{ui_bullet}[00FF00]/add [uids] [FFFFFF]: Add UIDs to target list\n{ui_bullet}[00FF00]/rev [uids/no] [FFFFFF]: Remove from list\n{ui_bullet}[00FF00]/list [FFFFFF]: Display saved targets list\n{ui_bullet}[00FF00]/admin_add [uids] [FFFFFF]: Grant Bot Access\n{ui_bullet}[00FF00]/admin_rev [uids] [FFFFFF]: Revoke Access\n{ui_bullet}[00FF00]/admin_list [FFFFFF]: Show Bot Admins{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]  ৭. লিস্ট এবং অ্যাডমিন মডিউল\n{ui_box_bottom}{ui_bullet}[00FF00]/add [আইডি] [FFFFFF]: টার্গেট তালিকায় ইউআইডি যুক্ত করুন\n{ui_bullet}[00FF00]/rev [আইডি/নম্বর] [FFFFFF]: তালিকা থেকে ইউআইডি রিমুভ করুন\n{ui_bullet}[00FF00]/list [FFFFFF]: বোতের সংরক্ষিত ইউআইডি তালিকা দেখুন\n{ui_bullet}[00FF00]/admin_add [আইডি] [FFFFFF]: কমান্ড দেওয়ার এক্সেস দিন\n{ui_bullet}[00FF00]/admin_rev [আইডি] [FFFFFF]: কমান্ড দেওয়ার এক্সেস বাতিল করুন\n{ui_bullet}[00FF00]/admin_list [FFFFFF]: বোতের অ্যাডমিন তালিকা দেখুন{ui_footer}"
+    },
+    "help_cat_8": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]   8. UTILITIES & LANG\n{ui_box_bottom}{ui_bullet}[00FF00]/status [uid] [FFFFFF]: Check Player Status\n{ui_bullet}[00FF00]/info [uid] [FFFFFF]: Fetch Player Info Card\n{ui_bullet}[00FF00]/like [rg] [uid] [FFFFFF]: Fire Like Booster\n{ui_bullet}[00FF00]/boom [phone] [FFFFFF]: OTP Flooder (7 API)\n{ui_bullet}[00FF00]/en [FFFFFF]: Change Language to English\n{ui_bullet}[00FF00]/bn [FFFFFF]: ভাষা পরিবর্তন করে বাংলা করুন{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]     ৮. সার্ভার ইউটিলিটি টুলস\n{ui_box_bottom}{ui_bullet}[00FF00]/status [আইডি] [FFFFFF]: প্লেয়ারের গেম স্ট্যাটাস দেখুন\n{ui_bullet}[00FF00]/info [আইডি] [FFFFFF]: বিস্তারিত প্লেয়ার কার্ড লোড করুন\n{ui_bullet}[00FF00]/like [সার্ভার] [আইডি] [FFFFFF]: লাইক বুস্টার সাবমিট করুন\n{ui_bullet}[00FF00]/boom [মোবাইল] [FFFFFF]: ওটিপি বম্বিং লুপ রান করুন\n{ui_bullet}[00FF00]/en [FFFFFF]: বোতের ভাষা ইংরেজি করুন\n{ui_bullet}[00FF00]/bn [FFFFFF]: ভাষা পরিবর্তন করে বাংলা করুন{ui_footer}"
+    },
+    "help_cat_9": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]   9. VISUAL MODIFIERS\n{ui_box_bottom}{ui_bullet}[00FF00]/fake_rank [FFFFFF]: Equip Visual Heroic/Grandmaster\n{ui_bullet}[00FF00]/fake_level [lvl] [FFFFFF]: Set visual Level display\n{ui_bullet}[00FF00]/glitch_skin [FFFFFF]: Equip visually locked weapon skins\n{ui_bullet}[00FF00]/badge_mod [num] [FFFFFF]: Set customized badge count{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]    ৯. ভিজুয়াল মডিফায়ার\n{ui_box_bottom}{ui_bullet}[00FF00]/fake_rank [FFFFFF]: ফেক হিরোইক/গ্র্যান্ডমাস্টার সেট করুন\n{ui_bullet}[00FF00]/fake_level [লেভেল] [FFFFFF]: লবিতে ফেক লেভেল দেখান\n{ui_bullet}[00FF00]/glitch_skin [FFFFFF]: ফেক লেজেন্ডারি গান স্কিন ইকুইপ\n{ui_bullet}[00FF00]/badge_mod [সংখ্যা] [FFFFFF]: ফেক ইভেন্ট ব্যাজ সংখ্যা সেট{ui_footer}"
+    },
+    "help_cat_10": {
+        "en": "{ui_header}{ui_box_top}[b][c][FFFFFF]   10. MATCHMAKING MODS\n{ui_box_bottom}{ui_bullet}[00FF00]/auto_ready [FFFFFF]: Active automatic ready toggle\n{ui_bullet}[00FF00]/auto_start [FFFFFF]: Instant start matchmaking on fill\n{ui_bullet}[00FF00]/match_cancel [FFFFFF]: Cancel active matchmaking instantly\n{ui_bullet}[00FF00]/squad_fill [FFFFFF]: Fill empty lobby slots{ui_footer}",
+        "bn": "{ui_header}{ui_box_top}[b][c][FFFFFF]    ১০. ম্যাচমেকিং মোডসমূহ\n{ui_box_bottom}{ui_bullet}[00FF00]/auto_ready [FFFFFF]: অটো রেডি টগল সক্রিয় করুন\n{ui_bullet}[00FF00]/auto_start [FFFFFF]: ফুল টিম হওয়ার সাথে সাথে ম্যাচ স্টার্ট\n{ui_bullet}[00FF00]/match_cancel [FFFFFF]: রানিং ম্যাচমেকিং ক্যানসেল করুন\n{ui_bullet}[00FF00]/squad_fill [FFFFFF]: লবির ফাকা স্লট পূরণ করুন{ui_footer}"
+    }
+}

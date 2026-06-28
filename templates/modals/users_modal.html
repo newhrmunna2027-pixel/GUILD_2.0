@@ -1,0 +1,239 @@
+<!-- templates/modals/users_modal.html -->
+<div id="usersModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm" onclick="closeUsersModal(event)">
+    <div class="cyber-glass rounded-[2rem] w-full max-w-2xl shadow-2xl flex flex-col h-auto max-h-[85vh]" onclick="event.stopPropagation()">
+        
+        <!-- Header -->
+        <div class="bg-[#0f121a] p-5 border-b border-white/5 flex justify-between items-center rounded-t-[2rem]">
+            <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest flex items-center">
+                <i class="fa-solid fa-users text-purple-500 mr-3"></i> 
+                User Registry Management
+            </h2>
+            <div class="flex items-center gap-3">
+                <button onclick="openAddUserForm()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition border border-purple-800 shadow-md">
+                    <i class="fa-solid fa-user-plus mr-1"></i> New User
+                </button>
+                <button onclick="closeUsersModal(null, true)" class="text-gray-500 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="p-5 flex-1 overflow-y-auto custom-scroll relative">
+            
+            <!-- Add/Edit Form -->
+            <div id="userFormArea" class="hidden bg-[#0f121a] p-4 border border-white/5 rounded-2xl mb-5 shadow-inner">
+                <h3 id="userFormTitle" class="text-white font-black font-orbitron mb-3 border-b border-white/5 pb-2 text-xs uppercase tracking-wider">
+                    <i class="fa-solid fa-pen text-blue-500 mr-2"></i>Add User
+                </h3>
+                
+                <input type="hidden" id="userOldName">
+                <input type="hidden" id="userFormAction" value="add">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-bold">
+                    <div>
+                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Username</label>
+                        <input type="text" id="userFormName" placeholder="Unique Username" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl focus:border-yellow-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Password</label>
+                        <input type="text" id="userFormPass" placeholder="Password" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl focus:border-yellow-400 outline-none text-xs">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">Role</label>
+                        <select id="userFormRole" class="w-full p-2.5 border border-white/10 bg-[#161a24] text-white rounded-xl focus:border-yellow-400 outline-none cursor-pointer">
+                            <option value="admin">Admin</option>
+                            <option value="owner">Owner</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="closeUserForm()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition">Cancel</button>
+                    <button onclick="submitUserForm()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-lg">Save User</button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div id="usersTableArea" class="w-full overflow-x-auto rounded-2xl border border-white/5">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-[#0f121a] text-gray-400 text-[9px] uppercase tracking-widest border-b border-white/5 font-black">
+                            <th class="p-4">Username</th>
+                            <th class="p-4">Unique ID</th>
+                            <th class="p-4">Role</th>
+                            <th class="p-4 text-center">Bots Active</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="bg-[#161a24]">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    function openUsersModal() {
+        if(CURRENT_ROLE !== 'owner') return;
+        document.getElementById('usersModalWrapper').classList.remove('hidden');
+        closeUserForm();
+        loadUsersList();
+    }
+
+    function closeUsersModal(e, force=false) {
+        if(force || e.target.id === 'usersModalWrapper') {
+            document.getElementById('usersModalWrapper').classList.add('hidden');
+        }
+    }
+
+    function openAddUserForm() {
+        document.getElementById('userFormArea').classList.remove('hidden');
+        document.getElementById('userFormTitle').innerHTML = '<i class="fa-solid fa-user-plus text-emerald-400 mr-2"></i>Add New User';
+        document.getElementById('userFormAction').value = 'add';
+        
+        document.getElementById('userOldName').value = '';
+        document.getElementById('userFormName').value = '';
+        document.getElementById('userFormPass').value = '';
+        document.getElementById('userFormRole').value = 'admin';
+    }
+
+    function openEditUserForm(username, password, role) {
+        document.getElementById('userFormArea').classList.remove('hidden');
+        document.getElementById('userFormTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500 mr-2"></i>Edit User: ' + username;
+        document.getElementById('userFormAction').value = 'edit';
+        
+        document.getElementById('userOldName').value = username;
+        document.getElementById('userFormName').value = username;
+        document.getElementById('userFormName').readOnly = true;
+        document.getElementById('userFormPass').value = password;
+        document.getElementById('userFormRole').value = role;
+    }
+
+    function closeUserForm() {
+        document.getElementById('userFormArea').classList.add('hidden');
+    }
+
+    async function loadUsersList() {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-8 text-center text-gray-500 font-bold text-xs">
+                    <div class="loader mx-auto mb-2"></div>Loading Users...
+                </td>
+            </tr>
+        `;
+        
+        try {
+            const res = await fetch(`${API_BASE}/users`);
+            const data = await res.json();
+            
+            if(data.status === 'success') {
+                renderUsersTable(data.users);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">${data.msg}</td></tr>`;
+            }
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Network Error!</td></tr>`;
+        }
+    }
+
+    function renderUsersTable(users) {
+        const tbody = document.getElementById('usersTableBody');
+        let html = '';
+        
+        users.forEach(u => {
+            const isMe = (u.username === CURRENT_USER);
+            const roleColor = u.role === 'owner' ? 'text-yellow-500 bg-yellow-900/20 border-yellow-700' : 'text-blue-400 bg-blue-900/20 border-blue-700';
+            
+            html += `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
+                    <td class="p-4">
+                        <div class="font-bold text-white text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-circle-user text-gray-500 text-base"></i>
+                            ${u.username} ${isMe ? '<span class="text-[8px] bg-green-900/50 text-green-400 px-1.5 py-0.5 rounded-lg border border-green-700 ml-1">YOU</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-mono text-purple-400 text-[10px] font-bold cursor-pointer hover:underline" onclick="copyToClipboard('${u.uid}')">
+                            ${u.uid} <i class="fa-regular fa-copy text-[8px] ml-1"></i>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <span class="text-[9px] uppercase font-black px-2 py-0.5 rounded border ${roleColor}">${u.role}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="text-white font-bold bg-[#0f121a] px-3 py-1 rounded-xl border border-white/5">${u.bots}</span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="openEditUserForm('${u.username}', '${u.password}', '${u.role}')" class="bg-blue-500/10 text-blue-400 border border-blue-500/20 p-2 rounded-xl hover:bg-blue-500 hover:text-white transition-all mr-1.5"><i class="fas fa-edit"></i></button>
+                        <button ${isMe ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : `onclick="deleteUser('${u.username}')"`} class="bg-rose-500/10 text-rose-400 border border-rose-500/20 p-2 rounded-xl hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        tbody.innerHTML = html;
+    }
+
+    async function submitUserForm() {
+        const action = document.getElementById('userFormAction').value;
+        const oldUname = document.getElementById('userOldName').value;
+        const uname = document.getElementById('userFormName').value.trim();
+        const pass = document.getElementById('userFormPass').value.trim();
+        const role = document.getElementById('userFormRole').value;
+        
+        if(!uname || !pass) { 
+            showToast("Username and Password required", "error"); 
+            return; 
+        }
+        
+        const payload = { 
+            action: action, 
+            old_username: oldUname, 
+            username: uname, 
+            new_username: uname, 
+            password: pass, 
+            role: role 
+        };
+        
+        const res = await fetch(`${API_BASE}/users/action`, {
+            method: "POST", 
+            headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        
+        if(data.status === 'success') {
+            showToast(`User ${action}ed successfully!`);
+            closeUserForm();
+            loadUsersList();
+        } else {
+            showToast(data.msg, "error");
+        }
+    }
+
+    function deleteUser(username) {
+        showConfirmModal(
+            "Delete User?", 
+            `Are you sure you want to permanently delete user account: ${username}?`, 
+            async () => {
+                const res = await fetch(`${API_BASE}/users/action`, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"}, 
+                    body: JSON.stringify({ action: 'delete', username: username })
+                });
+                const data = await res.json();
+                
+                if(data.status === 'success') { 
+                    showToast("User deleted!"); 
+                    loadUsersList(); 
+                } else { 
+                    showToast(data.msg, "error"); 
+                }
+            },
+            "fa-user-slash"
+        );
+    }
+</script>

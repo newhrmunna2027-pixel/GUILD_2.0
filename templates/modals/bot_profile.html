@@ -1,0 +1,174 @@
+<!-- templates/modals/bot_profile.html -->
+<div id="profileModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm" onclick="closeProfileModal(event)">
+    <div id="profileModalContent" class="relative w-full max-w-sm transform transition-all duration-300" onclick="event.stopPropagation()">
+        <!-- Generated HTML will be injected here dynamically -->
+    </div>
+</div>
+
+<script>
+    // 🟢 SAFE FALLBACK FOR IMAGE URL GENERATOR
+    const getImgUrlFallback = (id) => {
+        return typeof getImgUrl === 'function' ? getImgUrl(id) : `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${id}.png`;
+    };
+
+    // 🟢 SAFE DATE FORMATTER
+    function formatDate(ts) {
+        if (!ts || ts === "0" || ts === "") return "N/A";
+        try {
+            if (String(ts).includes('-') || String(ts).includes(':')) return ts;
+            const d = new Date(parseInt(ts) * 1000);
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        } catch {
+            return ts;
+        }
+    }
+
+    // 🟢 NATIVE GARENA BIO COLOR CODE DECODER (SUPPORT LIVE COLOR SIGNATURES)
+    function renderFFBio(bio) {
+        if (!bio || bio === "No Signature") return `<span class="text-gray-500 italic">No Signature</span>`;
+        let html = bio.replace(/\n/g, '<br>');
+        const regex = /\[([0-9a-fA-F]{6})\]/gi;
+        let matches = [...html.matchAll(regex)];
+        if (matches.length > 0) {
+            let lastIdx = 0;
+            let result = '';
+            matches.forEach((match) => {
+                const hex = match[1];
+                const index = match.index;
+                const matchLen = match[0].length;
+            });
+            // Simplified clean tags render
+            const cleanText = bio.replace(/\[[a-zA-Z0-9]{6}\]/g, '');
+            return `<span class="text-gray-300 font-bold">${cleanText}</span>`;
+        }
+        return `<span class="text-gray-300 font-bold">${bio}</span>`;
+    }
+
+    function generateProfileCardHTML(uid, b, c, s) {
+        const avatarId = b.headPic || b.head_pic || 902000003;
+        const avatarImg = getImgUrlFallback(avatarId);
+        
+        const clanName = c.clanName || c.clan_name || 'No Guild';
+        const captainId = c.captainId || c.captain_id || 'N/A';
+        const signatureText = s.signature || "No Signature";
+        
+        return `
+            <div class="cyber-glass rounded-[2rem] w-full max-w-sm animate-pop-in relative overflow-hidden border border-yellow-500/20 p-5 space-y-4 bg-gradient-to-b from-[#111422]/90 to-[#0b0c16]/95 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                <!-- Close Button -->
+                <button onclick="closeProfileModal(null, true)" class="absolute top-4 right-4 bg-black/40 hover:bg-rose-500/20 hover:text-rose-400 w-7 h-7 rounded-full text-gray-400 flex items-center justify-center border border-white/10 z-50 transition-all duration-300">&times;</button>
+                
+                <!-- Compact Header (Left: Avatar, Right: Name/UID) -->
+                <div class="flex items-center gap-4 border-b border-white/5 pb-3">
+                    <!-- Avatar Frame with Level Badge (Compact) -->
+                    <div class="relative flex-shrink-0">
+                        <div class="w-16 h-16 rounded-xl border border-yellow-500/30 p-0.5 bg-black/40 overflow-hidden shadow-[0_0_10px_rgba(234,179,8,0.15)]">
+                            <img src="${avatarImg}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/90'">
+                        </div>
+                        <div class="absolute -bottom-1.5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black font-black text-[8px] px-2 py-0.5 rounded border border-black uppercase font-orbitron">LV.${b.level || 0}</div>
+                    </div>
+                    
+                    <!-- Nickname, Level, and copyable UID -->
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-black text-white font-orbitron tracking-wide truncate max-w-[120px]">${b.nickname || 'Unknown'}</h2>
+                            <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider font-orbitron">${b.region || 'BD'}</span>
+                        </div>
+                        <div onclick="copyToClipboard('${uid}')" class="text-yellow-500 hover:text-yellow-400 font-mono font-bold text-[9px] mt-1 inline-flex items-center gap-1 cursor-pointer bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                            UID: ${uid} <i class="fa-regular fa-copy text-[8px]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compact 2x2 Stats Grid (Replaces bulky lists) -->
+                <div class="grid grid-cols-2 gap-2 text-[9px] font-bold">
+                    <!-- Guild -->
+                    <div class="bg-black/35 p-2.5 rounded-xl border border-white/5 overflow-hidden flex flex-col justify-center">
+                        <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Guild</span>
+                        <span class="text-blue-400 truncate block font-orbitron"><i class="fa-solid fa-shield-halved mr-1 text-blue-500"></i>${clanName}</span>
+                    </div>
+                    <!-- Leader -->
+                    <div class="bg-black/35 p-2.5 rounded-xl border border-white/5 overflow-hidden flex flex-col justify-center">
+                        <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Guild Leader</span>
+                        <span onclick="copyToClipboard('${captainId}')" class="text-gray-300 truncate block font-mono cursor-pointer hover:text-white">${captainId}</span>
+                    </div>
+                    <!-- Likes -->
+                    <div class="bg-black/35 p-2.5 rounded-xl border border-white/5 overflow-hidden flex flex-col justify-center">
+                        <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Likes</span>
+                        <span class="text-yellow-500 truncate block font-orbitron"><i class="fa-solid fa-thumbs-up mr-1 text-yellow-400"></i>${b.liked || b.likes || 0}</span>
+                    </div>
+                    <!-- Created Date -->
+                    <div class="bg-black/35 p-2.5 rounded-xl border border-white/5 overflow-hidden flex flex-col justify-center">
+                        <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Registration</span>
+                        <span class="text-gray-300 truncate block font-mono">${formatDate(b.createAt || b.create_at)}</span>
+                    </div>
+                </div>
+                
+                <!-- Signature area (Sleeker & Slimmer) -->
+                <div class="bg-black/40 border border-white/5 rounded-xl p-3 shadow-inner min-h-[45px] text-[9px] flex flex-col justify-center items-start leading-relaxed">
+                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-1">Signature</span>
+                    ${renderFFBio(signatureText)}
+                </div>
+            </div>
+        `;
+    }
+
+    function openProfileModal(uid, isBot = false) {
+        if(!uid || uid === 'undefined' || uid === '') return;
+        
+        const wrapper = document.getElementById('profileModalWrapper');
+        const content = document.getElementById('profileModalContent');
+        
+        wrapper.classList.remove('hidden');
+        wrapper.classList.add('flex');
+        content.innerHTML = `
+            <div class="cyber-glass h-[150px] w-full max-w-sm rounded-[2rem] flex flex-col items-center justify-center font-bold text-gray-500 text-xs">
+                <div class="loader mb-3"></div> Syncing Live Portrait...
+            </div>
+        `;
+            
+        const saveParam = isBot ? 'true' : 'false';
+        
+        // GARENA NATIVE API SYNC WITH OVERWRITE
+        fetch(`/api/fetch_profile?uid=${uid}&save=${saveParam}&force=true`)
+        .then(r => r.json())
+        .then(d => {
+            const responseData = d.data || d.profile || d; 
+            
+            if(d.status === 'success' || d.success === true) { 
+                const b = responseData.basicInfo || responseData.basic_info || {};
+                const c = responseData.clanBasicInfo || responseData.clan_basic_info || {};
+                const s = responseData.socialInfo || responseData.social_info || {};
+                
+                content.innerHTML = generateProfileCardHTML(uid, b, c, s); 
+                
+                if(isBot && typeof fetchAndRender === 'function') {
+                    fetchAndRender(); 
+                }
+            } else {
+                content.innerHTML = `
+                    <div class="cyber-glass p-6 text-center text-rose-400 w-full max-w-sm rounded-[2rem] flex flex-col items-center justify-center space-y-2">
+                        <button onclick="closeProfileModal(null, true)" class="absolute top-4 right-4 hover:text-white">&times;</button>
+                        <i class="fa-solid fa-triangle-exclamation text-3xl text-rose-600"></i>
+                        <span class="font-bold text-xs uppercase tracking-wider font-orbitron">Failed to load profile.</span>
+                        <span class="text-[9px] text-gray-500 font-bold">${d.msg || "Player not found"}</span>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => {
+            content.innerHTML = `
+                <div class="cyber-glass p-6 text-center text-rose-400 w-full max-w-sm rounded-[2rem] flex flex-col items-center justify-center space-y-2">
+                    <button onclick="closeProfileModal(null, true)" class="absolute top-4 right-4 hover:text-white">&times;</button>
+                    <i class="fa-solid fa-wifi text-3xl text-rose-600"></i>
+                    <span class="font-bold text-xs uppercase tracking-wider font-orbitron">Network Error</span>
+                </div>
+            `;
+        });
+    }
+
+    function closeProfileModal(e, force=false) {
+        if(force || e.target.id === 'profileModalWrapper') {
+            document.getElementById('profileModalWrapper').classList.replace('flex', 'hidden');
+        }
+    }
+</script>

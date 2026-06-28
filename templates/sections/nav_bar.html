@@ -1,0 +1,35 @@
+<!-- templates/sections/nav_bar.html -->
+<div class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-50">
+    <nav class="bg-[#141624]/90 backdrop-blur-xl border border-white/5 rounded-3xl py-2 px-4 shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex justify-between items-center">
+        <!-- Guild Tab -->
+        <button onclick="switchTab('guild-tab', this); loadGuildInfo();" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300 outline-none">
+            <i class="fas fa-shield-halved text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider font-bold">Guild</span>
+        </button>
+
+        <!-- Friend Tab -->
+        <button onclick="switchTab('friend-tab', this); loadFriends();" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300 outline-none">
+            <i class="fas fa-users text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider font-bold">Friend</span>
+        </button>
+
+        <!-- Center Floating Home Button -->
+        <div class="flex-shrink-0 px-2 relative -top-4">
+            <button onclick="switchTab('dashboard-tab', this)" class="nav-btn w-14 h-14 bg-gradient-to-tr from-yellow-500 to-amber-400 text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-105 transition-all duration-300 outline-none">
+                <i class="fas fa-home text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Bot Tab -->
+        <button onclick="switchTab('bot-tab', this)" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300 outline-none">
+            <i class="fas fa-robot text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider font-bold">Bot</span>
+        </button>
+
+        <!-- Coming Soon Button -->
+        <button class="flex-1 flex flex-col items-center gap-1 text-gray-500 cursor-not-allowed transition-all duration-300 outline-none" disabled>
+            <i class="fas fa-hourglass-start text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider font-bold">Soon</span>
+        </button>
+    </nav>
+</div>

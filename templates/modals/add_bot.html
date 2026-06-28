@@ -1,0 +1,168 @@
+<!-- templates/modals/add_bot.html -->
+<div id="addModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm">
+    <div class="cyber-glass p-6 rounded-[2rem] w-full max-w-md shadow-2xl relative">
+        <div class="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
+            <h2 class="text-lg font-orbitron font-black text-yellow-400 uppercase tracking-widest"><i class="fa-solid fa-robot mr-2"></i>Add New Bot</h2>
+            <button onclick="closeAddModal()" class="text-gray-400 hover:text-red-500 text-2xl transition">&times;</button>
+        </div>
+        
+        <form id="addBotForm" autocomplete="off" onsubmit="event.preventDefault(); directAddBot();">
+            <div id="addForm" class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">Bot Config Name</label>
+                    <input type="text" id="botName" placeholder="No spaces, e.g. Bot_01" class="w-full p-3.5 border border-white/10 bg-[#0f121a] text-white rounded-xl focus:border-yellow-400 outline-none text-xs font-bold">
+                </div>
+                
+                <div>
+                    <label class="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">Login Details</label>
+                    <input type="number" id="botUid" placeholder="Garena Login UID" class="w-full p-3.5 mb-3 border border-white/10 bg-[#0f121a] text-white rounded-xl focus:border-yellow-400 outline-none font-mono text-xs font-bold">
+                    <input type="password" id="botPass" placeholder="Password" class="w-full p-3.5 border border-white/10 bg-[#0f121a] text-white rounded-xl focus:border-yellow-400 outline-none text-xs font-bold">
+                </div>
+                
+                <div id="folderInputContainer" class="hidden">
+                    <label class="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">Assign User Section</label>
+                    <select id="botFolderSelect" class="w-full p-3.5 border border-white/10 bg-[#0f121a] text-white rounded-xl focus:border-yellow-400 outline-none text-xs cursor-pointer font-bold">
+                        <!-- Injected via JS -->
+                    </select>
+                </div>
+                
+                <button type="submit" id="btnVerify" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl transition shadow-lg tracking-wider text-xs uppercase mt-2">ADD & CONNECT</button>
+                <p id="vError" class="text-rose-400 text-[10px] mt-3 font-bold text-center hidden bg-rose-950/20 py-2 rounded-xl border border-rose-900/10"></p>
+            </div>
+        </form>
+        
+        <div id="previewArea" class="hidden flex flex-col items-center w-full">
+            <div id="statusHeader" class="font-bold text-yellow-400 mb-2 text-xs flex items-center gap-2">
+                <div class="loader"></div> Starting & Fetching Info...
+            </div>
+            
+            <div id="previewCard" class="my-2 w-full flex justify-center scale-95 origin-top min-h-[150px]">
+                <div class="bg-[#1e2230]/50 border border-white/5 w-full rounded-2xl flex items-center justify-center text-gray-500 p-5 text-xs font-bold uppercase">
+                    Waiting for Garena response...
+                </div>
+            </div>
+            
+            <div id="btnActionArea" class="w-full mt-2 flex gap-3 hidden"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openAddModal() {
+        document.getElementById('addModalWrapper').classList.remove('hidden');
+        document.getElementById('addForm').classList.remove('hidden');
+        document.getElementById('previewArea').classList.add('hidden');
+        
+        document.getElementById('botName').value = '';
+        document.getElementById('botUid').value = '';
+        document.getElementById('botPass').value = '';
+        document.getElementById('vError').classList.add('hidden');
+        
+        const btnVerify = document.getElementById('btnVerify');
+        btnVerify.innerHTML = "ADD & CONNECT";
+        btnVerify.disabled = false;
+        
+        if (CURRENT_ROLE === 'owner') {
+            document.getElementById('folderInputContainer').classList.remove('hidden');
+            const select = document.getElementById('botFolderSelect');
+            select.innerHTML = systemUsersList.map(user => `<option value="${user}">📁 ${user}</option>`).join('');
+            select.value = currentSelectedSection === 'all' ? CURRENT_USER : currentSelectedSection;
+        }
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModalWrapper').classList.add('hidden');
+        fetchAndRender();
+    }
+
+    async function directAddBot() {
+        const name = document.getElementById('botName').value.trim();
+        const uid = document.getElementById('botUid').value.trim();
+        const pass = document.getElementById('botPass').value;
+        const folder = CURRENT_ROLE === 'owner' ? document.getElementById('botFolderSelect').value : CURRENT_USER;
+        
+        const errEl = document.getElementById('vError');
+        const btn = document.getElementById('btnVerify');
+        
+        if (!name || !uid || !pass) { 
+            errEl.innerText = "All fields are required."; errEl.classList.remove('hidden'); return; 
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(name)) {
+            errEl.innerText = "Letters, numbers, and underscores only.";
+            errEl.classList.remove('hidden'); return;
+        }
+        
+        errEl.classList.add('hidden');
+        btn.innerHTML = '<div class="loader mx-auto"></div>'; 
+        btn.disabled = true;
+        
+        try {
+            const saveRes = await fetch(`${API_BASE}/save_bot`, { 
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify({ name: name, uid: uid, password: pass, folder: folder }) 
+            });
+            const saveData = await saveRes.json();
+            
+            if (saveData.status !== 'success') {
+                errEl.innerText = saveData.msg; errEl.classList.remove('hidden'); 
+                btn.innerHTML = "ADD & CONNECT"; btn.disabled = false; return;
+            }
+
+            // 🟢 [ইনস্ট্যান্ট ভেরিফিকেশন সাকসেস]: সরাসরি কার্ড রেন্ডার হবে পোলিং টাস্ক ছাড়াই!
+            document.getElementById('addForm').classList.add('hidden');
+            document.getElementById('previewArea').classList.remove('hidden');
+            
+            document.getElementById('statusHeader').innerHTML = `<i class="fa-solid fa-circle-check"></i> Handshake Successful!`;
+            document.getElementById('statusHeader').className = "font-bold text-emerald-400 mb-2 text-xs flex items-center gap-2";
+            
+            const b = saveData.profile.basicInfo || {};
+            const c = saveData.profile.clanBasicInfo || {};
+            
+            document.getElementById('previewCard').innerHTML = `
+                <div class="bg-black/40 p-4 border border-white/5 rounded-2xl w-full text-center space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl border border-white/5 p-0.5 bg-black/40 overflow-hidden">
+                            <img src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${b.headPic || '902000003'}.png" class="w-full h-full object-cover rounded-lg">
+                        </div>
+                        <div class="text-left">
+                            <b class="text-white text-sm font-orbitron block">${b.nickname || 'Unknown'}</b>
+                            <span class="text-[9px] text-gray-500 font-bold block mt-0.5">Level: ${b.level || 0} | Guild: ${c.clanName || 'No Guild'}</span>
+                            <span class="text-[9px] text-yellow-500/80 font-mono block">UID: ${saveData.ingame_uid}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('btnActionArea').innerHTML = `
+                <button onclick="closeAddModalAndStart('${name}')" class="w-1/2 bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 rounded-xl shadow-lg text-xs uppercase tracking-wider transition">Confirm</button>
+                <button onclick="deleteBotFromAdd('${name}')" class="w-1/2 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-400 font-bold py-3 rounded-xl shadow-lg text-xs uppercase tracking-wider transition">Cancel</button>
+            `;
+            document.getElementById('btnActionArea').classList.remove('hidden');
+            
+        } catch (e) {
+            errEl.innerText = "Network Error!"; errEl.classList.remove('hidden'); 
+            btn.innerHTML = "ADD & CONNECT"; btn.disabled = false;
+        }
+    }
+
+    async function closeAddModalAndStart(name) {
+        // নতুন বোত ডাটাবেজে কনফার্ম হওয়া মাত্রই ব্যাকগ্রাউন্ডে টিসিপি প্রসেস অন করবে
+        await fetch(`${API_BASE}/control`, { 
+            method: "POST", headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify({command: 'start', target: name}) 
+        });
+        closeAddModal();
+    }
+
+    async function deleteBotFromAdd(botName) {
+        document.getElementById('btnActionArea').innerHTML = `<div class="loader mx-auto"></div>`;
+        await fetch(`${API_BASE}/control`, { 
+            method: "POST", headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify({command: 'delete', target: botName}) 
+        });
+        showToast("Wiped.");
+        closeAddModal();
+    }
+</script>

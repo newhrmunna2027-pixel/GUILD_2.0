@@ -1,0 +1,240 @@
+<!-- templates/sections/bot.html -->
+<div id="bot-tab" class="tab-section hidden space-y-6">
+    <!-- Action Modifiers Trigger Buttons (Glow-Shadow and Frosted Glass Embedded) -->
+    <div class="grid grid-cols-2 gap-4">
+        <button onclick="openBioModal()" class="cyber-glass rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.02] transition-all duration-300 text-yellow-400 font-bold glow-shadow-yellow">
+            <i class="fas fa-signature text-xl"></i>
+            <span class="text-xs uppercase tracking-wider">Signature Changer</span>
+        </button>
+        <button onclick="openNicknameModal()" class="cyber-glass rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.02] transition-all duration-300 text-cyan-400 font-bold" style="box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);">
+            <i class="fas fa-user-edit text-xl"></i>
+            <span class="text-xs uppercase tracking-wider">Nickname Changer</span>
+        </button>
+    </div>
+
+    <!-- Dynamic Duo Checker card -->
+    <div class="cyber-glass rounded-3xl p-5 space-y-4 shadow-lg" id="duo-input-card">
+        <h4 class="text-xs font-black text-rose-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2 flex items-center gap-1.5">
+            <i class="fas fa-heart"></i> Duo Partner Scanner
+        </h4>
+        
+        <div class="flex gap-2">
+            <input type="number" id="duo-target" placeholder="Enter Target Garena UID" class="flex-1 bg-[#11131a]/85 border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400">
+            <button onclick="findDynamicDuo()" class="bg-rose-500 hover:bg-rose-400 text-white font-black px-6 rounded-xl text-xs uppercase tracking-widest shadow-md">Scan</button>
+        </div>
+
+        <!-- DUAL PORTRAIT AREA PACKED WITH FLOAT, HUD SCANLINE, PROGRESS RING AND BUBBLE EFFECTS -->
+        <div id="duo-complete-canvas" class="hidden space-y-4 relative">
+            
+            <!-- Duo progress Ring & Heart Separator (EFFECT 1 & 2 INTEGRATED) -->
+            <div class="relative w-20 h-20 flex items-center justify-center mx-auto my-[-10px] z-30">
+                <svg class="absolute w-full h-full transform -rotate-90">
+                    <circle cx="40" cy="40" r="32" stroke="rgba(255,255,255,0.05)" stroke-width="4" fill="transparent"/>
+                    <circle id="duo-progress-ring" cx="40" cy="40" r="32" stroke="#ec4899" stroke-width="4" fill="transparent" stroke-dasharray="201" stroke-dashoffset="201" class="transition-all duration-1000 ease-out" style="filter: drop-shadow(0 0 6px #ec4899);"/>
+                </svg>
+                <div class="w-12 h-12 rounded-full bg-pink-600 border border-white/10 shadow-[0_0_20px_rgba(219,39,119,0.8)] flex items-center justify-center text-white text-sm animate-bounce cursor-default select-none z-10">💖</div>
+            </div>
+
+            <div class="bg-[#11131a]/60 border border-white/5 rounded-2xl p-4 text-center shadow-inner relative overflow-hidden">
+                <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-2">Duo Bond Information</span>
+                <div class="grid grid-cols-3 gap-2 text-xs font-bold font-mono">
+                    <div class="bg-black/40 p-2.5 rounded-xl border border-white/5">
+                        <div class="text-gray-500 text-[8px] uppercase font-bold tracking-wider mb-0.5">Level</div>
+                        <span id="duo-info-lvl" class="text-pink-400 font-black text-base font-orbitron">0</span>
+                    </div>
+                    <div class="bg-black/40 p-2.5 rounded-xl border border-white/5">
+                        <div class="text-gray-500 text-[8px] uppercase font-bold tracking-wider mb-0.5">Score</div>
+                        <span id="duo-info-score" class="text-yellow-400 font-black text-base font-orbitron">0</span>
+                    </div>
+                    <div class="bg-black/40 p-2.5 rounded-xl border border-white/5">
+                        <div class="text-gray-500 text-[8px] uppercase font-bold tracking-wider mb-0.5">Active</div>
+                        <span id="duo-info-days" class="text-emerald-400 font-black text-base font-orbitron">0D</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 mt-3 text-[9px] text-gray-500 font-bold px-1 border-t border-white/5 pt-2">
+                    <div class="text-left">Bond Date: <span id="duo-info-date" class="text-white font-mono">N/A</span></div>
+                    <div class="text-right">Status: <span id="duo-info-status" class="text-emerald-400 uppercase font-black">Active</span></div>
+                </div>
+            </div>
+
+            <!-- Initiator Card (Checked Profile) -->
+            <div class="relative bg-[#13151f] rounded-2xl overflow-hidden border border-white/5 shadow-xl animate-float cyber-scanline" style="animation-delay: 0.2s;">
+                <div class="h-20 w-full relative border-b-2 border-blue-500 bg-[#0a122c]">
+                    <img id="duo-target-banner" src="" class="w-full h-full object-cover opacity-60 absolute inset-0 hidden">
+                    <div class="absolute right-3 bottom-2 text-white text-[10px] font-bold flex items-center gap-1 bg-black/60 px-2.5 py-0.5 rounded-md border border-white/5 shadow-md z-30">
+                        <i class="fas fa-thumbs-up text-yellow-400"></i> <span id="duo-target-likes">0</span>
+                    </div>
+                </div>
+                <div class="px-4 pb-4 relative">
+                    <div class="relative -mt-8 mb-2 flex justify-center z-30">
+                        <div class="w-16 h-16 rounded-xl border-2 border-white bg-black shadow-lg relative p-0.5">
+                            <img id="duo-target-avatar" src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png" class="w-full h-full object-cover rounded-lg">
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-md whitespace-nowrap z-20 font-orbitron">Lv.<span id="duo-target-level">0</span></div>
+                        </div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <h5 id="duo-target-name" class="text-sm font-black text-white font-orbitron">Target Nickname</h5>
+                        <div class="text-blue-400 text-[9px] font-bold font-mono">Checked UID: <span id="duo-target-uid-display" class="select-all">000</span></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-y-1 text-[10px] text-gray-400 font-bold px-1 border-t border-white/5 pt-2">
+                        <div class="text-left text-gray-500">Guild</div>
+                        <div class="text-right text-yellow-400 font-orbitron truncate" id="duo-target-guild">No Guild</div>
+                        <div class="text-left text-gray-500">Region</div>
+                        <div class="text-right text-gray-300" id="duo-target-region">BD</div>
+                        <div class="text-left text-gray-500">Created</div>
+                        <div class="text-right text-gray-300 font-mono text-[9px]" id="duo-target-create">N/A</div>
+                        <div class="text-left text-gray-500">Last Login</div>
+                        <div class="text-right text-emerald-400 font-mono text-[9px]" id="duo-target-login">N/A</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heart separator vector -->
+            <div class="flex justify-center items-center my-[-12px] relative z-30">
+                <div class="w-8 h-8 rounded-full bg-pink-600 border border-white/10 shadow-[0_0_15px_rgba(219,39,119,0.7)] flex items-center justify-center text-white text-xs animate-bounce cursor-default">💖</div>
+            </div>
+
+            <!-- Companion Card (Partner Profile) -->
+            <div class="relative bg-[#13151f] rounded-2xl overflow-hidden border border-white/5 shadow-xl animate-float cyber-scanline" style="animation-delay: 1.2s;">
+                <div class="h-20 w-full relative border-b-2 border-pink-500 bg-[#280c1e]">
+                    <img id="duo-partner-banner" src="" class="w-full h-full object-cover opacity-60 absolute inset-0 hidden">
+                    <div class="absolute right-3 bottom-2 text-white text-[10px] font-bold flex items-center gap-1 bg-black/60 px-2.5 py-0.5 rounded-md border border-white/5 shadow-md z-30">
+                        <i class="fas fa-thumbs-up text-pink-400"></i> <span id="duo-partner-likes">0</span>
+                    </div>
+                </div>
+                <div class="px-4 pb-4 relative">
+                    <div class="relative -mt-8 mb-2 flex justify-center z-30">
+                        <div class="w-16 h-16 rounded-xl border-2 border-white bg-black shadow-lg relative p-0.5">
+                            <img id="duo-partner-avatar" src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png" class="w-full h-full object-cover rounded-lg">
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-pink-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-md whitespace-nowrap z-20 font-orbitron">Lv.<span id="duo-partner-level">0</span></div>
+                        </div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <h5 id="duo-partner-name" class="text-sm font-black text-white font-orbitron">Partner Nickname</h5>
+                        <div class="text-pink-400 text-[9px] font-bold font-mono">Partner UID: <span id="duo-partner-uid-display" class="select-all">000</span></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-y-1 text-[10px] text-gray-400 font-bold px-1 border-t border-white/5 pt-2">
+                        <div class="text-left text-gray-500">Guild</div>
+                        <div class="text-right text-pink-400 font-orbitron truncate" id="duo-partner-guild">No Guild</div>
+                        <div class="text-left text-gray-500">Region</div>
+                        <div class="text-right text-gray-300" id="duo-partner-region">BD</div>
+                        <div class="text-left text-gray-500">Created</div>
+                        <div class="text-right text-gray-300 font-mono text-[9px]" id="duo-partner-create">N/A</div>
+                        <div class="text-left text-gray-500">Last Login</div>
+                        <div class="text-right text-emerald-400 font-mono text-[9px]" id="duo-partner-login">N/A</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function openBioModal() {
+            document.getElementById('bio-changer-modal').classList.replace('hidden', 'flex');
+        }
+
+        async function openNicknameModal() {
+            let res = await fetch('/api/bot/profile');
+            let data = await res.json();
+            if(data.success) {
+                document.getElementById('old-nickname-display').innerText = data.profile.nickname;
+            }
+            document.getElementById('nickname-changer-modal').classList.replace('hidden', 'flex');
+        }
+
+        async function findDynamicDuo() {
+            let uid = document.getElementById('duo-target').value.trim();
+            if(!uid) return showToast("Enter Target UID", "error");
+            
+            document.getElementById('duo-complete-canvas').classList.add('hidden');
+            document.getElementById('duo-input-card').classList.remove('shake-haptic');
+            
+            let res = await fetch('/api/bot/duo', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+            let data = await res.json();
+            
+            if(data.success) {
+                document.getElementById('duo-complete-canvas').classList.remove('hidden');
+                
+                let levelVal = data.level || 1;
+                let percent = (levelVal / 6) * 100;
+                let offset = 201 - (201 * percent) / 100;
+                document.getElementById('duo-progress-ring').style.strokeDashoffset = offset;
+
+                // FLOATING LOVE BUBBLES CARDS ENGINE
+                const container = document.getElementById('duo-complete-canvas');
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('i');
+                        heart.className = 'fas fa-heart bubble-heart';
+                        heart.style.left = `${45 + (Math.random() * 10)}%`;
+                        heart.style.bottom = `${40 + (Math.random() * 5)}%`;
+                        heart.style.animationDelay = `${Math.random() * 0.4}s`;
+                        heart.style.fontSize = `${10 + (Math.random() * 8)}px`;
+                        container.appendChild(heart);
+                        setTimeout(() => heart.remove(), 2500);
+                    }, i * 150);
+                }
+
+                document.getElementById('duo-info-lvl').innerText = data.level || "1";
+                document.getElementById('duo-info-score').innerText = data.score || "0";
+                document.getElementById('duo-info-days').innerText = (data.days_active || "0") + "D";
+                document.getElementById('duo-info-date').innerText = data.formed_on || "N/A";
+                document.getElementById('duo-info-status').innerText = data.status || "Active";
+                
+                if (data.target_profile && data.target_profile.success) {
+                    const tp = data.target_profile;
+                    document.getElementById('duo-target-uid-display').innerText = tp.uid;
+                    document.getElementById('duo-target-name').innerText = tp.nickname;
+                    document.getElementById('duo-target-level').innerText = tp.level;
+                    document.getElementById('duo-target-likes').innerText = tp.likes;
+                    document.getElementById('duo-target-guild').innerText = tp.clan_name || "No Guild";
+                    document.getElementById('duo-target-region').innerText = tp.region || "BD";
+                    document.getElementById('duo-target-create').innerText = tp.created_at || "N/A";
+                    document.getElementById('duo-target-login').innerText = tp.last_login || "N/A";
+                    
+                    const avatarId = tp.json_data && tp.json_data["1"] ? tp.json_data["1"]["12"] : "902000003";
+                    document.getElementById('duo-target-avatar').src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+                    
+                    const bannerId = tp.json_data && tp.json_data["1"] ? tp.json_data["1"]["11"] : "901000001";
+                    const bannerImg = document.getElementById('duo-target-banner');
+                    bannerImg.src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${bannerId}.png`;
+                    bannerImg.classList.remove('hidden');
+                }
+                
+                if (data.partner_profile && data.partner_profile.success) {
+                    const pp = data.partner_profile;
+                    document.getElementById('duo-partner-uid-display').innerText = pp.uid;
+                    document.getElementById('duo-partner-name').innerText = pp.nickname;
+                    document.getElementById('duo-partner-level').innerText = pp.level;
+                    document.getElementById('duo-partner-likes').innerText = pp.likes;
+                    document.getElementById('duo-partner-guild').innerText = pp.clan_name || "No Guild";
+                    document.getElementById('duo-partner-region').innerText = pp.region || "BD";
+                    document.getElementById('duo-partner-create').innerText = pp.created_at || "N/A";
+                    document.getElementById('duo-partner-login').innerText = pp.last_login || "N/A";
+                    
+                    const avatarId = pp.json_data && pp.json_data["1"] ? pp.json_data["1"]["12"] : "902000003";
+                    document.getElementById('duo-partner-avatar').src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+                    
+                    const bannerId = pp.json_data && pp.json_data["1"] ? pp.json_data["1"]["11"] : "901000001";
+                    const bannerImg = document.getElementById('duo-partner-banner');
+                    bannerImg.src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${bannerId}.png`;
+                    bannerImg.classList.remove('hidden');
+                } else {
+                    document.getElementById('duo-partner-uid-display').innerText = data.partner_uid || "N/A";
+                    document.getElementById('duo-partner-name').innerText = "Private Profile";
+                    document.getElementById('duo-partner-level').innerText = "0";
+                    document.getElementById('duo-partner-likes').innerText = "0";
+                    document.getElementById('duo-partner-guild').innerText = "No Guild";
+                    document.getElementById('duo-partner-region').innerText = "BD";
+                    document.getElementById('duo-partner-avatar').src = "https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png";
+                    document.getElementById('duo-partner-banner').classList.add('hidden');
+                }
+                showToast("Dynamic Duo data extracted.");
+            } else {
+                document.getElementById('duo-input-card').classList.add('shake-haptic');
+                showToast(data.msg || "No Active Duo Bond found.", "error");
+            }
+        }
+    </script>
+</div>

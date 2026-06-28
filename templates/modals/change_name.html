@@ -1,0 +1,94 @@
+<!-- templates/modals/change_name.html -->
+<div id="changeNameWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[200] p-4 backdrop-blur-sm" onclick="closeChangeNameModal(event)">
+    <div class="cyber-glass p-6 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
+            <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest"><i class="fa-solid fa-pen mr-2"></i>Change Nickname</h2>
+            <button onclick="closeChangeNameModal(null, true)" class="text-gray-500 hover:text-red-500 text-2xl absolute right-5 top-4">&times;</button>
+        </div>
+        
+        <p class="text-[10px] text-gray-500 font-bold leading-relaxed mb-4">You are about to change the in-game Garena nickname. This action requires a Garena Name Change Card inside the bot vault.</p>
+        
+        <div class="space-y-4">
+            <div class="bg-black/30 p-3 rounded-2xl border border-white/5 text-center">
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Old / Current Nickname</span>
+                <b id="modal-old-nickname-display" class="text-xs text-white font-orbitron">Loading...</b>
+            </div>
+            
+            <div>
+                <label class="text-[9px] text-gray-500 uppercase font-black tracking-widest block mb-1">New Nickname</label>
+                <input type="text" id="modal-new-nickname-input" placeholder="Enter new Garena name" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400">
+            </div>
+            
+            <button onclick="triggerChangeName()" id="btnChangeName" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl transition shadow-lg tracking-wider text-xs uppercase">CHANGE NAME</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openNicknameModal() {
+        let oldNick = "Garena Bot";
+        const selfNameEl = document.getElementById('self-name');
+        if (selfNameEl) {
+            oldNick = selfNameEl.innerText;
+        }
+        
+        const modalOldNick = document.getElementById('modal-old-nickname-display');
+        if (modalOldNick) {
+            modalOldNick.innerText = oldNick;
+        }
+        
+        const modalInput = document.getElementById('modal-new-nickname-input');
+        if (modalInput) {
+            modalInput.value = '';
+        }
+        
+        const wrapper = document.getElementById('changeNameWrapper');
+        if (wrapper) {
+            wrapper.classList.remove('hidden');
+            wrapper.classList.add('flex');
+        }
+    }
+
+    function closeChangeNameModal(e, force=false) {
+        if(force || (e && e.target.id === 'changeNameWrapper')) {
+            const wrapper = document.getElementById('changeNameWrapper');
+            if (wrapper) {
+                wrapper.classList.add('hidden');
+                wrapper.classList.remove('flex');
+            }
+        }
+    }
+
+    function triggerChangeName() {
+        const newNickname = document.getElementById('modal-new-nickname-input').value.trim();
+        if (!newNickname) {
+            showToast("Nickname cannot be empty!", "error");
+            return;
+        }
+
+        closeChangeNameModal(null, true);
+
+        showConfirmModal(
+            "Confirm Name Change?", 
+            `Are you sure you want to change the Garena name to: ${newNickname}?`, 
+            async () => {
+                showToast("Transmitting nickname packet...");
+                let res = await fetch('/api/bot/nickname', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({nickname: newNickname})
+                });
+                let data = await res.json();
+                if(data.success) {
+                    showToast("Bot nickname modified successfully!", "success");
+                    if (typeof loadBotProfile === 'function') {
+                        loadBotProfile();
+                    }
+                } else {
+                    showToast(data.msg, "error");
+                }
+            },
+            "fa-user-edit"
+        );
+    }
+</script>

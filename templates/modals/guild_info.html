@@ -1,0 +1,306 @@
+<div id="guildModalWrapper" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4" onclick="closeGuildModal(event)">
+    <div id="guildModalContent" class="bg-[#161a24] border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+        <!-- Injected dynamically -->
+    </div>
+</div>
+
+<script>
+    function openGuildModal(bot_name, guild_id, region, leader_uid, bot_ingame_uid) {
+        const wrapper = document.getElementById('guildModalWrapper');
+        wrapper.classList.remove('hidden');
+
+        if (!guild_id || guild_id === 'undefined' || guild_id === '') {
+            renderJoinGuildUI(bot_name, region, bot_ingame_uid);
+        } else {
+            fetchAndRenderGuildInfo(bot_name, guild_id, region, leader_uid, bot_ingame_uid);
+        }
+    }
+
+    function renderJoinGuildUI(bot_name, region, bot_ingame_uid) {
+        const content = document.getElementById('guildModalContent');
+        content.innerHTML = `
+            <div class="p-5 border-b border-gray-800 relative rounded-t-2xl bg-[#0f121a]">
+                <button onclick="closeGuildModal(null, true)" class="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                <h2 class="text-xl font-black text-white">
+                    <i class="fa-solid fa-magnifying-glass text-blue-500 mr-2"></i>Join Guild
+                </h2>
+                <p class="text-xs text-gray-400 mt-1">Search and join a new guild for <b class="text-white">${bot_name}</b></p>
+            </div>
+            
+            <div class="p-5 bg-[#161a24] rounded-b-2xl overflow-y-auto custom-scroll">
+                <div class="flex gap-2 mb-4">
+                    <input type="number" id="searchGuildId" placeholder="Enter Guild ID" class="w-full p-2.5 bg-[#0f121a] border border-gray-700 rounded text-white focus:border-blue-500 outline-none font-mono text-sm">
+                    <button onclick="searchGuildToJoin('${bot_name}', '${region}', '${bot_ingame_uid}')" id="btnSearchGuild" class="bg-blue-600 hover:bg-blue-500 text-white px-5 font-bold rounded transition text-sm">Search</button>
+                </div>
+                
+                <div id="joinGuildResult" class="min-h-[150px] flex flex-col justify-center items-center text-gray-500 border border-dashed border-gray-700 rounded-lg p-4 bg-[#0f121a]">
+                    <i class="fa-solid fa-shield-halved text-4xl mb-2 text-gray-700"></i>
+                    <span class="text-sm font-bold text-gray-400">Search results will appear here</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function searchGuildToJoin(bot_name, region, bot_ingame_uid) {
+        const guild_id = document.getElementById('searchGuildId').value.trim();
+        const resDiv = document.getElementById('joinGuildResult');
+        const btn = document.getElementById('btnSearchGuild');
+        
+        if (!guild_id) return;
+        
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
+        btn.disabled = true;
+        resDiv.innerHTML = '<div class="loader"></div>';
+
+        fetch(`${API_BASE}/guild/info?guild_id=${guild_id}&region=${region}`)
+        .then(r => r.json())
+        .then(data => {
+            btn.innerHTML = 'Search'; 
+            btn.disabled = false;
+            
+            if (data.status === 'success' && data.data) {
+                const info = data.data;
+                const disableAttr = (CURRENT_ROLE !== 'owner') ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : '';
+                
+                resDiv.innerHTML = `
+                    <div class="w-full text-left bg-[#161a24] border border-gray-700 p-3 rounded-lg shadow-inner">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-white font-bold text-lg truncate">
+                                <i class="fa-solid fa-shield-halved text-blue-500 mr-1"></i>${info.GuildName}
+                            </h3>
+                            <span class="bg-blue-900/30 text-blue-400 border border-blue-800/50 px-2 py-0.5 rounded text-xs font-bold">Lv.${info.GuildLevel}</span>
+                        </div>
+                        
+                        <div class="text-xs text-gray-400 mb-3 flex justify-between">
+                            <span><i class="fa-solid fa-users mr-1"></i>${info.CurrentMembers}/${info.MaxMembers}</span>
+                            <span class="font-mono">ID: ${info.GuildId}</span>
+                        </div>
+                        
+                        <button ${disableAttr} onclick="confirmJoinGuild('${bot_name}', '${info.GuildId}', '${info.GuildName}', '${bot_ingame_uid}')" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded transition shadow-lg text-sm">
+                            <i class="fa-solid fa-right-to-bracket mr-1"></i> JOIN GUILD
+                        </button>
+                    </div>
+                `;
+            } else {
+                resDiv.innerHTML = `
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mb-2"></i>
+                    <span class="text-red-400 font-bold text-sm text-center">${data.msg || "Guild not found!"}</span>
+                `;
+            }
+        })
+        .catch(() => { 
+            btn.innerHTML = 'Search'; 
+            btn.disabled = false; 
+            resDiv.innerHTML = `<span class="text-red-500 font-bold">Network Error!</span>`; 
+        });
+    }
+
+    function confirmJoinGuild(bot_name, guild_id, guild_name, bot_ingame_uid) {
+        showConfirmModal(
+            "Join Guild?", 
+            `Do you want <b class="text-white">${bot_name}</b> to join the guild <b class="text-blue-400">${guild_name}</b>?`, 
+            "fa-solid fa-right-to-bracket text-green-500", 
+            "Yes, Join", 
+            "bg-green-600 hover:bg-green-500", 
+            async () => {
+                const res = await fetch(`${API_BASE}/guild/action`, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ bot_name: bot_name, action: "join", guild_id: guild_id, ingame_uid: bot_ingame_uid })
+                });
+                
+                const data = await res.json();
+                if(data.status === 'success') { 
+                    showToast(data.msg, "success"); 
+                    closeGuildModal(null, true); 
+                    fetchAndRender(); 
+                } else { 
+                    showToast(data.msg, "error"); 
+                }
+            }
+        );
+    }
+
+    function confirmLeaveGuild(bot_name, guild_id, guild_name, bot_ingame_uid) {
+        showConfirmModal(
+            "Leave Guild?", 
+            `Are you sure you want <b class="text-white">${bot_name}</b> to leave <b class="text-red-400">${guild_name}</b>?`, 
+            "fa-solid fa-right-from-bracket text-red-500", 
+            "Yes, Leave", 
+            "bg-red-600 hover:bg-red-500", 
+            async () => {
+                const res = await fetch(`${API_BASE}/guild/action`, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ bot_name: bot_name, action: "leave", guild_id: guild_id, ingame_uid: bot_ingame_uid })
+                });
+                
+                const data = await res.json();
+                if(data.status === 'success') { 
+                    showToast(data.msg, "success"); 
+                    closeGuildModal(null, true); 
+                    fetchAndRender(); 
+                } else { 
+                    showToast(data.msg, "error"); 
+                }
+            }
+        );
+    }
+
+    function fetchAndRenderGuildInfo(bot_name, guild_id, region, leader_uid, bot_ingame_uid) {
+        const content = document.getElementById('guildModalContent');
+        content.innerHTML = `
+            <div class="p-10 flex flex-col items-center justify-center text-gray-400">
+                <div class="loader mb-4"></div>
+                <span class="font-bold">Fetching Guild Live Info...</span>
+            </div>
+        `;
+
+        fetch(`${API_BASE}/guild/info?guild_id=${encodeURIComponent(guild_id)}&region=${encodeURIComponent(region)}&leader_uid=${encodeURIComponent(leader_uid)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success' && data.data) {
+                const info = data.data;
+                const leader = info.GuildLeader || {};
+                const avatarUrl = leader.AvatarId ? getImgUrl(leader.AvatarId) : (leader.AvatarUrl || 'https://via.placeholder.com/50');
+                const disableAttr = (CURRENT_ROLE !== 'owner') ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : '';
+
+                content.innerHTML = `
+                    <div class="bg-[#0f121a] p-5 border-b border-gray-800 relative rounded-t-2xl">
+                        <button onclick="closeGuildModal(null, true)" class="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                        
+                        <h2 class="text-xl font-black text-white truncate max-w-[85%]">
+                            <i class="fa-solid fa-shield-halved text-blue-500 mr-2"></i>${info.GuildName || 'Unknown'}
+                        </h2>
+                        
+                        <div class="flex items-center gap-3 mt-2 text-xs">
+                            <span class="bg-blue-900/30 text-blue-400 border border-blue-800/50 px-2 py-0.5 rounded font-bold">Level ${info.GuildLevel || 1}</span>
+                            <span class="text-gray-400 font-mono cursor-pointer hover:text-white" onclick="copyToClipboard('${info.GuildId}')">
+                                ID: ${info.GuildId} <i class="fa-regular fa-copy"></i>
+                            </span>
+                        </div>
+                        
+                        <div class="mt-3 flex justify-between text-sm text-gray-300 bg-[#161a24] p-2 rounded border border-gray-800">
+                            <div><i class="fa-solid fa-users text-gray-500 mr-1"></i> <span class="font-bold">${info.CurrentMembers || 0}/${info.MaxMembers || 50}</span></div>
+                            <div><i class="fa-solid fa-earth-asia text-gray-500 mr-1"></i> <span class="font-bold">${info.GuildRegion || region}</span></div>
+                            <div><i class="fa-solid fa-fire text-orange-500 mr-1"></i> <span class="font-bold text-orange-400">${info.TotalActivityPoints || 0}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-[#161a24] overflow-y-auto custom-scroll rounded-b-2xl">
+                        <div class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Guild Slogan</div>
+                        <div class="bg-[#0f121a] p-3 rounded border border-gray-800 text-gray-300 text-sm italic mb-4">"${info.GuildSlogan || 'No Slogan'}"</div>
+
+                        <div class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Leader Info</div>
+                        
+                        <div class="flex items-center gap-3 p-2.5 bg-[#1e2230] rounded-lg mb-4 border border-gray-800 cursor-pointer hover:border-gray-600 transition" onclick="openProfileModal('${leader.Uid}')">
+                            <img src="${avatarUrl}" class="w-12 h-12 rounded-md bg-black border border-gray-700 object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                            <div class="flex-1">
+                                <div class="font-bold text-yellow-500 text-sm truncate max-w-[180px]">${leader.Name || 'Unknown'}</div>
+                                <div class="font-mono text-gray-400 text-[11px] hover:underline" onclick="event.stopPropagation(); copyToClipboard('${leader.Uid}')">${leader.Uid || 'N/A'}</div>
+                            </div>
+                            <div class="text-xs font-bold bg-[#11141c] border border-gray-700 px-2 py-1 rounded text-gray-300 shadow-inner">Lv: ${leader.Level || '--'}</div>
+                        </div>
+
+                        <div id="memberListArea" class="mt-4 border-t border-gray-800 pt-4">
+                            <button id="btnLoadMembers" onclick="loadGuildMembers('${bot_name}', '${info.GuildId}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded transition shadow-lg tracking-wider text-sm flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-users-viewfinder"></i> View All Members
+                            </button>
+                            
+                            <button ${disableAttr} onclick="confirmLeaveGuild('${bot_name}', '${info.GuildId}', '${info.GuildName}', '${bot_ingame_uid}')" class="w-full mt-2 bg-red-900/20 text-red-500 border border-red-500/30 hover:bg-red-600 hover:text-white font-bold py-2.5 rounded transition shadow-lg tracking-wider text-sm flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket"></i> Leave Guild
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="p-6 text-center relative rounded-2xl">
+                        <button onclick="closeGuildModal(null, true)" class="absolute top-3 right-4 text-2xl hover:text-red-500 text-gray-400">&times;</button>
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-3"></i>
+                        <h2 class="text-xl font-bold text-white mb-2">Fetch Failed</h2>
+                        <p class="text-gray-400 text-sm">${data.msg || "Guild info not found."}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => { 
+            content.innerHTML = `<div class="p-5 text-center text-red-500 font-bold">Network Error!</div>`; 
+        });
+    }
+
+    function loadGuildMembers(bot_name, guild_id) {
+        const btn = document.getElementById('btnLoadMembers');
+        const listArea = document.getElementById('memberListArea');
+        const originalBtns = listArea.innerHTML;
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Members...'; 
+        btn.disabled = true;
+
+        fetch(`${API_BASE}/guild/fetch?bot_name=${encodeURIComponent(bot_name)}&guild_id=${encodeURIComponent(guild_id)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success' && data.data && data.data.members) {
+                listArea.innerHTML = renderMembersHtml(data.data.members) + 
+                                     `<div class="mt-3"></div>` + 
+                                     originalBtns.replace('Loading Members...', '<i class="fa-solid fa-users-viewfinder"></i> Refresh Members').replace('disabled=""', '');
+            } else {
+                listArea.innerHTML = `
+                    <div class="bg-red-900/20 border border-red-800 p-3 rounded text-center text-red-400 text-sm font-bold shadow-inner mb-3">
+                        <i class="fa-solid fa-circle-exclamation mr-2 text-red-500"></i>Member details not available.
+                    </div>` + originalBtns.replace('Loading Members...', 'Retry View Members').replace('disabled=""', '');
+            }
+        })
+        .catch(err => { 
+            listArea.innerHTML = `
+                <div class="text-center text-red-400 text-sm font-bold mb-3">
+                    <i class="fa-solid fa-wifi mr-2"></i>Network error.
+                </div>` + originalBtns.replace('Loading Members...', 'Retry View Members').replace('disabled=""', ''); 
+        });
+    }
+
+    function renderMembersHtml(members) {
+        const roleOrder = { "Leader": 1, "ActingLeader": 2, "Officer": 3, "Member": 4 };
+        members.sort((a, b) => (roleOrder[a.Role] || 99) - (roleOrder[b.Role] || 99));
+
+        let html = `<div class="max-h-[200px] overflow-y-auto custom-scroll pr-1 mt-2">`;
+        let currentRole = '';
+
+        members.forEach(m => {
+            if (m.Role !== currentRole) {
+                currentRole = m.Role;
+                const roleColors = { 
+                    "Leader": "text-yellow-500 border-yellow-500/30", 
+                    "ActingLeader": "text-orange-400 border-orange-400/30", 
+                    "Officer": "text-blue-400 border-blue-400/30", 
+                    "Member": "text-gray-300 border-gray-700" 
+                };
+                const rClass = roleColors[m.Role] || "text-gray-400 border-gray-700";
+                html += `<div class="text-[10px] uppercase tracking-widest font-bold mt-3 mb-1 pl-1 border-b pb-1 ${rClass} sticky top-0 bg-[#161a24] z-10 py-1">${m.Role}s</div>`;
+            }
+
+            const avatarUrl = m.AvatarId ? getImgUrl(m.AvatarId) : (m.avatar_url || 'https://via.placeholder.com/50');
+            html += `
+                <div class="flex items-center gap-3 p-2 bg-[#1e2230] rounded-lg mb-2 border border-gray-800 hover:border-gray-600 transition">
+                    <img src="${avatarUrl}" class="w-10 h-10 rounded-md bg-black border border-gray-700 object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                    
+                    <div class="flex-1 cursor-pointer group" onclick="openProfileModal('${m.Uid}')">
+                        <div class="font-bold text-gray-200 text-sm group-hover:text-blue-400 transition truncate max-w-[150px]">${m.Nickname}</div>
+                        <div class="font-mono text-yellow-500 text-[10px] group-hover:underline" onclick="event.stopPropagation(); copyToClipboard('${m.Uid}')">${m.Uid}</div>
+                    </div>
+                    
+                    <div class="text-xs font-bold bg-[#11141c] border border-gray-700 px-2 py-1 rounded text-gray-300 shadow-inner">Lv: ${m.Level}</div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`; 
+        return html;
+    }
+
+    function closeGuildModal(e, force=false) {
+        if(force || e.target.id === 'guildModalWrapper') { 
+            document.getElementById('guildModalWrapper').classList.add('hidden'); 
+        }
+    }
+</script>

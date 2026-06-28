@@ -1,0 +1,267 @@
+<!-- templates/sections/guild.html -->
+<div id="guild-tab" class="tab-section hidden space-y-4">
+    <!-- ESPORTS GUILD PROFILE DECK -->
+    <div class="cyber-glass rounded-2xl p-4 border border-white/5 bg-gradient-to-br from-[#141624] to-[#14172a] relative overflow-hidden">
+        <div class="absolute right-[-10px] bottom-[-10px] opacity-[0.02] pointer-events-none select-none">
+            <i class="fas fa-shield-halved text-[100px]"></i>
+        </div>
+        
+        <div class="flex justify-between items-center mb-3 pb-2 border-b border-white/5 relative z-10">
+            <h3 class="font-orbitron font-black text-white text-xs tracking-wider uppercase"><i class="fas fa-shield-halved text-yellow-500 mr-1.5"></i>Guild Details</h3>
+            <span class="text-[10px] bg-white/5 border border-white/10 px-3 py-1 rounded-xl text-gray-300 font-mono font-bold select-all">
+                ID: <span id="guild-info-id-badge">N/A</span>
+            </span>
+        </div>
+        
+        <div id="guild-status-info" class="space-y-3">
+            <!-- Dynamic info gets loaded here -->
+            <div class="text-center py-6 text-gray-500 font-bold text-xs uppercase animate-pulse">Syncing guild databases...</div>
+        </div>
+    </div>
+
+    <!-- Active Guild Members list with Serial Numbers and click-to-copy -->
+    <div id="guild-members-card" class="hidden cyber-glass rounded-2xl p-4 border border-white/5 shadow-lg">
+        <h4 class="text-xs font-black text-yellow-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2"><i class="fas fa-users"></i> Guild Members Directory</h4>
+        <div id="guild-members-list" class="space-y-2 max-h-80 overflow-y-auto custom-scroll pr-1">
+            <!-- Loaded dynamically on runtime -->
+        </div>
+    </div>
+
+    <script>
+        async function loadGuildInfo() {
+            let profileRes = await fetch('/api/bot/profile');
+            let profileData = await profileRes.json();
+            let container = document.getElementById('guild-status-info');
+            
+            if(profileData.success && profileData.profile.clan_id && profileData.profile.clan_id !== "0") {
+                const clanId = profileData.profile.clan_id;
+                document.getElementById('guild-info-id-badge').innerText = clanId;
+                
+                let res = await fetch(`/api/guild/info/${clanId}`);
+                let data = await res.json();
+                
+                if(data.status === 'success' && data.data) {
+                    const g = data.data;
+                    container.innerHTML = `
+                        <div class="text-center pb-1">
+                            <h4 class="text-base font-black text-white font-orbitron tracking-wide">${g.GuildName}</h4>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-black/30 p-1.5 rounded-xl border border-white/5">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block mb-0.5">Level</span>
+                                <b class="text-purple-400 text-xs font-orbitron">LV. ${g.GuildLevel}</b>
+                            </div>
+                            <div class="bg-black/30 p-1.5 rounded-xl border border-white/5">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block mb-0.5">Slots</span>
+                                <b class="text-white text-xs font-orbitron">${g.CurrentMembers}/${g.MaxMembers}</b>
+                            </div>
+                            <div class="bg-black/30 p-1.5 rounded-xl border border-white/5">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block mb-0.5">Weekly</span>
+                                <b class="text-cyan-400 text-xs font-mono">Synced</b>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-center">
+                            <div class="bg-black/30 p-1.5 rounded-xl border border-white/5">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block mb-0.5">Total Activity Points</span>
+                                <b class="text-emerald-400 text-xs font-mono">${g.TotalActivityPoints}</b>
+                            </div>
+                            <div class="bg-black/30 p-1.5 rounded-xl border border-white/5">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block mb-0.5">Slogan Display</span>
+                                <b class="text-yellow-400 text-xs truncate block">"${g.GuildSlogan || 'No Slogan'}"</b>
+                            </div>
+                        </div>
+                        
+                        <button onclick="exitGuild('${g.GuildId}')" class="w-full bg-rose-600/15 text-rose-400 hover:bg-rose-600 hover:text-white transition-all py-2 rounded-xl text-[10px] font-black border border-rose-500/10 uppercase tracking-wider">
+                            EXIT / QUIT THIS CLAN
+                        </button>
+                    `;
+                    loadGuildMembers(clanId);
+                }
+            } else {
+                // 🟢 PRESERVE STATE: ইনপুট বক্স অলরেডি স্ক্রিনে থাকলে লুপ এটিকে আর নতুন করে রিসেট করবে না
+                if (!document.getElementById('join-guild-id')) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-2 text-xs">
+                            Bot is currently not enrolled in any Garena Guild.
+                        </div>
+                        <div class="flex gap-2" id="guild-search-form-block">
+                            <input type="number" id="join-guild-id" placeholder="Enter Target Guild ID" class="flex-1 bg-[#11131a] border border-white/10 text-white rounded-xl p-2.5 text-xs font-bold outline-none focus:border-yellow-400 font-mono">
+                            <button onclick="checkGuildDetails()" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black px-4 rounded-xl text-xs uppercase tracking-widest">Check</button>
+                        </div>
+                        <div id="checked-guild-preview" class="hidden mt-3 space-y-3"></div>
+                    `;
+                    document.getElementById('guild-members-card').classList.add('hidden');
+                    document.getElementById('guild-info-id-badge').innerText = "0000";
+                }
+            }
+        }
+
+        async function checkGuildDetails() {
+            let id = document.getElementById('join-guild-id').value.trim();
+            if(!id) return showToast("Guild ID required", "error");
+
+            try {
+                let res = await fetch(`/api/guild/info?guild_id=${id}`);
+                let data = await res.json();
+
+                if(data.status === 'success' && data.data) {
+                    const g = data.data;
+                    document.getElementById('guild-info-id-badge').innerText = g.GuildId;
+                    const preview = document.getElementById('checked-guild-preview');
+                    
+                    preview.innerHTML = `
+                        <div class="bg-black/40 p-4 rounded-2xl border border-white/5 space-y-3">
+                            <div class="text-center border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-[8px] uppercase tracking-wider block">Scanned Guild Info</span>
+                                <h4 class="text-sm font-black text-yellow-400 font-orbitron">${g.GuildName}</h4>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="bg-[#11131a] p-1.5 rounded-xl border border-white/5">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Level</span>
+                                    <b class="text-purple-400 font-orbitron">LV. ${g.GuildLevel}</b>
+                                </div>
+                                <div class="bg-[#11131a] p-1.5 rounded-xl border border-white/5">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Slots</span>
+                                    <b class="text-white font-orbitron">${g.CurrentMembers}/${g.MaxMembers}</b>
+                                </div>
+                                <div class="bg-[#11131a] p-1.5 rounded-xl border border-white/5">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-0.5">Glory</span>
+                                    <b class="text-cyan-400 font-mono">${g.TotalActivityPoints}</b>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="submitJoinGuildRequest('${g.GuildId}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md">
+                                    Send Join Request
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    preview.classList.remove('hidden');
+                } else {
+                    showToast(data.msg || "Guild details not found.", "error");
+                }
+            } catch(e) {
+                showToast("Connection to server failed.", "error");
+            }
+        }
+
+        async function submitJoinGuildRequest(clanId) {
+            try {
+                let res = await fetch('/api/guild/action', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ clan_id: clanId, action: 'join' }) 
+                });
+                let data = await res.json();
+                if(data.status === 'success') { 
+                    showToast("Garena Guild Request Sent!"); 
+                    loadGuildInfo();
+                } else {
+                    showToast("Join request rejected.", "error");
+                }
+            } catch(e) {
+                showToast("Request failed to submit", "error");
+            }
+        }
+
+        function getAvatarUrl(id) {
+            let avatarId = String(id).trim();
+            if (!avatarId.startsWith("902") || avatarId.length < 9) {
+                avatarId = "902000003"; 
+            }
+            return `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+        }
+
+        async function loadGuildMembers(clanId) {
+            let res = await fetch(`/api/guild/fetch?guild_id=${clanId}`);
+            let data = await res.json();
+            let card = document.getElementById('guild-members-card');
+            let list = document.getElementById('guild-members-list');
+            
+            if(data.status === 'success' && data.data && data.data.members) {
+                card.classList.remove('hidden');
+                let html = '';
+                let indexCounter = 1;
+                
+                const renderMemberRow = (m, roleText, bgClass, textClass, badgeClass) => {
+                    return `
+                    <div class="p-3 ${bgClass} rounded-2xl border border-white/5 text-xs flex justify-between items-center transition-all duration-300">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <span class="text-gray-500 font-bold font-mono text-xs w-5 flex-shrink-0 text-center">${indexCounter++}.</span>
+                            
+                            <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                <img src="${getAvatarUrl(m.AvatarId)}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/60'">
+                            </div>
+                            
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 mb-0.5">
+                                    <span class="font-bold text-white truncate max-w-[130px] block">${m.Nickname}</span>
+                                    <span class="bg-yellow-500/10 text-yellow-400 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase font-orbitron">Lv. ${m.Level}</span>
+                                </div>
+                                <span onclick="window.copyToClipboard('${m.Uid}', this)" class="text-[9px] text-gray-400 font-mono block cursor-pointer hover:text-yellow-400 transition-colors">
+                                    UID: ${m.Uid} <i class="far fa-copy text-[8px] ml-1 opacity-70"></i> | ${roleText}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right flex flex-col justify-center flex-shrink-0">
+                            <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Weekly Glory</span>
+                            <b class="${textClass} font-mono font-black text-sm">${m.weekly_glory || 0}</b>
+                        </div>
+                    </div>`;
+                };
+
+                // Filter and order roles cleanly
+                const leader = data.data.members.find(m => m.Role === 'Leader');
+                const acting_leader = data.data.members.find(m => m.Role === 'ActingLeader');
+                const officers = data.data.members.filter(m => m.Role === 'Officer');
+                const members = data.data.members.filter(m => m.Role === 'Member');
+
+                if(leader) {
+                    html += renderMemberRow(leader, "👑 Guild Leader", "bg-yellow-500/10 border-yellow-500/25", "text-yellow-400");
+                }
+                if(acting_leader) {
+                    html += renderMemberRow(acting_leader, "⭐ Acting Leader", "bg-purple-500/15 border-purple-500/25", "text-purple-400");
+                }
+                officers.forEach(o => {
+                    html += renderMemberRow(o, "👮 Guild Officer", "bg-purple-500/5 border-purple-500/15", "text-purple-300");
+                });
+                members.forEach(m => {
+                    html += renderMemberRow(m, "👤 Clan Member", "bg-black/30", "text-gray-400");
+                });
+                
+                list.innerHTML = html;
+            }
+        }
+
+        async function exitGuild(clanId) {
+            window.showConfirmModal(
+                "Quit Guild?", 
+                "Are you sure you want to quit this Garena clan?", 
+                async () => {
+                    let res = await fetch('/api/guild/action', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ clan_id: clanId, action: 'leave' }) 
+                    });
+                    let data = await res.json();
+                    if(data.status === 'success') { 
+                        showToast("Successfully left the guild."); 
+                        loadGuildInfo(); 
+                        loadBotProfile(); 
+                    }
+                },
+                "fa-sign-out-alt"
+            );
+        }
+
+        // 🟢 AUTO LIVE UPDATER FOR GUILD INFO ONCE ACTIVATED
+        setInterval(() => {
+            const guildTab = document.getElementById('guild-tab');
+            if (guildTab && !guildTab.classList.contains('hidden')) {
+                loadGuildInfo();
+            }
+        }, 4000);
+    </script>
+</div>

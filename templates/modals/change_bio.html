@@ -1,0 +1,250 @@
+<!-- templates/modals/change_bio.html -->
+<div id="changeBioWrapper" class="hidden fixed inset-0 bg-black/90 flex justify-center items-center z-[200] p-4 backdrop-blur-sm" onclick="closeBioModal(event)">
+    <div class="cyber-glass rounded-[2.5rem] w-full max-w-lg shadow-2xl flex flex-col h-auto max-h-[95vh]" onclick="event.stopPropagation()">
+        
+        <div class="bg-[#0f121a] p-5 border-b border-white/5 flex justify-between items-center relative rounded-t-[2.5rem]">
+            <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest flex items-center">
+                <i class="fa-solid fa-signature text-purple-500 mr-3"></i> 
+                Signature Editor
+            </h2>
+            <button onclick="closeBioModal(null, true)" class="text-gray-400 hover:text-red-500 text-2xl transition absolute right-5 top-4">&times;</button>
+        </div>
+        
+        <div class="p-5 flex-1 overflow-y-auto custom-scroll space-y-4">
+            <!-- Colors Palette -->
+            <div>
+                <span class="text-[9px] text-gray-500 font-black uppercase tracking-widest block mb-2">Color dots (Tap to Insert)</span>
+                <div class="flex flex-wrap gap-1.5 bg-[#0f121a] p-3 border border-white/5 rounded-2xl justify-center" id="colorPaletteContainer">
+                    <!-- Javascript will inject color dots here -->
+                </div>
+            </div>
+
+            <!-- Smart Text Editor -->
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-[9px] text-gray-500 uppercase font-black tracking-widest block">Editor (Max 3 Lines)</span>
+                    <span id="bioCharCounter" class="text-[9px] font-mono font-bold text-gray-400 bg-gray-800 px-2 py-0.5 rounded-lg border border-white/10">0 / 250</span>
+                </div>
+                
+                <div class="flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-300 shadow-inner">
+                    <div class="flex justify-between bg-gray-100 text-gray-700 px-2 py-1.5 border-b border-gray-300">
+                        <div class="flex gap-1">
+                            <button onclick="execUndo()" class="p-1 hover:bg-gray-300 rounded transition text-xs"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button onclick="execRedo()" class="p-1 hover:bg-gray-300 rounded transition text-xs"><i class="fa-solid fa-rotate-right"></i></button>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="zoomEditor(-1)" class="p-1 hover:bg-gray-300 rounded transition text-xs"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button onclick="zoomEditor(1)" class="p-1 hover:bg-gray-300 rounded transition text-xs"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex bg-white text-black min-h-[110px]">
+                        <!-- Gutter -->
+                        <div id="editorGutter" class="w-9 bg-gray-50 border-r border-gray-300 flex flex-col items-center pt-2.5 pb-2.5 text-blue-600 select-none font-bold" style="font-size: 13px; line-height: 20px;">
+                            <div style="height: 20px;">1➔</div>
+                            <div style="height: 20px;">2➔</div>
+                            <div style="height: 20px;">3➔</div>
+                        </div>
+                        <!-- Textarea -->
+                        <textarea id="smartBioEditor" class="flex-1 p-2.5 outline-none resize-none whitespace-pre font-bold text-black bg-white" rows="3" style="font-size: 13px; line-height: 20px;" placeholder="Type signature here..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div>
+                <span class="text-[9px] text-gray-500 font-black uppercase tracking-widest block mb-2"><i class="fa-solid fa-eye text-emerald-500 mr-1"></i> Live Preview</span>
+                <div class="bg-[#0f121a] border border-white/5 rounded-2xl p-3.5 min-h-[70px] shadow-inner flex flex-col justify-center items-start animate-pulse" id="bioLivePreview"></div>
+            </div>
+
+            <button onclick="triggerUpdateBio()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl transition shadow-lg tracking-wider text-xs uppercase">
+                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> UPDATE SIGNATURE
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let editorZoom = 13;
+    const ffColors = [
+        "FF0000", "00FF00", "0000FF", "FFFF00", "00FFFF", "FF00FF", "FFFFFF", "000000",
+        "808080", "FFA500", "800080", "008000", "000080", "A52A2A", "FFC0CB", "FFD700",
+        "40E0D0", "4B0082", "EE82EE", "DC143C", "00FF7F", "8B4513", "FF4500", "2E8B57", "1E90FF"
+    ];
+
+    function initColorPalette() {
+        const container = document.getElementById('colorPaletteContainer');
+        if (container) {
+            container.innerHTML = ffColors.map(hex => `
+                <div onclick="insertColorCode('${hex}')" class="w-5 h-5 rounded-full cursor-pointer border border-gray-600 shadow-sm hover:scale-110 transition hover:shadow-md" style="background-color: #${hex};" title="[${hex}]"></div>
+            `).join('');
+        }
+    }
+
+    function insertColorCode(hex) {
+        const code = `[${hex}]`;
+        const input = document.getElementById('smartBioEditor');
+        const startPos = input.selectionStart;
+        const endPos = input.selectionEnd;
+        const currentText = input.value;
+        
+        input.value = currentText.substring(0, startPos) + code + currentText.substring(endPos);
+        input.focus();
+        input.selectionStart = startPos + code.length;
+        input.selectionEnd = startPos + code.length;
+        updateBioPreviewAndCount();
+    }
+
+    function execUndo() {
+        document.getElementById('smartBioEditor').focus();
+        document.execCommand('undo');
+        updateBioPreviewAndCount();
+    }
+
+    function execRedo() {
+        document.getElementById('smartBioEditor').focus();
+        document.execCommand('redo');
+        updateBioPreviewAndCount();
+    }
+
+    function zoomEditor(dir) {
+        editorZoom += (dir * 2);
+        if (editorZoom < 10) editorZoom = 10;
+        if (editorZoom > 22) editorZoom = 22;
+        
+        const editor = document.getElementById('smartBioEditor');
+        const gutter = document.getElementById('editorGutter');
+        const gutterDivs = gutter ? gutter.querySelectorAll('div') : [];
+        
+        const lh = (editorZoom * 1.5) + 'px';
+        const fSize = editorZoom + 'px';
+        
+        if (editor) {
+            editor.style.fontSize = fSize;
+            editor.style.lineHeight = lh;
+        }
+        if (gutter) {
+            gutter.style.fontSize = fSize;
+            gutter.style.lineHeight = lh;
+            gutterDivs.forEach(div => { div.style.height = lh; });
+        }
+    }
+
+    function setupBioInputs() {
+        const editor = document.getElementById('smartBioEditor');
+        if (editor) {
+            editor.addEventListener('input', updateBioPreviewAndCount);
+            editor.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                    const lines = this.value.split('\n');
+                    if(lines.length >= 3) { e.preventDefault(); }
+                }
+            });
+        }
+    }
+
+    // 🟢 DYNAMIC COMPATIBLE CLASSIC REGEX TAG STRIPPER
+    function renderFFBio(bio) {
+        if (!bio || bio === "No Signature") return `<span class="text-gray-500 italic">No Signature</span>`;
+        let html = bio.replace(/\n/g, '<br>');
+        
+        // 🟢 ULTRA-COMPATIBLE CLASSIC STRING REPLACE (Termux/Mobile-Webview Safe)
+        let parsed = html.replace(/\[([0-9a-fA-F]{6})\]/gi, function(match, hex) {
+            return `</span><span style="color: #${hex}; font-weight: bold;">`;
+        });
+        
+        return `<span class="text-gray-300 font-bold">${parsed}</span>`;
+    }
+
+    function updateBioPreviewAndCount() {
+        const editor = document.getElementById('smartBioEditor');
+        if (!editor) return;
+        
+        let lines = editor.value.split('\n');
+        if(lines.length > 3) {
+            lines = lines.slice(0, 3);
+            const cursor = editor.selectionStart;
+            editor.value = lines.join('\n');
+            editor.selectionStart = cursor;
+            editor.selectionEnd = cursor;
+        }
+
+        const totalLength = editor.value.length;
+        const counter = document.getElementById('bioCharCounter');
+        if (counter) {
+            counter.innerText = `${totalLength} / 250`;
+            if (totalLength > 250) {
+                counter.classList.remove('text-gray-400');
+                counter.classList.add('text-red-500');
+            } else {
+                counter.classList.remove('text-red-500');
+                counter.classList.add('text-gray-400');
+            }
+        }
+        document.getElementById('bioLivePreview').innerHTML = renderFFBio(editor.value);
+    }
+
+    function openBioModal() {
+        let currentSig = "";
+        const sigEl = document.getElementById('self-signature-display');
+        if (sigEl) {
+            currentSig = sigEl.innerText;
+            if (currentSig === "No Signature") {
+                currentSig = "";
+            }
+        }
+        
+        const editor = document.getElementById('smartBioEditor');
+        if (editor) {
+            editor.value = currentSig;
+        }
+        
+        editorZoom = 13;
+        zoomEditor(0); 
+        updateBioPreviewAndCount();
+        
+        const wrapper = document.getElementById('changeBioWrapper');
+        if (wrapper) {
+            wrapper.classList.remove('hidden');
+            wrapper.classList.add('flex');
+        }
+    }
+
+    function closeBioModal(e, force=false) {
+        if(force || (e && e.target.id === 'changeBioWrapper')) {
+            const wrapper = document.getElementById('changeBioWrapper');
+            if (wrapper) {
+                wrapper.classList.add('hidden');
+                wrapper.classList.remove('flex');
+            }
+        }
+    }
+
+    async function triggerUpdateBio() {
+        const editorValue = document.getElementById('smartBioEditor').value;
+        closeBioModal(null, true);
+        showToast("Updating Signature on Garena...");
+        
+        try {
+            let res = await fetch('/api/bot/bio', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ bio: editorValue })
+            });
+            let data = await res.json();
+            if(data.success) {
+                showToast("Signature changed successfully!", "success");
+                if (typeof loadBotProfile === 'function') {
+                    loadBotProfile(); 
+                }
+            } else {
+                showToast(data.msg || "Handshake rejected.", "error");
+            }
+        } catch(e) {
+            showToast("Connection failed", "error");
+        }
+    }
+
+    initColorPalette();
+    setupBioInputs();
+</script>

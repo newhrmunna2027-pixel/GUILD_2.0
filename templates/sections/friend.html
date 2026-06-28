@@ -1,0 +1,294 @@
+<!-- templates/sections/friend.html -->
+<div id="friend-tab" class="tab-section hidden space-y-6">
+    <!-- Header Control Card -->
+    <div class="cyber-glass rounded-3xl p-5 flex justify-between items-center shadow-lg">
+        <div>
+            <h3 class="font-orbitron font-black text-white text-base">FRIEND MANAGER</h3>
+            <p class="text-[10px] text-gray-400">Send requests or moderation packets.</p>
+        </div>
+        <button onclick="openAddFriendModalScanner()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md">
+            + SEND REQUEST
+        </button>
+    </div>
+
+    <!-- Active Friends & Pending Requests Directory Lists -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 1. Active Friends list -->
+        <div class="cyber-glass rounded-3xl p-4 flex flex-col h-[420px]">
+            <h4 class="text-xs font-black text-yellow-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2 flex items-center gap-1.5">
+                <i class="fas fa-user-check"></i> Friends Directory
+            </h4>
+            <div id="friends-list" class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1">
+                <div class="text-center text-gray-500 py-12 text-xs">Syncing friends directory...</div>
+            </div>
+        </div>
+
+        <!-- 2. Pending Requests List -->
+        <div class="cyber-glass rounded-3xl p-4 flex flex-col h-[420px]">
+            <h4 class="text-xs font-black text-rose-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2 flex items-center gap-1.5">
+                <i class="fas fa-clock"></i> Pending Handshakes
+            </h4>
+            <div id="pending-list" class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1">
+                <div class="text-center text-gray-500 py-12 text-xs">Syncing requests inbox...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🟢 ADD FRIEND MODAL POPUP (PREVIEW WITH CANCEL & ADD BUTTONS) -->
+    <div id="addFriendModalWrapper" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-[150] p-4 backdrop-blur-sm">
+        <div class="cyber-glass p-6 rounded-[2rem] w-full max-w-sm shadow-2xl relative" id="addFriendModalBox">
+            <div class="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
+                <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest flex items-center">
+                    <i class="fa-solid fa-user-plus text-emerald-400 mr-2"></i>Send Request
+                </h2>
+                <button onclick="closeAddFriendModal()" class="text-gray-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            
+            <!-- Input & Search Area -->
+            <div id="friendSearchState" class="space-y-4">
+                <p class="text-[10px] text-gray-500 font-bold leading-relaxed">Enter Garena player UID below to scan their profile before sending a friend request.</p>
+                <div class="flex gap-2">
+                    <input type="number" id="addFriendUidInput" placeholder="Enter Garena UID" class="flex-1 bg-[#11131a] border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400 font-mono">
+                    <button onclick="checkFriendProfile()" id="btnCheckFriend" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black px-5 rounded-xl text-xs uppercase tracking-widest transition">Scan</button>
+                </div>
+                
+                <!-- Result Preview Card -->
+                <div id="friendScanResult" class="min-h-[140px] flex flex-col justify-center items-center text-gray-500 border border-dashed border-gray-800 rounded-2xl p-4 bg-[#0f121a]">
+                    <i class="fa-solid fa-id-card text-4xl mb-2 text-gray-700"></i>
+                    <span class="text-xs font-bold text-gray-400">Scan results will appear here</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getAvatarUrl(id) {
+            let avatarId = String(id).trim();
+            if (!avatarId.startsWith("902") || avatarId.length < 9) {
+                avatarId = "902000003"; // standard fallback
+            }
+            return `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+        }
+
+        function openAddFriendModalScanner() {
+            resetFriendScanState();
+            const modal = document.getElementById('addFriendModalWrapper');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAddFriendModal() {
+            const modal = document.getElementById('addFriendModalWrapper');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // 🟢 NATIVE GARENA SCANNER LOGIC FOR LIVE PREVIEW
+        async function checkFriendProfile() {
+            const uid = document.getElementById('addFriendUidInput').value.trim();
+            const resDiv = document.getElementById('friendScanResult');
+            const btn = document.getElementById('btnCheckFriend');
+            
+            if (!uid) {
+                showToast("Garena UID is required", "error");
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            resDiv.innerHTML = '<div class="loader"></div>';
+            
+            try {
+                // সাইলেন্ট মেথড force=true পাস করা হয়েছে লাইভ ডেটা পাওয়ার জন্য
+                const response = await fetch(`/api/fetch_profile?uid=${uid}&save=false&force=true`);
+                const d = await response.json();
+                
+                btn.disabled = false;
+                btn.innerHTML = 'Scan';
+                
+                if (d.success && d.data) {
+                    const b = d.data.basicInfo || {};
+                    const c = d.data.clanBasicInfo || {};
+                    
+                    const avatarId = b.headPic || 902000003;
+                    const avatar = getAvatarUrl(avatarId);
+                    const clanName = c.clanName || 'No Guild';
+                    const clanId = c.clanId && c.clanId !== '0' && c.clanId !== 'N/A' ? c.clanId : 'N/A';
+                    
+                    resDiv.innerHTML = `
+                        <div class="w-full text-left bg-[#161a24] border border-white/5 p-4 rounded-xl space-y-4">
+                            <!-- Profile Header -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl border border-yellow-500/30 p-0.5 bg-black/40 overflow-hidden flex-shrink-0">
+                                    <img src="${avatar}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/60'">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <b class="text-white text-sm font-orbitron block truncate">${b.nickname || 'Unknown'}</b>
+                                    <span class="bg-yellow-500/10 text-yellow-400 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase font-orbitron block mt-1 w-max">LV.${b.level || 0}</span>
+                                </div>
+                            </div>
+
+                            <!-- 3-Column Metrics (UID, Guild Name, Guild ID) -->
+                            <div class="grid grid-cols-3 gap-1.5 text-center text-[9px] font-mono font-bold">
+                                <div class="bg-black/30 p-2 rounded-xl border border-white/5 overflow-hidden">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-1">UID</span>
+                                    <span class="text-yellow-500 truncate block">${uid}</span>
+                                </div>
+                                <div class="bg-black/30 p-2 rounded-xl border border-white/5 overflow-hidden">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-1">Guild</span>
+                                    <span class="text-blue-400 truncate block text-[8px]">${clanName}</span>
+                                </div>
+                                <div class="bg-black/30 p-2 rounded-xl border border-white/5 overflow-hidden">
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-wider block mb-1">Guild ID</span>
+                                    <span class="text-purple-400 truncate block">${clanId}</span>
+                                </div>
+                            </div>
+
+                            <!-- Dual Actions (Cancel & Add) -->
+                            <div class="flex gap-2 pt-1 font-orbitron">
+                                <button onclick="resetFriendScanState()" class="w-1/2 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-black rounded-xl transition text-[10px] uppercase tracking-wider">Cancel</button>
+                                <button onclick="submitFriendRequest('${uid}')" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl transition shadow-lg text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resDiv.innerHTML = `
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl mb-2"></i>
+                        <span class="text-rose-400 font-bold text-xs text-center">${d.msg || "Player not found!"}</span>
+                    `;
+                }
+            } catch(e) {
+                btn.disabled = false;
+                btn.innerHTML = 'Scan';
+                resDiv.innerHTML = `<span class="text-rose-500 font-bold text-xs">Network Error!</span>`;
+            }
+        }
+
+        function resetFriendScanState() {
+            document.getElementById('addFriendUidInput').value = '';
+            document.getElementById('friendScanResult').innerHTML = `
+                <i class="fa-solid fa-id-card text-4xl mb-2 text-gray-700"></i>
+                <span class="text-xs font-bold text-gray-400">Scan results will appear here</span>
+            `;
+        }
+
+        async function submitFriendRequest(uid) {
+            if(!uid) return;
+            
+            try {
+                const res = await fetch('/api/friends/add', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ uid: uid })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    showToast("Friend Request successfully sent!", "success");
+                    closeAddFriendModal();
+                    loadFriends();
+                } else {
+                    showToast(data.msg || "Handshake rejected.", "error");
+                }
+            } catch(e) {
+                showToast("Connection error", "error");
+            }
+        }
+
+        async function loadFriends() {
+            try {
+                let res = await fetch('/api/friends/list');
+                let data = await res.json();
+                let list = document.getElementById('friends-list');
+                if(!data.success || data.friends.length === 0) {
+                    list.innerHTML = '<div class="text-center text-gray-500 py-12 text-xs">No active friends found.</div>';
+                } else {
+                    list.innerHTML = data.friends.map(f => `
+                        <div class="flex justify-between items-center p-3.5 bg-[#11131a]/60 rounded-2xl border border-white/5">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                    <img src="${getAvatarUrl(f.avatar_id)}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/60'">
+                                </div>
+                                <div class="min-w-0">
+                                    <b class="text-white text-sm block truncate">${f.nickname}</b>
+                                    <span class="text-[10px] text-yellow-400 font-mono font-bold block mt-0.5">Lv. ${f.level}</span>
+                                    <span class="text-[9px] text-gray-400 font-mono block">UID: ${f.uid} | Guild: ${f.guild_name}</span>
+                                </div>
+                            </div>
+                            <button onclick="deleteFriend('${f.uid}')" class="p-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl transition-all duration-300">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+            loadPending();
+        }
+
+        async function loadPending() {
+            try {
+                let res = await fetch('/api/friends/pending');
+                let data = await res.json();
+                let list = document.getElementById('pending-list');
+                if(!data.success || data.requests.length === 0) {
+                    list.innerHTML = '<div class="text-center text-gray-500 py-12 text-xs">No pending requests found.</div>';
+                } else {
+                    list.innerHTML = data.requests.map(r => `
+                        <div class="flex justify-between items-center p-3.5 bg-[#11131a]/60 rounded-2xl border border-white/5">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                    <img src="${getAvatarUrl(r.avatar_id)}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/60'">
+                                </div>
+                                <div class="min-w-0">
+                                    <b class="text-white text-sm block truncate">${r.nickname}</b>
+                                    <span class="text-[10px] text-yellow-400 font-mono font-bold block mt-0.5">Lv. ${r.level}</span>
+                                    <span class="text-[9px] text-gray-400 font-mono block">UID: ${r.uid}</span>
+                                    <span class="text-[9px] text-purple-400 font-bold block mt-0.5"><i class="fas fa-shield-halved"></i> Guild: ${r.guild_name}</span>
+                                    <span class="text-[8px] text-gray-500 font-mono block mt-0.5"><i class="far fa-clock"></i> Sent: ${r.request_time}</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5 flex-shrink-0">
+                                <button onclick="acceptRequest('${r.uid}')" class="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"><i class="fas fa-check text-xs"></i></button>
+                                <button onclick="rejectRequest('${r.uid}')" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"><i class="fas fa-times text-xs"></i></button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function deleteFriend(uid) {
+            window.showConfirmModal(
+                "Remove Friend?", 
+                "Are you sure you want to remove this player from Garena Friends?", 
+                async () => {
+                    let res = await fetch('/api/friends/remove', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+                    let data = await res.json();
+                    if(data.success) { showToast("Friend deleted."); loadFriends(); }
+                },
+                "fa-trash-alt"
+            );
+        }
+
+        async function acceptRequest(uid) {
+            let res = await fetch('/api/friends/accept', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+            let data = await res.json();
+            if(data.success) { showToast("Friend Request Accepted!"); loadFriends(); }
+        }
+
+        async function rejectRequest(uid) {
+            let res = await fetch('/api/friends/reject', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+            let data = await res.json();
+            if(data.success) { showToast("Request rejected."); loadFriends(); }
+        }
+
+        // Live synchronizer for Friends
+        setInterval(() => {
+            const friendTab = document.getElementById('friend-tab');
+            if (friendTab && !friendTab.classList.contains('hidden')) {
+                loadFriends();
+            }
+        }, 4000);
+    </script>
+</div>

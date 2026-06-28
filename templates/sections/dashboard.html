@@ -1,0 +1,95 @@
+<!-- templates/sections/dashboard.html -->
+<div id="dashboard-tab" class="tab-section block space-y-6">
+    <!-- Main Profile Portrait Banner -->
+    <div class="cyber-glass rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br from-[#1c1e30]/80 to-[#0e1018]/80">
+        <!-- Live Garena Banner Image Load -->
+        <img id="self-banner-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none select-none hidden">
+
+        <div class="flex flex-col sm:flex-row items-center gap-6 relative z-10">
+            <!-- Avatar Frame with dynamic level badge -->
+            <div class="relative flex-shrink-0">
+                <div class="w-24 h-24 rounded-2xl border-2 border-yellow-400 p-0.5 bg-black/40 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                    <img id="self-avatar" src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png" class="w-full h-full object-cover rounded-xl">
+                </div>
+                <span id="self-level" class="absolute -bottom-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black font-black text-[9px] px-2.5 py-0.5 rounded-full border border-black uppercase font-orbitron">Lv.0</span>
+            </div>
+            
+            <div class="flex-1 text-center sm:text-left min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-1 justify-center sm:justify-start">
+                    <h2 id="self-name" class="text-xl font-black text-white font-orbitron tracking-wide truncate">Garena Bot</h2>
+                    <span id="self-region-badge" class="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider w-max mx-auto sm:mx-0">BD SERVER</span>
+                </div>
+                <div class="text-gray-400 text-xs font-mono mb-2">UID: <span id="self-uid" class="text-yellow-400 select-all font-bold">00000000</span></div>
+                <p class="text-xs text-gray-400">Guild: <span id="self-guild" class="text-white font-bold">No Guild</span></p>
+            </div>
+            
+            <button onclick="refreshBotProfile()" id="btn-refresh-profile" class="w-full sm:w-auto bg-yellow-500/10 hover:bg-yellow-500 hover:text-black text-yellow-400 font-bold px-4 py-3 rounded-xl border border-yellow-500/25 text-xs transition-all duration-300 flex items-center justify-center gap-1.5">
+                <i class="fas fa-sync-alt" id="refresh-icon"></i> REFRESH PORTRAIT
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats Metric Grids -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="cyber-glass rounded-2xl p-4 text-center">
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Likes Metric</span>
+            <div class="text-xl font-black text-white font-orbitron" id="self-likes">0</div>
+        </div>
+        <div class="cyber-glass rounded-2xl p-4 text-center">
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Signature Line</span>
+            <div class="text-xs text-gray-300 truncate font-bold" id="self-signature-display">No Signature</div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadBotProfile() {
+            let res = await fetch('/api/bot/profile');
+            let data = await res.json();
+            if(data.success) {
+                const p = data.profile;
+                document.getElementById('self-name').innerText = p.nickname;
+                document.getElementById('self-uid').innerText = p.uid;
+                document.getElementById('self-level').innerText = "Lv." + p.level;
+                document.getElementById('self-region-badge').innerText = p.region + " SERVER";
+                document.getElementById('self-guild').innerText = p.clan_name || "No Guild";
+                document.getElementById('self-likes').innerText = p.likes;
+                document.getElementById('self-signature-display').innerText = p.signature || "No Signature";
+                
+                // গ্যারেনা প্রোফাইল ক্যাশ মেথড জেনারেটর
+                if (data.json_data && data.json_data.tag_1) {
+                    const avatarId = data.json_data.tag_1.tag_32;
+                    document.getElementById('self-avatar').src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId || '902000003'}.png`;
+                    
+                    const bannerId = data.json_data.tag_1.tag_35;
+                    const bannerImg = document.getElementById('self-banner-img');
+                    bannerImg.src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${bannerId || '901000001'}.png`;
+                    bannerImg.classList.remove('hidden');
+                }
+            }
+        }
+
+        async function refreshBotProfile() {
+            const btn = document.getElementById('btn-refresh-profile');
+            const icon = document.getElementById('refresh-icon');
+            btn.disabled = true;
+            icon.classList.add('fa-spin');
+            
+            try {
+                let res = await fetch('/api/bot/refresh', { method: 'POST' });
+                let data = await res.json();
+                if(data.success) {
+                    showToast(data.msg);
+                    loadBotProfile();
+                } else {
+                    showToast(data.msg, "error");
+                }
+            } catch(e) {
+                showToast("Live sync rejected.", "error");
+            }
+            btn.disabled = false;
+            icon.classList.remove('fa-spin');
+        }
+
+        loadBotProfile();
+    </script>
+</div>

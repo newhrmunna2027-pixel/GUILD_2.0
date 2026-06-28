@@ -1,0 +1,93 @@
+<div id="adminModalWrapper" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4" onclick="closeAdminModal(event)">
+    <div id="adminModalContent" class="bg-[#161a24] border border-gray-700 p-5 rounded-2xl w-full max-w-md shadow-2xl" onclick="event.stopPropagation()">
+        <!-- Generated HTML will be put here -->
+    </div>
+</div>
+
+<script>
+    function openAdminModal(bot_uid, bot_name, guild_id) {
+        if(!bot_uid || bot_uid === 'undefined') { 
+            showToast("Bot is not online yet! Wait for In-game UID.", "error"); return; 
+        }
+        
+        document.getElementById('adminModalWrapper').classList.remove('hidden');
+
+        // Check if user is owner of this bot logic (we use frontend check, backend also validates)
+        // Note: For simplicity, if role != owner, we can disable add/remove inputs visually.
+        const disabledInput = (CURRENT_ROLE !== 'owner') ? 'disabled' : '';
+        const hiddenClass = (CURRENT_ROLE !== 'owner') ? 'hidden' : '';
+
+        const html = `
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3 relative">
+                <h2 class="text-lg font-bold text-blue-400"><i class="fa-solid fa-user-shield mr-2"></i>Admins: <span class="text-white">${bot_name}</span></h2>
+                <button onclick="closeAdminModal(null, true)" class="text-gray-400 hover:text-red-500 text-2xl absolute right-0 top-0">&times;</button>
+            </div>
+            
+            <div class="flex gap-2 mb-4 ${hiddenClass}">
+                <input type="number" id="newAdminUid" placeholder="Enter Admin UID" class="w-full p-2.5 bg-[#0f121a] border border-gray-700 rounded text-white focus:border-blue-500 outline-none font-mono text-sm">
+                <button onclick="addAdmin('${bot_uid}', '${bot_name}', '${guild_id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-5 font-bold rounded transition text-sm">ADD</button>
+            </div>
+            
+            <div class="bg-[#0f121a] rounded-lg border border-gray-800 h-[250px] overflow-y-auto custom-scroll p-2" id="adminListArea">
+                <div class="text-center text-gray-500 mt-10"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><br>Loading Admins...</div>
+            </div>`;
+            
+        document.getElementById('adminModalContent').innerHTML = html;
+        loadAdmins(bot_uid);
+    }
+
+    async function loadAdmins(bot_uid) {
+        try {
+            const res = await fetch(`${API_BASE}/admin?uid=${bot_uid}`);
+            const data = await res.json();
+            const listArea = document.getElementById('adminListArea');
+            
+            const btnClass = (CURRENT_ROLE !== 'owner') ? 'hidden' : '';
+
+            if (data.status === 'success' && data.data.Admins && data.data.Admins.length > 0) {
+                listArea.innerHTML = data.data.Admins.map(admin_uid => `
+                    <div class="flex justify-between items-center bg-[#1e2230] p-3 rounded mb-2 border border-gray-800">
+                        <span onclick="openProfileModal('${admin_uid}')" class="font-mono text-yellow-500 font-bold text-sm cursor-pointer hover:text-yellow-400 hover:underline transition">
+                            <i class="fa-solid fa-user-tie text-gray-500 mr-2"></i>${admin_uid}
+                        </span>
+                        <button onclick="removeAdmin('${bot_uid}', '${admin_uid}')" class="${btnClass} text-red-400 hover:text-red-300 bg-red-900/20 px-3 py-1.5 rounded transition text-xs font-bold">
+                            <i class="fa-solid fa-trash-can mr-1"></i> Remove
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                listArea.innerHTML = `<div class="text-center text-gray-500 mt-10"><i class="fa-solid fa-users-slash text-3xl mb-2 text-gray-700"></i><br>No Admins Found.</div>`;
+            }
+        } catch(e) { document.getElementById('adminListArea').innerHTML = `<div class="text-center text-red-500 mt-10">Error loading data!</div>`; }
+    }
+
+    async function addAdmin(bot_uid, bot_name, guild_id) { 
+        const uid = document.getElementById('newAdminUid').value.trim(); 
+        if(!uid) return; 
+        
+        const res = await fetch(`${API_BASE}/admin/action`, { 
+            method: "POST", headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify({ action: 'add', bot_uid, admin_uid: uid, bot_name, guild_id }) 
+        }); 
+        const data = await res.json();
+        if(data.status !== 'success') showToast(data.msg, "error");
+        else document.getElementById('newAdminUid').value = '';
+        loadAdmins(bot_uid); 
+    }
+    
+    async function removeAdmin(bot_uid, admin_uid) { 
+        const res = await fetch(`${API_BASE}/admin/action`, { 
+            method: "POST", headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify({ action: 'remove', bot_uid, admin_uid }) 
+        }); 
+        const data = await res.json();
+        if(data.status !== 'success') showToast(data.msg, "error");
+        loadAdmins(bot_uid); 
+    }
+
+    function closeAdminModal(e, force=false) {
+        if(force || e.target.id === 'adminModalWrapper') {
+            document.getElementById('adminModalWrapper').classList.add('hidden');
+        }
+    }
+</script>

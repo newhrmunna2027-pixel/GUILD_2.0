@@ -1,0 +1,136 @@
+<!-- START OF FILE friends_list.html -->
+<div id="friendsModal" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-[50] p-4" onclick="closeFriendsModal(event)">
+    <div class="bg-[#161a24] border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col h-[85vh]" onclick="event.stopPropagation()">
+        
+        <div class="bg-[#0f121a] p-4 border-b border-gray-800 flex justify-between items-center relative rounded-t-2xl">
+            <h2 class="text-xl font-black text-white flex items-center">
+                <i class="fa-solid fa-user-group text-green-500 mr-3"></i> 
+                <span>Friends List <span id="fTotal" class="text-xs bg-gray-800 border border-gray-600 px-2 py-0.5 rounded-full text-gray-300 ml-2">0</span></span>
+            </h2>
+            <div class="flex gap-3">
+                <button id="btnOpenPending" class="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-1.5 rounded text-xs font-bold transition shadow shadow-yellow-900">
+                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> Pending
+                </button>
+                <button onclick="closeFriendsModal(null, true)" class="text-gray-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+        </div>
+        
+        <div class="p-4 flex-1 overflow-y-auto custom-scroll" id="friendsContent">
+            <!-- Table dynamically injected -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .f-table { width: 100%; text-align: left; border-collapse: collapse; }
+    .f-table th { background: #0f121a; color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 12px; border-bottom: 1px solid #2a2e3d; position: sticky; top: 0; z-index: 10; }
+    .f-table td { padding: 10px 12px; border-bottom: 1px solid #1e2230; font-size: 13px; color: #d1d5db; }
+    .f-table tr { transition: 0.2s; }
+    .f-table tr:hover { background-color: rgba(255,255,255,0.03); }
+</style>
+
+<script>
+    let currentBotForFriends = '';
+
+    function openFriendsModal(botName) {
+        currentBotForFriends = botName;
+        const modal = document.getElementById('friendsModal');
+        const content = document.getElementById('friendsContent');
+        const fTotal = document.getElementById('fTotal');
+        
+        document.getElementById('btnOpenPending').onclick = () => openPendingModal(botName);
+
+        modal.classList.remove('hidden');
+        content.innerHTML = '<div class="text-center mt-20 text-gray-500 font-bold"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-green-500"></i><br>Fetching Friends Data...</div>';
+        fTotal.innerText = "0";
+
+        fetch(`${API_BASE}/friends/fetch?bot_name=${encodeURIComponent(botName)}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success' && data.data.friends) {
+                fTotal.innerText = data.data.total_friends || data.data.friends.length;
+                renderFriendsTable(data.data.friends);
+            } else {
+                content.innerHTML = `<div class="text-center mt-20 text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>${data.msg || "Failed to load API"}</div>`;
+            }
+        })
+        .catch(err => { content.innerHTML = `<div class="text-center mt-20 text-red-500 font-bold">Network Error!</div>`; });
+    }
+
+    function renderFriendsTable(friends) {
+        if(friends.length === 0) {
+            document.getElementById('friendsContent').innerHTML = `<div class="text-center mt-20 text-gray-500 font-bold">No friends found.</div>`; return;
+        }
+
+        let html = `
+            <table class="f-table">
+                <thead>
+                    <tr>
+                        <th>Player Info</th>
+                        <th class="text-center">Level</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        friends.forEach(f => {
+            // FIX: Safe fallback for avatar extraction
+            const avatarId = f.avatarId || f.avatar_id || 902000003;
+            const avatar = getImgUrl(avatarId);
+            const safeName = f.nickname.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const disableAttr = (CURRENT_ROLE !== 'owner') ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : '';
+
+            html += `
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-10 h-10 rounded-md bg-black border border-gray-700 cursor-pointer hover:border-gray-500" onclick="openProfileModal('${f.uid}')" onerror="this.src='https://via.placeholder.com/40'">
+                            <div>
+                                <div class="font-bold text-white text-sm cursor-pointer hover:text-blue-400 transition whitespace-nowrap truncate max-w-[150px] md:max-w-[200px]" onclick="openProfileModal('${f.uid}')" title="${f.nickname}">${f.nickname}</div>
+                                <div class="font-mono text-yellow-500 text-[10px] cursor-pointer hover:underline" onclick="copyToClipboard('${f.uid}')">${f.uid}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center"><span class="bg-gray-800 border border-gray-600 text-gray-300 px-2 py-0.5 rounded text-xs font-bold">Lv.${f.level}</span></td>
+                    <td class="text-right">
+                        <button ${disableAttr} onclick="confirmRemoveFriend('${f.uid}', '${safeName}')" class="bg-red-900/40 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 px-3 py-1.5 rounded transition shadow-sm" title="Remove Friend">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += `</tbody></table>`;
+        document.getElementById('friendsContent').innerHTML = html;
+    }
+
+    function confirmRemoveFriend(friendUid, friendName) {
+        showConfirmModal(
+            "Remove Friend?",
+            `Are you sure you want to delete <span class="text-white font-bold">${friendName}</span> from your friends list?`,
+            "fa-solid fa-user-xmark text-red-500",
+            "Yes, Remove",
+            "bg-red-600 hover:bg-red-500",
+            async () => {
+                const res = await fetch(`${API_BASE}/friends/action`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ bot_name: currentBotForFriends, friend_uid: friendUid, action: "remove" })
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    showToast("Friend removed successfully!", "success");
+                    openFriendsModal(currentBotForFriends); 
+                } else {
+                    showToast(data.msg, "error");
+                }
+            }
+        );
+    }
+
+    function closeFriendsModal(e, force=false) {
+        if(force || e.target.id === 'friendsModal') { document.getElementById('friendsModal').classList.add('hidden'); }
+    }
+</script>
+<!-- END OF FILE friends_list.html -->

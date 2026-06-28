@@ -1,0 +1,729 @@
+{
+  "ranks": [
+    {
+      "rank_name": "Evo",
+      "badges": [
+        {
+          "badge_name": "Evo_1",
+          "emotes": [
+            {"no":1,"id":"909000063","name":"AK47"},
+            {"no":2,"id":"909000068","name":"SCAR"},
+            {"no":3,"id":"909000075","name":"MP40"},
+            {"no":4,"id":"909000081","name":"M1014"},
+            {"no":5,"id":"909000085","name":"XM8"},
+            {"no":6,"id":"909000090","name":"FAMAS"},
+            {"no":7,"id":"909000098","name":"UMP"},
+            {"no":8,"id":"909033001","name":"M4A1"},
+            {"no":9,"id":"909035007","name":"M1887"},
+            {"no":10,"id":"909035012","name":"AN94"}
+          ]
+        },
+        {
+          "badge_name": "Evo_2",
+          "emotes": [
+            {"no":11,"id":"909037011","name":"Fist"},
+            {"no":12,"id":"909038010","name":"Thompson"},
+            {"no":13,"id":"909038012","name":"G18"},
+            {"no":14,"id":"909039011","name":"M1014_2.0"},
+            {"no":15,"id":"909040010","name":"MP40_2.0"},
+            {"no":16,"id":"909042008","name":"Woodpecker"},
+            {"no":17,"id":"909045001","name":"Parafal"},
+            {"no":18,"id":"909049010","name":"P90"},
+            {"no":19,"id":"909051003","name":"M60"},
+            {"no":20,"id":"909033002","name":"MP5"},
+            {"no":21,"id":"909041005","name":"Groza"}
+          ]
+        }
+      ]
+    },
+    {
+      "rank_name": "Love",
+      "badges": [
+        {
+          "badge_name": "Love_1",
+          "emotes": [
+            {"no":22,"id":"909000024","name":"Battle Dance"},
+            {"no":23,"id":"909000025","name":"High Five"},
+            {"no":24,"id":"909000026","name":"Shake It Up"},
+            {"no":25,"id":"909000027","name":"Glorious Spin"}
+          ]
+        },
+        {
+          "badge_name": "Love_2",
+          "emotes": [
+            {"no":26,"id":"909000028","name":"Crane Kick"},
+            {"no":27,"id":"909000029","name":"Party Dance"},
+            {"no":28,"id":"909000031","name":"Jig Dance"},
+            {"no":29,"id":"909000033","name":"Soul Shaking"},
+            {"no":30,"id":"909000037","name":"Death glare"},
+            {"no":31,"id":"909000040","name":"Break dance"},
+            {"no":32,"id":"909000043","name":"Aim, fire!"},
+            {"no":33,"id":"909000044","name":"The Swan"},
+            {"no":34,"id":"909000047","name":"Bring It On!"},
+            {"no":35,"id":"909000048","name":"Why? Oh Why?"}
+          ]
+        },
+        {
+          "badge_name": "Flex",
+          "emotes": [
+            {"no":36,"id":"909000049","name":"Fancy Hands"},
+            {"no":37,"id":"909000051","name":"Shimmy"},
+            {"no":38,"id":"909000053","name":"Challenge On!"},
+            {"no":39,"id":"909000054","name":"Lasso"},
+            {"no":40,"id":"909000061","name":"Bhangra"},
+            {"no":41,"id":"909000062","name":"Piece of Cake"},
+            {"no":42,"id":"909000065","name":"The Victor"},
+            {"no":43,"id":"909000066","name":"Sii!"},
+            {"no":44,"id":"909000076","name":"One-Finger Pushup"},
+            {"no":45,"id":"909000082","name":"Good Game"}
+          ]
+        },
+        {
+          "badge_name": "Chill",
+          "emotes": [
+            {"no":46,"id":"909000083","name":"Greetings"},
+            {"no":47,"id":"909000084","name":"The Walker"},
+            {"no":48,"id":"909000092","name":"Fancy Steps"},
+            {"no":49,"id":"909000097","name":"Poof"},
+            {"no":50,"id":"909000099","name":"Challenger"},
+            {"no":51,"id":"909000127","name":"BATTLE IN STYLE"},
+            {"no":52,"id":"909000131","name":"Smooth Sway"},
+            {"no":53,"id":"909000132","name":"Number 1"},
+            {"no":54,"id":"909000139","name":"Switching Steps"},
+            {"no":55,"id":"909033003","name":"Come and Dance"}
+          ]
+        },
+        {
+          "badge_name": "Vibe",
+          "emotes": [
+            {"no":56,"id":"909033004","name":"Drop Kick"},
+            {"no":57,"id":"909034004","name":"Energetic"},
+            {"no":58,"id":"909034005","name":"Ridicule"},
+            {"no":59,"id":"909034007","name":"Great Conductor"},
+            {"no":60,"id":"909034008","name":"Fake Death"},
+            {"no":61,"id":"909034009","name":"Twerk"},
+            {"no":62,"id":"909035011","name":"Groove Moves"},
+            {"no":63,"id":"909035014","name":"Ninja Stand"},
+            {"no":64,"id":"909036005","name":"Agile Boxer"},
+            {"no":65,"id":"909036012","name":"Swaggy Dance"}
+          ]
+        },
+        {
+          "badge_name": "Move",
+          "emotes": [
+            {"no":66,"id":"909036014","name":"Admire"},
+            {"no":67,"id":"909037007","name":"Happy Dancing"},
+            {"no":68,"id":"909037012","name":"Clap Dance"},
+            {"no":69,"id":"909039002","name":"Artistic Musical Dance"},
+            {"no":70,"id":"909039003","name":"Forward, Backward"},
+            {"no":71,"id":"909039008","name":"Oh Yeah!"},
+            {"no":72,"id":"909039010","name":"Flex"},
+            {"no":73,"id":"909039014","name":"Swaggy V-Steps"},
+            {"no":74,"id":"909041011","name":"Honorable Mention Emote"},
+            {"no":75,"id":"909041015","name":"Basudara Dance"}
+          ]
+        },
+        {
+          "badge_name": "Pulse",
+          "emotes": [
+            {"no":76,"id":"909042005","name":"This Way"},
+            {"no":77,"id":"909042011","name":"Dawn Voyage Emote"},
+            {"no":78,"id":"909042016","name":"Hand Grooves"},
+            {"no":79,"id":"909042018","name":"Kemusan"},
+            {"no":80,"id":"909043004","name":"Why So Chaos?"},
+            {"no":81,"id":"909044007","name":"Raise Your Thumb!"},
+            {"no":82,"id":"909044008","name":"Clap Your Hands!"},
+            {"no":83,"id":"909044016","name":"Honk Up!"},
+            {"no":84,"id":"909045006","name":"You Know I'm Good"},
+            {"no":85,"id":"909045007","name":"Step Step"}
+          ]
+        },
+        {
+          "badge_name": "Style",
+          "emotes": [
+            {"no":86,"id":"909045008","name":"Super Yay"},
+            {"no":87,"id":"909045015","name":"Floating Meditation"},
+            {"no":88,"id":"909046007","name":"Crowd Pleaser"},
+            {"no":89,"id":"909046008","name":"No Sweat"},
+            {"no":90,"id":"909046017","name":"Soaring Up"},
+            {"no":91,"id":"909047011","name":"Hip Twists"},
+            {"no":92,"id":"909047013","name":"Stormy Ascent"},
+            {"no":93,"id":"909047016","name":"A Thousand Years of Death"},
+            {"no":94,"id":"909048012","name":"Swift Steps"},
+            {"no":95,"id":"909048013","name":"Carnival Funk"}
+          ]
+        },
+        {
+          "badge_name": "Trick",
+          "emotes": [
+            {"no":96,"id":"909049004","name":"Slap and Twist"},
+            {"no":97,"id":"909049005","name":"Side Wiggle"},
+            {"no":98,"id":"909049014","name":"Drive-By"},
+            {"no":99,"id":"909049015","name":"Pedal on the Metal"},
+            {"no":100,"id":"909042007","name":"\"100\" Gloo Sculpture"},
+            {"no":101,"id":"909049020","name":"Winning Goal"},
+            {"no":102,"id":"909049021","name":"Head High"},
+            {"no":103,"id":"909050004","name":"Forehead Poke"},
+            {"no":104,"id":"909050016","name":"Tactical Moveout"},
+            {"no":105,"id":"909050017","name":"Bunny Wiggle"}
+          ]
+        },
+        {
+          "badge_name": "Aura",
+          "emotes": [
+            {"no":106,"id":"909050026","name":"Aura Farming"},
+            {"no":107,"id":"909050029","name":"Marching"},
+            {"no":108,"id":"909050030","name":"Low Rider"},
+            {"no":109,"id":"909051006","name":"Double Holster"},
+            {"no":110,"id":"909051007","name":"Finger Guns"},
+            {"no":111,"id":"909051008","name":"Shivering"},
+            {"no":112,"id":"909051009","name":"Triple Shush"},
+            {"no":113,"id":"909051011","name":"Twisted Stare"},
+            {"no":114,"id":"909051016","name":"Crowned Glory Emote"},
+            {"no":115,"id":"909051021","name":"Passinho"}
+          ]
+        },
+        {
+          "badge_name": "Flow",
+          "emotes": [
+            {"no":116,"id":"909051022","name":"All Good, Boss!"},
+            {"no":117,"id":"909052006","name":"Farewell"},
+            {"no":118,"id":"909052010","name":"T-pose"},
+            {"no":119,"id":"909052021","name":"Husky Dance"},
+            {"no":120,"id":"909053008","name":"VAR Review"},
+            {"no":121,"id":"909053012","name":"Itchy Nose"}
+          ]
+        }
+      ]
+    },
+    {
+      "rank_name": "ORANGE",
+      "badges": [
+        {
+          "badge_name": "Epic",
+          "emotes": [
+            {"no":122,"id":"909000010","name":"Flowers of Love"},
+            {"no":123,"id":"909000014","name":"FFWC Throne"},
+            {"no":124,"id":"909000032","name":"Selfie"},
+            {"no":125,"id":"909000034","name":"Pirate's Flag"},
+            {"no":126,"id":"909000036","name":"Top DJ"},
+            {"no":127,"id":"909000038","name":"Power of money"},
+            {"no":128,"id":"909000039","name":"Eat my dust"},
+            {"no":129,"id":"909000041","name":"Kongfu"},
+            {"no":130,"id":"909000045","name":"I heart you"},
+            {"no":131,"id":"909000046","name":"Tea Time"}
+          ]
+        },
+        {
+          "badge_name": "Gold",
+          "emotes": [
+            {"no":132,"id":"909000052","name":"Doggie"},
+            {"no":133,"id":"909000055","name":"I'm Rich!"},
+            {"no":134,"id":"909000056","name":"Make It Rain"},
+            {"no":135,"id":"909000058","name":"Captain Booyah"},
+            {"no":136,"id":"909000060","name":"BOOYAH!"},
+            {"no":137,"id":"909000001","name":"Hello!"},
+            {"no":138,"id":"909000064","name":"I'm Saitama!"},
+            {"no":139,"id":"909000067","name":"Obliteration"},
+            {"no":140,"id":"909000002","name":"LOL"},
+            {"no":141,"id":"909000069","name":"Top Scorer"}
+          ]
+        },
+        {
+          "badge_name": "Rage",
+          "emotes": [
+            {"no":142,"id":"909000072","name":"Predator Pulse"},
+            {"no":143,"id":"909000073","name":"Ground Punch"},
+            {"no":144,"id":"909000074","name":"The Biker"},
+            {"no":145,"id":"909000003","name":"Provoke"},
+            {"no":146,"id":"909000077","name":"Stage Time"},
+            {"no":147,"id":"909000078","name":"Booyah! Balloon"},
+            {"no":148,"id":"909000079","name":"More Practice"},
+            {"no":149,"id":"909000080","name":"FFWS 2021"},
+            {"no":150,"id":"909000004","name":"Applause"},
+            {"no":151,"id":"909000005","name":"Dab"}
+
+          ]
+        },
+        {
+          "badge_name": "Hero",
+          "emotes": [
+            {"no":152,"id":"909000086","name":"Mythos Four"},
+            {"no":153,"id":"909000087","name":"Champion Grab"},
+            {"no":154,"id":"909000088","name":"Win and Chill"},
+            {"no":155,"id":"909000089","name":"Hadouken"},
+            {"no":156,"id":"909000006","name":"Chicken"},
+            {"no":157,"id":"909000091","name":"Big Smash"},
+            {"no":158,"id":"909000093","name":"All In Control"},
+            {"no":159,"id":"909000094","name":"Debugging"},
+            {"no":160,"id":"909000095","name":"Waggor Wave"},
+            {"no":161,"id":"909000096","name":"Crazy Guitar"}
+          ]
+        },
+        {
+          "badge_name": "King",
+          "emotes": [
+            {"no":162,"id":"909000007","name":"Arm Wave"},
+            {"no":163,"id":"909000121","name":"Dribble King"},
+            {"no":164,"id":"909000123","name":"Mind it!"},
+            {"no":165,"id":"909000124","name":"Golden Combo"},
+            {"no":166,"id":"909000128","name":"Ruler's Flag"},
+            {"no":167,"id":"909000129","name":"Money Throw"},
+            {"no":168,"id":"909000130","name":"Endless Bullets"},
+            {"no":169,"id":"909000134","name":"Heartbroken"},
+            {"no":170,"id":"909000136","name":"Shattered Reality"},
+            {"no":171,"id":"909000138","name":"Burnt BBQ"}
+          ]
+        },
+        {
+          "badge_name": "Fire",
+          "emotes": [
+            {"no":172,"id":"909000140","name":"Creed Slay"},
+            {"no":173,"id":"909000144","name":"Kungfu Tigers"},
+            {"no":174,"id":"909000145","name":"Possessed Warrior"},
+            {"no":175,"id":"909000008","name":"Shoot Dance"},
+            {"no":176,"id":"909000022","name":"Moon Flip"},
+            {"no":177,"id":"909033005","name":"Sit Down!"},
+            {"no":178,"id":"909033006","name":"BOOYAH Sparks"},
+            {"no":179,"id":"909033008","name":"Easy Peasy"},
+            {"no":180,"id":"909033010","name":"Weight of Victory"},
+            {"no":181,"id":"909034001","name":"Chronicle of the Sword"}
+          ]
+        },
+        {
+          "badge_name": "Master",
+          "emotes": [
+            {"no":182,"id":"909034006","name":"Tease Waggor"},
+            {"no":183,"id":"909034010","name":"BR-Ranked Heroic Emote"},
+            {"no":184,"id":"909034011","name":"BR-Ranked Master Emote"},
+            {"no":185,"id":"909034012","name":"CS-Ranked Heroic Emote"},
+            {"no":186,"id":"909034013","name":"CS-Ranked Master Emote"},
+            {"no":187,"id":"909034014","name":"Yes, I do"},
+            {"no":188,"id":"909035001","name":"Free Money!"},
+            {"no":189,"id":"909000009","name":"Baby Shark"},
+            {"no":190,"id":"909035009","name":"Weight Training"},
+            {"no":191,"id":"909035010","name":"Beautiful Love"}
+          ]
+        },
+        {
+          "badge_name": "Beast",
+          "emotes": [
+            {"no":192,"id":"909000011","name":"Mummy Dance"},
+            {"no":193,"id":"909035013","name":"Louder Please"},
+            {"no":194,"id":"909035015","name":"Creator In Action"},
+            {"no":195,"id":"909036002","name":"Shiba Surf"},
+            {"no":196,"id":"909036003","name":"Waiter Walk"},
+            {"no":197,"id":"909036004","name":"Graffiti Cameraman"},
+            {"no":198,"id":"909036006","name":"Sunbathing"},
+            {"no":199,"id":"909036008","name":"Skateboard Swag"},
+            {"no":200,"id":"909036009","name":"Phantom Tamer"},
+            {"no":201,"id":"909036010","name":"The Signal"}
+          ]
+        },
+        {
+          "badge_name": "Swag",
+          "emotes": [
+            {"no":202,"id":"909037001","name":"Reindeer Float"},
+            {"no":203,"id":"909037002","name":"Bamboo Dance"},
+            {"no":204,"id":"909037004","name":"Trophy Grab"},
+            {"no":205,"id":"909037006","name":"Yum"},
+            {"no":206,"id":"909037008","name":"Juggle"},
+            {"no":207,"id":"909037010","name":"Beast Tease"},
+            {"no":208,"id":"909000012","name":"Push-up"},
+            {"no":209,"id":"909038001","name":"The Influencer"},
+            {"no":210,"id":"909038003","name":"Techno Blast"},
+            {"no":211,"id":"909038006","name":"Make Some Noise"}
+          ]
+        },
+        {
+          "badge_name": "Power",
+          "emotes": [
+            {"no":212,"id":"909038008","name":"Croco Hooray"},
+            {"no":213,"id":"909038009","name":"Scorpio Spin"},
+            {"no":214,"id":"909000013","name":"Shuffling"},
+            {"no":215,"id":"909038011","name":"Shall We Dance?"},
+            {"no":216,"id":"909000015","name":"Dragon Fist"},
+            {"no":217,"id":"909039001","name":"Festival Celebration"},
+            {"no":218,"id":"909039004","name":"Scorpion Friend"},
+            {"no":219,"id":"909039006","name":"Earthly Force"},
+            {"no":220,"id":"909039007","name":"Grenade Magic"},
+            {"no":221,"id":"909039009","name":"Grace On Wheels"}
+          ]
+        },
+        {
+          "badge_name": "Doom",
+          "emotes": [
+            {"no":222,"id":"909000016","name":"Dangerous Game"},
+            {"no":223,"id":"909039012","name":"Fire Beast Tamer"},
+            {"no":224,"id":"909040001","name":"The Chromatic Finish"},
+            {"no":225,"id":"909040002","name":"Smash the Feather"},
+            {"no":226,"id":"909040004","name":"Fishing for Wisdom"},
+            {"no":227,"id":"909040006","name":"Chroma Twist Twist"},
+            {"no":228,"id":"909040008","name":"Birth of Justice"},
+            {"no":229,"id":"909000017","name":"Jaguar Dance"},
+            {"no":230,"id":"909040011","name":"Play With Thunderbolt"},
+            {"no":231,"id":"909040013","name":"Wisdom Swing"}
+          ]
+        },
+        {
+          "badge_name": "Fierce",
+          "emotes": [
+            {"no":232,"id":"909040014","name":"Helicopter Shot"},
+            {"no":233,"id":"909041001","name":"Thunder Breathing First Form: Thunder Flash"},
+            {"no":234,"id":"909041002","name":"Water Breathing Sixth Form: Whirlpool"},
+            {"no":235,"id":"909041003","name":"Beast Breathing Fifth Fang: Crazy Cutting"},
+            {"no":236,"id":"909041004","name":"Flying Ink Sword"},
+            {"no":237,"id":"909000023","name":"Wiggle walk"},
+            {"no":238,"id":"909041006","name":"Dance Puppet, Dance!"},
+            {"no":239,"id":"909041008","name":"Bony Fumes"},
+            {"no":240,"id":"909041009","name":"Feel the Electricity"},
+            {"no":241,"id":"909041010","name":"Whac-A-Cotton"}
+          ]
+        },
+        {
+          "badge_name": "Pro",
+          "emotes": [
+            {"no":242,"id":"909041012","name":"BR-Ranked Grandmaster Emote"},
+            {"no":243,"id":"909041013","name":"CS-Ranked Grandmaster Emote"},
+            {"no":244,"id":"909042002","name":"Money Rain"},
+            {"no":245,"id":"909042003","name":"Frostfire's Calling"},
+            {"no":246,"id":"909042006","name":"Excellent Service"},
+            {"no":247,"id":"909049019","name":"Squat Challenge"},
+            {"no":248,"id":"909000018","name":"Threaten"},
+            {"no":249,"id":"909042012","name":"Lamborghini Ride"},
+            {"no":250,"id":"909042017","name":"Free Fire Toiletman"}
+          ]
+        },
+        {
+          "badge_name": "Star",
+          "emotes": [
+            {"no":251,"id":"909043001","name":"Ribbit Rider"},
+            {"no":252,"id":"909043002","name":"Inner Self Mastery"},
+            {"no":253,"id":"909043003","name":"Emperor's Treasure Machine"},
+            {"no":254,"id":"909043005","name":"Huge Feast"},
+            {"no":255,"id":"909043007","name":"Dragon Swipe"},
+            {"no":256,"id":"909043009","name":"Speed Summon"},
+            {"no":257,"id":"909043010","name":"What a Match"},
+            {"no":258,"id":"909043013","name":"What a Pair"},
+            {"no":259,"id":"909044001","name":"Byte Mounting"},
+            {"no":260,"id":"909044002","name":"The Unicyclist"}
+          ]
+        },
+        {
+          "badge_name": "Moon",
+          "emotes": [
+            {"no":261,"id":"909044003","name":"Basket Rafting"},
+            {"no":262,"id":"909044004","name":"Happy Lamb Shouldering"},
+            {"no":263,"id":"909044005","name":"Paradox of Enlightenment"},
+            {"no":264,"id":"909044015","name":"The Final Paradox"},
+            {"no":265,"id":"909000019","name":"Shake With Me"},
+            {"no":266,"id":"909045002","name":"Spring Rocker"},
+            {"no":267,"id":"909045003","name":"Giddy Up!"},
+            {"no":268,"id":"909045004","name":"The Goosy Dance"},
+            {"no":269,"id":"909045005","name":"Captain Victor"},
+            {"no":270,"id":"909045010","name":"A Flower Salute"}
+          ]
+        },
+        {
+          "badge_name": "Sun",
+          "emotes": [
+            {"no":271,"id":"909045011","name":"Little Foxy Run"},
+            {"no":272,"id":"909045012","name":"Mr. Waggor's Seesaw"},
+            {"no":273,"id":"909046001","name":"Aura Boarder"},
+            {"no":274,"id":"909046003","name":"Controlled Combustion"},
+            {"no":275,"id":"909046004","name":"Cheers to Victory!"},
+            {"no":276,"id":"909046005","name":"Shoe Shining"},
+            {"no":277,"id":"909046006","name":"Gunspinning"},
+            {"no":278,"id":"909046009","name":"Magma Quake"},
+            {"no":279,"id":"909046010","name":"Max Firepower"},
+            {"no":280,"id":"909046011","name":"Can't Touch This"}
+          ]
+        },
+        {
+          "badge_name": "Sky",
+          "emotes": [
+            {"no":281,"id":"909046012","name":"Firestarter"},
+            {"no":282,"id":"909046013","name":"FFWS Flag Flair"},
+            {"no":283,"id":"909046014","name":"Beat Drop"},
+            {"no":284,"id":"909046015","name":"Isagi's Spatial Awareness"},
+            {"no":285,"id":"909046016","name":"Nagi's Trapping"},
+            {"no":286,"id":"909047001","name":"I Won't Bow Down"},
+            {"no":287,"id":"909047003","name":"Couch For Two"},
+            {"no":288,"id":"909047004","name":"Flutter Dash"},
+            {"no":289,"id":"909047005","name":"Slippery Throne"},
+            {"no":290,"id":"909047007","name":"Love Me, Love Me Not"}
+          ]
+        },
+        {
+          "badge_name": "Wind",
+          "emotes": [
+            {"no":291,"id":"909047008","name":"Scissor Savvy"},
+            {"no":292,"id":"909047009","name":"The Thinker"},
+            {"no":293,"id":"909047012","name":"JKT48 No.1"},
+            {"no":294,"id":"909047015","name":"Rasengan"},
+            {"no":295,"id":"909047019","name":"Clone Jutsu"},
+            {"no":296,"id":"909048002","name":"Midnight Peruse"},
+            {"no":297,"id":"909048003","name":"Guitar Groove"},
+            {"no":298,"id":"909048004","name":"Keyboard Player"},
+            {"no":299,"id":"909048005","name":"On Drums"},
+            {"no":300,"id":"909048006","name":"Chac-Chac"}
+          ]
+        },
+        {
+          "badge_name": "Storm",
+          "emotes": [
+            {"no":301,"id":"909048007","name":"Pillow Fight"},
+            {"no":302,"id":"909048009","name":"Goofy Camel"},
+            {"no":303,"id":"909048010","name":"Hit a Six!"},
+            {"no":304,"id":"909048011","name":"Flag Summon"},
+            {"no":305,"id":"909048014","name":"Slurp slurp!"},
+            {"no":306,"id":"909048015","name":"Sketching"},
+            {"no":307,"id":"909048016","name":"Half-Time Chilling"},
+            {"no":308,"id":"909048017","name":"Throw-In"},
+            {"no":309,"id":"909049001","name":"Nailoong Time!"},
+            {"no":310,"id":"909049002","name":"Hand Raise"}
+          ]
+        },
+        {
+          "badge_name": "Volt",
+          "emotes": [
+            {"no":311,"id":"909049003","name":"Kick It Up"},
+            {"no":312,"id":"909049006","name":"Creation Days"},
+            {"no":313,"id":"909049008","name":"Clap Clap Hooray"},
+            {"no":314,"id":"909049009","name":"Infinite Loops"},
+            {"no":315,"id":"909000020","name":"Devil's Move"},
+            {"no":316,"id":"909049011","name":"Boxing Machine"},
+            {"no":317,"id":"909049012","name":"Open Fire"},
+            {"no":318,"id":"909049016","name":"Spear Spin"},
+            {"no":319,"id":"909049017","name":"Flag Wave"},
+            {"no":320,"id":"909049018","name":"Disco Dazzle"}
+          ]
+        },
+        {
+          "badge_name": "Spark",
+          "emotes": [
+            {"no":321,"id":"909050003","name":"The Final Battle"},
+            {"no":322,"id":"909050005","name":"Fire Style: Fireball Jutsu"},
+            {"no":323,"id":"909050006","name":"Flying Raijin Jutsu"},
+            {"no":324,"id":"909050008","name":"Hammer Slam"},
+            {"no":325,"id":"909050009","name":"The Rings"},
+            {"no":326,"id":"909050010","name":"Drum Twirl"},
+            {"no":327,"id":"909050011","name":"Bunny Action"},
+            {"no":328,"id":"909050012","name":"Broom Swoosh"},
+            {"no":329,"id":"909050013","name":"Blade from Heart"},
+            {"no":330,"id":"909050018","name":"Flaming Heart"}
+          ]
+        },
+        {
+          "badge_name": "Core",
+          "emotes": [
+            {"no":331,"id":"909050019","name":"Rain or Shine"},
+            {"no":332,"id":"909050020","name":"Sholay"},
+            {"no":333,"id":"909050021","name":"Peak Points"},
+            {"no":334,"id":"909050027","name":"Boat Race Aura"},
+            {"no":335,"id":"909050028","name":"Boat Race Rowing"},
+            {"no":336,"id":"909051001","name":"Prismatic Flight"},
+            {"no":337,"id":"909000021","name":"Furious Slam"},
+            {"no":338,"id":"909051004","name":"Shower Time"},
+            {"no":339,"id":"909051010","name":"On Motorbike"},
+            {"no":340,"id":"909051012","name":"Celestial Shot"}
+          ]
+        },
+        {
+          "badge_name": "Soul",
+          "emotes": [
+            {"no":341,"id":"909051013","name":"Red Petals"},
+            {"no":342,"id":"909051014","name":"Puffer Ride"},
+            {"no":343,"id":"909051017","name":"Choppy Co-op"},
+            {"no":344,"id":"909052001","name":"TV Time"},
+            {"no":345,"id":"909052002","name":"Cursed Technique Reversal: Red"},
+            {"no":346,"id":"909052003","name":"Straw Doll Technique"},
+            {"no":347,"id":"909052004","name":"Ten Shadows Technique: Totality"},
+            {"no":348,"id":"909052005","name":"Catchy Melody"},
+            {"no":349,"id":"909052007","name":"Panther Move"},
+            {"no":350,"id":"909052008","name":"Heart Attack!"}
+          ]
+        },
+        {
+          "badge_name": "Mind",
+          "emotes": [
+            {"no":351,"id":"909052009","name":"Umbrella Go"},
+            {"no":352,"id":"909052012","name":"Treasure Rain"},
+            {"no":353,"id":"909053003","name":"Power of Eclipse"},
+            {"no":354,"id":"909053006","name":"Winning Kick"},
+            {"no":355,"id":"909053009","name":"Sweeten Up"},
+            {"no":356,"id":"909053010","name":"Sculpted Stills"},
+            {"no":357,"id":"909053011","name":"Multitasking"}
+          ]
+        }
+      ]
+    },
+    {
+      "rank_name": "PURPLE",
+      "badges": [
+        {
+          "badge_name": "Rare",
+          "emotes": [
+            {"no":358,"id":"909000042","name":"Bon Appetit"},
+            {"no":359,"id":"909000057","name":"Dust Off"},
+            {"no":360,"id":"909000059","name":"Let's Go!"},
+            {"no":361,"id":"909000070","name":"Triple Kicks"},
+            {"no":362,"id":"909000126","name":"Rap Swag"},
+            {"no":363,"id":"909000133","name":"Fire Slam"},
+            {"no":364,"id":"909000141","name":"Leap of Fail"},
+            {"no":365,"id":"909033007","name":"The FFWS Dance"},
+            {"no":366,"id":"909033009","name":"Winner Throw"},
+            {"no":367,"id":"909034002","name":"The Collapse"}
+          ]
+        },
+        {
+          "badge_name": "Royal",
+          "emotes": [
+            {"no":368,"id":"909035005","name":"Victorious Eagle"},
+            {"no":369,"id":"909035008","name":"Bobble Dance"},
+            {"no":370,"id":"909036001","name":"Ghost Float"},
+            {"no":371,"id":"909036011","name":"Eternal Descent"},
+            {"no":372,"id":"909037005","name":"Starry Hands"},
+            {"no":373,"id":"909038005","name":"Angry Walk"},
+            {"no":374,"id":"909038013","name":"Spin Master"},
+            {"no":375,"id":"909039005","name":"Aching Power"},
+            {"no":376,"id":"909040009","name":"Spider-Sense"},
+            {"no":377,"id":"909040012","name":"6th Anniversary Celebration"}
+          ]
+        },
+        {
+          "badge_name": "Grand",
+          "emotes": [
+            {"no":378,"id":"909041007","name":"High Knees"},
+            {"no":379,"id":"909042004","name":"Stomping Foot"},
+            {"no":380,"id":"909042009","name":"Celebration Schuss"},
+            {"no":381,"id":"909043006","name":"Color Burst"},
+            {"no":382,"id":"909043008","name":"Samba"},
+            {"no":383,"id":"909044009","name":"Done Deal"},
+            {"no":384,"id":"909044010","name":"Starcatcher Academy"},
+            {"no":385,"id":"909044011","name":"Little Paradox Wings"},
+            {"no":386,"id":"909044012","name":"Zombified!"},
+            {"no":387,"id":"909045009","name":"Moonwalk"}
+          ]
+        },
+        {
+          "badge_name": "Magic",
+          "emotes": [
+            {"no":388,"id":"909045017","name":"Champion's Walk"},
+            {"no":389,"id":"909046002","name":"Who's the Booyah Champ!"},
+            {"no":390,"id":"909047006","name":"Acceptance Speech"},
+            {"no":391,"id":"909047010","name":"Match Countdown"},
+            {"no":392,"id":"909047017","name":"Ninja Sign"},
+            {"no":393,"id":"909047018","name":"Ninja Run"},
+            {"no":394,"id":"909048008","name":"Target Practice"},
+            {"no":395,"id":"909048018","name":"Bailalo Rocky"},
+            {"no":396,"id":"909049013","name":"Comic Barf"},
+            {"no":397,"id":"909050014","name":"Map Read"}
+          ]
+        },
+        {
+          "badge_name": "Elite",
+          "emotes": [
+            {"no":398,"id":"909050015","name":"Tomato Smash"},
+            {"no":399,"id":"909051005","name":"Boss Energy"},
+            {"no":400,"id":"909051015","name":"Can't Stop Laughing"},
+            {"no":401,"id":"909051023","name":"67"},
+            {"no":402,"id":"909052011","name":"Laggy"},
+            {"no":403,"id":"909053001","name":"Victory Trumpet"},
+            {"no":404,"id":"909053004","name":"Undersea Wriggle"},
+            {"no":405,"id":"909053007","name":"Keepie Uppie"}
+          ]
+        }
+      ]
+    },
+    {
+      "rank_name": "RED",
+      "badges": [
+        {
+          "badge_name": "Evo",
+          "emotes": [
+            {"no":406,"id":"909000071","name":"Cobra Dance"},
+            {"no":407,"id":"909000125","name":"Sick Moves"},
+            {"no":408,"id":"909000135","name":"Rock Paper Scissors"},
+            {"no":409,"id":"909000137","name":"Halo of Music"},
+            {"no":410,"id":"909034003","name":"Flaming Groove"},
+            {"no":411,"id":"909035006","name":"Flying Saucer"},
+            {"no":412,"id":"909037003","name":"Dance of Constellation"},
+            {"no":413,"id":"909037009","name":"Neon Sign"},
+            {"no":414,"id":"909038004","name":"Be My Valentine"},
+            {"no":415,"id":"909039013","name":"Crimson Tunes"}
+          ]
+        },
+        {
+          "badge_name": "Legend",
+          "emotes": [
+            {"no":416,"id":"909040003","name":"Sonorous Steps"},
+            {"no":417,"id":"909040005","name":"Chromatic Pop Dance"},
+            {"no":418,"id":"909041014","name":"Monster Clubbing"},
+            {"no":419,"id":"909042001","name":"Stir-Fry Frostfire"},
+            {"no":420,"id":"909042013","name":"Hello! Frostfire Style"},
+            {"no":421,"id":"909044006","name":"Harmonious Paradox"},
+            {"no":422,"id":"909045016","name":"Naatu Naatu"},
+            {"no":423,"id":"909047002","name":"Aurora Iridescence"},
+            {"no":424,"id":"909048001","name":"To the Rescue"},
+            {"no":425,"id":"909049007","name":"Raining Coins"}
+          ]
+        },
+        {
+          "badge_name": "Myth",
+          "emotes": [
+            {"no":426,"id":"909050002","name":"Reanimation Jutsu"},
+            {"no":427,"id":"909051002","name":"Gather Around"},
+            {"no":428,"id":"909051018","name":"Gather Around"},
+            {"no":429,"id":"909051019","name":"Gather Around"},
+            {"no":430,"id":"909051020","name":"Gather Around"},
+            {"no":431,"id":"909052013","name":"King of Gold"},
+            {"no":432,"id":"909052014","name":"King of Gold"},
+            {"no":433,"id":"909052015","name":"King of Gold"},
+            {"no":434,"id":"909052016","name":"King of Gold"},
+            {"no":435,"id":"909053002","name":"Eclipse Creation"}
+          ]
+        },
+        {
+          "badge_name": "God",
+          "emotes": [
+            {"no":436,"id":"909053005","name":"Reverse Penalty!"},
+            {"no":437,"id":"909053013","name":"Reverse Penalty!"},
+            {"no":438,"id":"909053014","name":"Reverse Penalty!"},
+            {"no":439,"id":"909053015","name":"Reverse Penalty!"},
+            {"no":440,"id":"909053005,909053013,909053014,909053015","name":"Reverse Penalty!"},
+            {"no":441,"id":"909051002,909051018,909051019,909051020","name":"Gather Around"},
+            {"no":442,"id":"909052013,909052014,909052015,909052016","name":"King of Gold"},
+            {"no":443,"id":"909054001","name":"The Champion Is Here!"},
+            {"no":444,"id":"909054002","name":"Mark of Honor"},
+            {"no":445,"id":"909054003","name":"Left Right Sway"}
+          ]
+        },
+        {
+          "badge_name": "NEW",
+          "emotes": [
+            {"no":446,"id":"909054004","name":"Phoenix Flourish"},
+            {"no":447,"id":"909054006","name":"Celebration Dance"},
+            {"no":448,"id":"909054007","name":"Volcanic Fury"},
+            {"no":449,"id":"909054008","name":"Scarlet Finish"},
+            {"no":450,"id":"909054009","name":"Cotton All Over"},
+            {"no":451,"id":"909054010","name":"Keytar Jam"},
+            {"no":452,"id":"909054011","name":"kitten Accordion"},
+            {"no":453,"id":"909054012","name":"Smooth Jam"},
+            {"no":454,"id":"909054013","name":"Drum Jam"},
+            {"no":455,"id":"909054015","name":"Baa Baa Knit"}
+          ]
+        },
+        {
+          "badge_name": "NEW_2",
+          "emotes": [
+            {"no":456,"id":"909054016","name":"Spotless"},
+            {"no":457,"id":"909054017","name":"Heart Swing"},
+            {"no":458,"id":"909054005,909054020","name":"Anniversary Parade"}
+            
+          ]
+        }
+      ]
+    }
+  ]
+}

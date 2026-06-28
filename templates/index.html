@@ -1,0 +1,899 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUT OF LAW - Garena Bot Roster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Poppins"', 'sans-serif'],
+                        orbitron: ['"Orbitron"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 🟢 PREMIUM SPACE COSMIC DARK GLOBAL STYLE */
+        body {
+            background: #060913;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            padding-top: 85px;
+            padding-bottom: 30px;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* 🟢 PREMIUM COSMIC DARK GLASS PANELS */
+        .cyber-glass {
+            background: rgba(13, 18, 30, 0.65); /* Elegant Dark-Glassmorphism */
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            margin: 0;
+            padding: 0;
+            border-radius: 2rem;
+        }
+
+        .cyber-glass {
+            background: rgba(13, 18, 30, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.35), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cyber-glass:hover {
+            border-color: rgba(244, 63, 94, 0.5);
+            background: rgba(22, 28, 45, 0.75);
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(244, 63, 94, 0.25);
+        }
+
+        /* 🟢 GENTLE BOBBING/FLOATING ANIMATION FOR ALL CARDS */
+        @keyframes gentleBob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .bot-card-wrapper {
+            animation: gentleBob 6s ease-in-out infinite;
+        }
+        .bot-card-wrapper:nth-child(even) {
+            animation-delay: 1.5s;
+            animation-duration: 7s;
+        }
+        .bot-card-wrapper:nth-child(3n) {
+            animation-delay: 3s;
+            animation-duration: 8s;
+        }
+        .bot-card-wrapper:hover {
+            animation-play-state: paused; /* Pause floating on hover */
+        }
+        
+        .loader {
+            border: 3px solid #1e293b;
+            border-top: 3px solid #f43f5e;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        #toast {
+            visibility: hidden;
+            background: #0f172a;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            border-radius: 12px;
+            padding: 12px 24px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 0; opacity: 0; } to { bottom: 0; opacity: 0; } }
+        
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* 🟢 ICONIC NEON FLOATING KEYFRAMES & STARS */
+        @keyframes floating {
+            0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(244, 63, 94, 0.15)); }
+            50% { transform: translateY(-3px); filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.35)); }
+            100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(244, 63, 94, 0.15)); }
+        }
+        .animate-float-neon {
+            animation: floating 3.5s ease-in-out infinite;
+        }
+
+        /* 🟢 3D MOVEMENT BACKGROUND ANIMATIONS */
+        @keyframes float3D-1 {
+            0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+            33% { transform: translate(30px, -50px) rotate(120deg) scale(1.08); }
+            66% { transform: translate(-20px, 20px) rotate(240deg) scale(0.95); }
+            100% { transform: translate(0px, 0px) rotate(360deg) scale(1); }
+        }
+        @keyframes float3D-2 {
+            0% { transform: translate(0px, 0px) rotate(360deg) scale(1); }
+            50% { transform: translate(-40px, 40px) rotate(180deg) scale(1.1); }
+            100% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+        }
+        @keyframes float3D-3 {
+            0% { transform: translate(0px, 0px) rotate(0deg) scale(0.9); }
+            50% { transform: translate(35px, -35px) rotate(180deg) scale(1.05); }
+            100% { transform: translate(0px, 0px) rotate(360deg) scale(0.9); }
+        }
+        
+        .animate-float-3d-1 { animation: float3D-1 28s infinite linear; }
+        .animate-float-3d-2 { animation: float3D-2 32s infinite linear; }
+        .animate-float-3d-3 { animation: float3D-3 24s infinite linear; }
+
+        /* 🟢 REALISTIC STARS EFFECT WITH SHADOWS */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 0.95; transform: scale(1.3); }
+        }
+        .star {
+            position: fixed;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+            animation: twinkle 4s infinite ease-in-out;
+            pointer-events: none;
+            z-index: -2;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- 🟢 NEON AMBIENT LIGHT GLOW EFFECTS -->
+    <div class="fixed top-[-10%] left-[-10%] w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-[140px] pointer-events-none z-[-1] animate-pulse" style="animation-duration: 7s;"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[700px] h-[700px] bg-indigo-500/10 rounded-full blur-[160px] pointer-events-none z-[-1] animate-pulse" style="animation-duration: 9s;"></div>
+    <div class="fixed top-[35%] left-[25%] w-[400px] h-[400px] bg-sky-500/5 rounded-full blur-[120px] pointer-events-none z-[-1]"></div>
+
+    <!-- 🟢 INTERACTIVE LIVE 3D MOVING BACKGROUND ORBS (PARALLAX ENABLED) -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-[-1] select-none">
+        <div class="bg-parallax-orb absolute w-[350px] md:w-[550px] h-[350px] md:h-[550px] rounded-full bg-gradient-to-tr from-rose-500/10 via-pink-400/5 to-indigo-500/10 blur-[110px] animate-float-3d-1" style="top: -10%; left: -10%; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+        <div class="bg-parallax-orb absolute w-[400px] md:w-[600px] h-[400px] md:h-[600px] rounded-full bg-gradient-to-bl from-sky-500/10 via-blue-400/5 to-purple-500/10 blur-[130px] animate-float-3d-2" style="bottom: -10%; right: -10%; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+        <div class="bg-parallax-orb absolute w-[250px] md:w-[380px] h-[250px] md:h-[380px] rounded-full bg-gradient-to-br from-amber-200/5 via-rose-300/5 to-violet-500/10 blur-[90px] animate-float-3d-3" style="top: 35%; left: 30%; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+    </div>
+
+    <!-- 🟢 REALISTIC TWINKLING SPACE STARS -->
+    <div class="star" style="top: 8%; left: 12%; width: 2.5px; height: 2.5px; animation-delay: 0s;"></div>
+    <div class="star" style="top: 22%; left: 48%; width: 3px; height: 3px; animation-delay: 1.5s;"></div>
+    <div class="star" style="top: 14%; left: 85%; width: 2px; height: 2px; animation-delay: 0.8s;"></div>
+    <div class="star" style="top: 52%; left: 8%; width: 3.5px; height: 3.5px; animation-delay: 2.2s;"></div>
+    <div class="star" style="top: 68%; left: 78%; width: 2px; height: 2px; animation-delay: 1.1s;"></div>
+    <div class="star" style="top: 85%; left: 25%; width: 3px; height: 3px; animation-delay: 2.9s;"></div>
+    <div class="star" style="top: 40%; left: 60%; width: 2px; height: 2px; animation-delay: 1.8s;"></div>
+    <div class="star" style="top: 92%; left: 88%; width: 2.5px; height: 2.5px; animation-delay: 3.3s;"></div>
+    
+    <!-- Colorful Cosmic Dots -->
+    <div class="fixed top-[40%] left-[10%] w-[3px] h-[3px] bg-yellow-400 rounded-full animate-pulse z-[-1] pointer-events-none opacity-60" style="animation-duration: 3s;"></div>
+    <div class="fixed top-[60%] left-[85%] w-[2px] h-[2px] bg-sky-400 rounded-full animate-pulse z-[-1] pointer-events-none opacity-60" style="animation-duration: 4s;"></div>
+    <div class="fixed top-[80%] left-[30%] w-[3px] h-[3px] bg-pink-400 rounded-full animate-pulse z-[-1] pointer-events-none opacity-60" style="animation-duration: 5s;"></div>
+
+    <!-- 🟢 TOP HEADER (HALKA DARK GLASS STYLE) -->
+    <header class="fixed top-0 inset-x-0 w-full bg-slate-950/80 backdrop-blur-md border-b border-white/10 px-4 py-3 flex justify-between items-center shadow-md z-50 rounded-b-2xl h-16">
+        <!-- Left: Logout Button -->
+        <div class="flex items-center w-1/3">
+            <a href="/logout" class="bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-400 w-10 h-10 rounded-xl flex items-center justify-center border border-rose-500/30 transition-all duration-300 shadow-sm">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+
+        <!-- Center: Glowing & Floating OUT OF LAW Logo -->
+        <div class="flex justify-center items-center w-1/3">
+            <h1 class="font-orbitron font-black text-sm md:text-base tracking-[0.2em] bg-gradient-to-r from-rose-500 via-rose-400 to-slate-100 bg-clip-text text-transparent animate-float-neon select-none whitespace-nowrap">
+                OUT <span class="text-rose-500 font-extrabold text-sm md:text-base drop-shadow-[0_0_10px_rgba(244,63,94,0.6)]">OF</span> LAW
+            </h1>
+        </div>
+
+        <!-- Right: User Name & Role Badge -->
+        <div class="flex justify-end items-center w-1/3">
+            <span class="text-[9px] bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl text-slate-300 uppercase font-black font-orbitron tracking-wider">
+                {{ role }} ({{ username }})
+            </span>
+        </div>
+    </header>
+
+    <!-- 🟢 MAIN CONTAINER: EXPANDED FOR PC SCREENS (max-w-7xl) -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        <!-- Control and Filter bar -->
+        <div class="cyber-glass rounded-3xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <label class="text-[10px] text-slate-300 font-black uppercase tracking-widest block"><i class="fa-solid fa-layer-group text-rose-500 mr-1.5"></i>Sort folder:</label>
+                <select id="sectionFilter" onchange="applySectionFilter()" class="bg-slate-950/70 text-slate-100 text-xs font-bold border border-white/10 rounded-xl p-2.5 outline-none focus:border-rose-500 cursor-pointer min-w-[140px]">
+                    <!-- Injected via JS -->
+                </select>
+            </div>
+
+            <!-- Smart Live Search with Glass Icon -->
+            <div class="relative w-full md:max-w-md lg:max-w-lg flex-1">
+                <input type="text" id="botSearchInput" onkeyup="filterBots()" placeholder="Search Garena bot name, serial, UID..." class="w-full bg-slate-950/70 border border-white/10 text-slate-100 text-xs rounded-xl py-3 pl-11 pr-4 outline-none focus:border-rose-500 transition placeholder-slate-400">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            </div>
+
+            <!-- ACTION BUTTONS AREA -->
+            <div class="flex gap-1.5 w-full md:w-auto flex-wrap md:flex-nowrap">
+                <button onclick="executeMassAction('start')" class="flex-1 md:flex-none bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">Start All</button>
+                <button onclick="executeMassAction('stop')" class="flex-1 md:flex-none bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-yellow-500/20">Stop All</button>
+                <button onclick="executeMassAction('restart')" class="flex-1 md:flex-none bg-blue-500 hover:bg-blue-400 text-white text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-blue-500/20">Restart All</button>
+                <button onclick="openAddModal()" class="flex-1 md:flex-none bg-purple-600 hover:bg-purple-500 text-white text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-purple-500/20">Add Bot</button>
+                {% if role == 'owner' %}
+                <button onclick="openUsersModal()" class="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-indigo-500/20">Users</button>
+                <button onclick="openOwnerManagerModal()" class="flex-1 md:flex-none bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white text-xs font-black px-3.5 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-red-500/20" title="Manage Owner UIDs">
+                    <i class="fas fa-crown mr-1"></i> Owners
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Bot Registry Table Section -->
+        <div class="space-y-4">
+            <!-- 🟢 DYNAMIC NEON HUD HEADER BANNER -->
+            <div id="botTableHeader" class="cyber-glass rounded-2xl p-4 flex flex-wrap justify-between items-center text-xs font-bold gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-server text-rose-500 text-base drop-shadow-[0_0_8px_rgba(244,63,94,0.4)] animate-pulse"></i>
+                    <span class="font-orbitron font-black text-slate-100 tracking-widest uppercase md:text-sm">Garena Bot Registry</span>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 text-[10px] md:text-xs font-mono">
+                    <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-xl text-slate-300 shadow-inner">
+                        🤖 BOTS: <b id="stat-total-bots" class="text-white">0</b>
+                    </span>
+                    <span class="bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-emerald-400 font-bold shadow-inner">
+                        🟢 ON: <b id="stat-on-bots" class="text-emerald-400">0</b>
+                    </span>
+                    <span class="bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl text-rose-400 font-bold shadow-inner">
+                        🔴 OFF: <b id="stat-off-bots" class="text-rose-400">0</b>
+                    </span>
+                    <span class="bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-xl text-purple-400 font-bold shadow-inner">
+                        📁 USERS: <b id="stat-total-folders" class="text-purple-400">0</b>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 🟢 RESPONSIVE GRID FOR BOT CARDS (Mobile: 1 col, Tablet: 2 cols, PC: 3 or 4 cols) -->
+            <div id="botListGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
+                <!-- Loading Spinner spans all columns -->
+                <div class="col-span-full text-center py-16 text-gray-400">
+                    <div class="loader mx-auto mb-4"></div>
+                    <span class="font-bold text-sm uppercase tracking-widest animate-pulse">Initializing Data Stream...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Unified Overlays & Toasts -->
+    <div id="toast">Handshake Successful</div>
+    <div id="modalContainer"></div>
+
+    <!-- Modals Sync -->
+    {% include 'modals/add_bot.html' %}
+    {% include 'modals/edit_bot.html' %}
+    {% include 'modals/users_modal.html' %}
+    {% include 'modals/bot_profile.html' %}
+    
+    <!-- 🟢 NEW POPUP MODAL: Saved Lists Viewer (Admins & Guild Members) -->
+    <div id="botSavedListsModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm">
+        <div class="cyber-glass p-6 rounded-[2rem] w-full max-w-lg shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
+                <h2 class="text-sm font-orbitron font-black text-yellow-400 uppercase tracking-widest"><i class="fa-solid fa-server mr-2"></i>Saved Lists: <span id="savedListsBotName" class="text-white">Bot</span></h2>
+                <button onclick="closeBotSavedListsModal()" class="text-gray-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll space-y-4">
+                <!-- Saved Admins -->
+                <div class="bg-black/35 p-4 rounded-2xl border border-white/5 space-y-2">
+                    <span class="text-yellow-400/80 text-[10px] uppercase font-black tracking-widest block"><i class="fas fa-user-shield mr-1"></i>Saved Admins (from Friend List)</span>
+                    <div id="savedAdminsContainer" class="grid grid-cols-2 gap-2 text-xs font-mono max-h-[160px] overflow-y-auto custom-scroll pr-1">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Saved Guild Members -->
+                <div class="bg-black/35 p-4 rounded-2xl border border-white/5 space-y-2">
+                    <span class="text-sky-400 text-[10px] uppercase font-black tracking-widest block"><i class="fas fa-shield-halved mr-1"></i>Saved Guild Members (Periodic Sync)</span>
+                    <div id="savedMembersContainer" class="grid grid-cols-2 gap-2 text-xs font-mono max-h-[160px] overflow-y-auto custom-scroll pr-1">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🟢 NEW POPUP MODAL: Owner List Editor (with dynamic lookup cards) -->
+    <div id="ownerManagerModalWrapper" class="hidden fixed inset-0 bg-black/85 flex justify-center items-center z-[100] p-4 backdrop-blur-sm">
+        <div class="cyber-glass p-6 rounded-[2rem] w-full max-w-lg shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
+                <h2 class="text-sm font-orbitron font-black text-rose-500 uppercase tracking-widest"><i class="fa-solid fa-crown mr-2"></i>Owner List Manager</h2>
+                <button onclick="closeOwnerManagerModal()" class="text-gray-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            
+            <!-- Add Owner Form -->
+            <div class="flex gap-2 mb-4">
+                <input type="number" id="newOwnerUid" placeholder="Enter New Owner UID" class="flex-1 bg-[#11131a] border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400 font-mono">
+                <button onclick="addOwnerUid()" class="bg-red-600 hover:bg-red-500 text-white font-black px-6 rounded-xl text-xs uppercase tracking-widest transition shadow-lg shadow-red-500/20">Add</button>
+            </div>
+            
+            <!-- Owners List Area with Interactive Player Cards -->
+            <div class="flex-1 overflow-y-auto custom-scroll space-y-2" id="ownerListContainer">
+                <div class="text-center py-8 text-gray-500 text-xs font-bold uppercase">Loading Owners...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom confirmation dialog -->
+    <div id="customConfirmModal" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-[1000] p-4 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-sm shadow-2xl p-6 text-center transform transition-all duration-300 scale-95 opacity-0" id="confirmModalBox">
+            <div id="confirmIcon" class="text-5xl text-rose-500 mb-4 drop-shadow-[0_0_15px_rgba(244,63,94,0.4)]"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 id="confirmTitle" class="text-lg font-black text-slate-100 mb-2 tracking-wide font-orbitron"></h3>
+            <p id="confirmMessage" class="text-slate-400 text-sm mb-6 leading-relaxed font-bold"></p>
+            <div class="flex justify-center gap-3 w-full">
+                <button onclick="closeConfirmModal()" class="w-1/2 py-3.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-xl text-slate-300 font-bold transition text-xs uppercase tracking-wider">Cancel</button>
+                <button id="confirmBtn" class="w-1/2 py-3.5 rounded-xl text-white font-black transition shadow-lg text-xs uppercase tracking-wider"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "/api";
+        const CURRENT_USER = "{{ username }}";
+        const CURRENT_ROLE = "{{ role }}";
+        let allBotsData = [];
+        let systemUsersList = [];
+        let currentSelectedSection = CURRENT_ROLE === 'owner' ? 'all' : CURRENT_USER;
+
+        function getImgUrl(id) { 
+            return `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${id}.png`; 
+        }
+
+        // Toggle elements toast
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = ""; }, 3000);
+        }
+
+        // Clipboards fallback 
+        function copyToClipboard(text) {
+            if(window.event) window.event.stopPropagation();
+            if(!text || text === "N/A" || text === "0" || text === "") return;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast("Copied: " + text);
+        }
+
+        // 🟢 INTERACTIVE MOUSE MOVE PARALLAX EFFECT FOR BACKGROUND ORBS
+        document.addEventListener('mousemove', (e) => {
+            const amount = 30; // Control sensitivity of the 3D movement
+            const x = (e.clientX - window.innerWidth / 2) / amount;
+            const y = (e.clientY - window.innerHeight / 2) / amount;
+            
+            const orbs = document.querySelectorAll('.bg-parallax-orb');
+            orbs.forEach((orb, index) => {
+                const depthMultiplier = (index + 1) * 0.5;
+                orb.style.transform = `translate3d(${x * depthMultiplier}px, ${y * depthMultiplier}px, 0)`;
+            });
+        });
+
+        // 🟢 MAIN FETCH & RENDER LOGIC
+        async function fetchAndRender() {
+            try {
+                const res = await fetch(`${API_BASE}/bots`);
+                const data = await res.json();
+                
+                if (data.system_users) {
+                    systemUsersList = data.system_users;
+                    updateSectionDropdown();
+                }
+                
+                if (data.status === 'success') {
+                    allBotsData = data.bots.sort((a, b) => a.number - b.number);
+                    applySectionFilter(); 
+                } else {
+                    // 🔴 OFFLINE MANAGER HANDLER
+                    document.getElementById('botListGrid').innerHTML = `
+                        <div class="col-span-full text-center py-16 text-rose-500 font-bold bg-slate-900/60 border border-rose-900/40 rounded-3xl shadow-lg mt-4 w-full">
+                            <i class="fa-solid fa-server text-6xl mb-4 text-rose-500 animate-pulse"></i>
+                            <br><span class="text-xl font-orbitron">BOT MANAGER IS OFFLINE</span>
+                            <p class="text-gray-400 text-sm mt-3">${data.msg || "Please run 'python bot_supervisor.py' in your server terminal."}</p>
+                        </div>`;
+                }
+            } catch (err) {
+                console.error("Error loading bots:", err);
+                document.getElementById('botListGrid').innerHTML = `
+                    <div class="col-span-full text-center py-16 text-rose-500 font-bold bg-slate-900/60 border border-rose-900/40 rounded-3xl shadow-lg mt-4 w-full">
+                        <i class="fa-solid fa-wifi text-6xl mb-4 text-rose-500 animate-pulse"></i>
+                        <br><span class="text-xl font-orbitron">NETWORK CONNECTION LOST</span>
+                        <p class="text-gray-400 text-sm mt-3">Cannot reach the web panel backend.</p>
+                    </div>`;
+            }
+        }
+
+        function updateSectionDropdown() {
+            const select = document.getElementById('sectionFilter');
+            const previousVal = currentSelectedSection; 
+            let optionsHtml = '';
+            if (CURRENT_ROLE === 'owner') {
+                optionsHtml += `<option value="all">🌟 All Folders</option>`;
+            }
+            systemUsersList.forEach(user => {
+                optionsHtml += `<option value="${user}">📁 ${user}</option>`;
+            });
+            select.innerHTML = optionsHtml;
+            select.value = previousVal;
+        }
+
+        function applySectionFilter() {
+            currentSelectedSection = document.getElementById('sectionFilter').value;
+            let filteredBots = allBotsData;
+            if (currentSelectedSection !== 'all') {
+                filteredBots = allBotsData.filter(bot => bot.folder === currentSelectedSection);
+            }
+            renderBotGrid(filteredBots);
+        }
+
+        function filterBots() {
+            const query = document.getElementById('botSearchInput').value.trim().toLowerCase();
+            document.querySelectorAll('.bot-card-wrapper').forEach(card => {
+                const searchTxt = card.getAttribute('data-search').toLowerCase();
+                if (searchTxt.includes(query)) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        async function executeMassAction(action) {
+            let target = currentSelectedSection === 'all' ? 'all' : `folder:${currentSelectedSection}`;
+            const res = await fetch(`${API_BASE}/control`, { 
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify({command: action, target: target}) 
+            }); 
+            const data = await res.json();
+            if(data.status === 'success') {
+                showToast("Action Sent: " + action);
+                fetchAndRender();
+            }
+        }
+
+        function renderBotGrid(bots) {
+            const grid = document.getElementById('botListGrid');
+            let html = '';
+            
+            if (bots.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 bg-slate-900/40 border border-white/5 rounded-3xl mt-2">
+                    <i class="fa-solid fa-ghost text-5xl mb-4 text-slate-500"></i>
+                    <br><span class="text-slate-300 font-bold text-base uppercase tracking-widest">No Bots Found</span>
+                </div>`;
+                
+                document.getElementById('stat-total-bots').innerText = 0;
+                document.getElementById('stat-on-bots').innerText = 0;
+                document.getElementById('stat-off-bots').innerText = 0;
+                document.getElementById('stat-total-folders').innerText = 0;
+                return;
+            }
+
+            let onCount = 0;
+            let offCount = 0;
+
+            bots.forEach(bot => {
+                if (bot.state === 'ON') onCount++;
+                else offCount++;
+
+                const b = bot.profile?.basicInfo || {};
+                const c = bot.profile?.clanBasicInfo || {};
+                const avatar = b.headPic ? getImgUrl(b.headPic) : getImgUrl('902000003');
+                const safeFileName = String(bot.name).replace(/'/g, "\\'");
+                const displayName = b.nickname ? b.nickname : bot.name;
+                
+                const guildName = c.clanName || 'No Guild';
+                const guildId = c.clanId && c.clanId !== '0' && c.clanId !== 'N/A' ? c.clanId : 'N/A';
+                
+                const safePass = bot.login_pass ? String(bot.login_pass).replace(/'/g, "\\'") : "";
+
+                let toggleBtn = '';
+                if (bot.state === "STARTING") {
+                    toggleBtn = `<span class="px-3 py-1 rounded-xl text-[9px] font-black bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse">WAIT</span>`;
+                } else if (bot.state === "ON") {
+                    toggleBtn = `<button onclick="controlBot('stop', '${safeFileName}')" class="px-3 py-1 rounded-xl text-[9px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition">ON</button>`;
+                } else {
+                    toggleBtn = `<button onclick="controlBot('start', '${safeFileName}')" class="px-3 py-1 rounded-xl text-[9px] font-black bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition">OFF</button>`;
+                }
+
+                // 🟢 RESPONSIVE & COMPACT CARD STRUCTURE FOR GRID LAYOUT
+                html += `
+                    <div class="bot-card-wrapper h-full w-full" data-search="${bot.name} ${displayName} ${bot.ingame_uid} ${bot.folder} ${guildId}">
+                        <div class="cyber-glass rounded-[1.5rem] p-4 shadow-lg flex flex-col h-full justify-between gap-4 relative border border-white/10 hover:border-rose-500/40 hover:bg-slate-900/60 transition-all duration-300">
+                            
+                            <!-- Top Action Bar: Serial, Folder, Saved List Icon, Toggle -->
+                            <div class="flex justify-between items-center w-full z-10">
+                                <div class="flex gap-1.5 items-center">
+                                    <span class="text-[9px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-lg text-slate-400 font-black font-orbitron">#${bot.number}</span>
+                                    <span class="text-[8px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-black font-orbitron truncate max-w-[80px]"><i class="fas fa-folder-open mr-1"></i>${bot.folder}</span>
+                                    <button onclick="openBotSavedListsModal('${bot.ingame_uid}', '${safeFileName}')" class="text-[9px] bg-sky-500/20 hover:bg-sky-500 hover:text-black border border-sky-500/30 text-sky-400 px-2.5 py-0.5 rounded-lg font-black transition-all duration-300 flex items-center gap-1 shadow-sm" title="View Saved Admins & Members">
+                                        <i class="fas fa-id-card"></i> Lists
+                                    </button>
+                                </div>
+                                <div class="flex-shrink-0">${toggleBtn}</div>
+                            </div>
+
+                            <!-- Centered Avatar & Details (Top/Center) -->
+                            <div class="flex items-center gap-3 w-full min-w-0">
+                                <div onclick="openProfileModal('${bot.ingame_uid}', true)" class="relative w-14 h-14 rounded-xl border border-yellow-500/30 p-0.5 bg-slate-800/50 overflow-hidden cursor-pointer hover:border-yellow-400 transition-all duration-300 group flex-shrink-0 shadow-sm">
+                                    <img src="${avatar}" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/60'">
+                                    <div class="absolute bottom-0 left-0 right-0 bg-slate-900/95 text-center text-[8px] font-black text-slate-200 font-orbitron border-t border-white/5">LV.${b.level || 0}</div>
+                                </div>
+                                
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-slate-100 font-black font-orbitron text-[13px] tracking-wide truncate" title="IGN: ${displayName}">
+                                        ${displayName}
+                                    </h3>
+                                    
+                                    <span class="text-[9px] text-slate-400 font-bold block truncate mt-0.5">File: <b class="text-slate-200">${bot.name}</b></span>
+                                    
+                                    <div class="flex flex-col gap-0.5 text-[9px] font-mono text-slate-400 font-bold mt-1">
+                                        <span class="truncate">UID: <b class="text-amber-400 cursor-pointer hover:underline" onclick="copyToClipboard('${bot.ingame_uid}')">${bot.ingame_uid || 'WAIT'}</b></span>
+                                        <span class="truncate text-sky-400" title="${guildName}"><i class="fas fa-shield-halved text-sky-500 mr-1 text-[8px]"></i>${guildName}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Section: 4 Icon Buttons Side-by-Side -->
+                            <div class="grid grid-cols-4 w-full gap-2 pt-3 border-t border-white/5 font-orbitron mt-auto">
+                                <a href="/manager/${safeFileName}" class="w-full h-8 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black flex items-center justify-center transition shadow-md shadow-yellow-500/10" title="Manage Bot">
+                                    <i class="fas fa-terminal text-xs"></i>
+                                </a>
+                                <button onclick="openEditModal('${safeFileName}', '${bot.login_uid}', '${safePass}', '${bot.folder}')" class="w-full h-8 rounded-lg bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center transition shadow-md shadow-blue-500/10" title="Edit Config">
+                                    <i class="fas fa-edit text-xs"></i>
+                                </button>
+                                <button onclick="controlBot('restart', '${safeFileName}')" class="w-full h-8 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 text-emerald-400 flex items-center justify-center transition" title="Restart Bot">
+                                    <i class="fas fa-sync-alt text-xs"></i>
+                                </button>
+                                <button onclick="deleteBot('${safeFileName}')" class="w-full h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/20 text-rose-400 flex items-center justify-center transition" title="Delete Bot">
+                                    <i class="fas fa-trash-alt text-xs"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('stat-total-bots').innerText = bots.length;
+            document.getElementById('stat-on-bots').innerText = onCount;
+            document.getElementById('stat-off-bots').innerText = offCount;
+
+            const uniqueFolders = new Set(bots.map(b => b.folder));
+            document.getElementById('stat-total-folders').innerText = uniqueFolders.size;
+
+            grid.innerHTML = html;
+        }
+
+        async function controlBot(command, target) {
+            const res = await fetch(`${API_BASE}/control`, { 
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify({command: command, target: target}) 
+            }); 
+            const data = await res.json();
+            if(data.status === 'success') {
+                showToast("Command success!");
+                fetchAndRender();
+            }
+        }
+
+        // 🟢 FULLY IMPLEMENTED DELETE BOT CONTROLLER WITH CONFIRMATION POPUP
+        function deleteBot(botName) {
+            showConfirmModal(
+                "Delete Bot Configuration?",
+                `Are you sure you want to permanently delete the bot configuration <b class="text-rose-400">${botName}</b>? This action cannot be undone.`,
+                "fa-trash-alt",
+                "Yes, Delete",
+                "bg-rose-600 hover:bg-rose-500",
+                async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/control`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ command: "delete", target: botName })
+                        });
+                        const data = await res.json();
+                        
+                        if (data.status === 'success') {
+                            showToast("Bot deleted successfully!");
+                            fetchAndRender(); // Refresh grid view
+                        } else {
+                            showToast(data.msg || "Failed to delete bot.", "error");
+                        }
+                    } catch (e) {
+                        showToast("Network Error!", "error");
+                    }
+                }
+            );
+        }
+
+        // Custom confirm dialogue
+        let confirmActionCallback = null;
+        
+        // 🟢 UNIVERSAL MULTI-SIGNATURE SMART DETECTOR FOR PORTAL POPUPS
+        window.showConfirmModal = function(title, message, arg3, arg4, arg5, arg6) {
+            let callback = null;
+            let iconClass = "fa-exclamation-triangle";
+            let btnText = "Confirm";
+            let btnClass = "bg-rose-600 hover:bg-rose-500";
+
+            if (typeof arg3 === 'function') {
+                callback = arg3;
+                if (arg4) iconClass = arg4;
+            } else {
+                iconClass = arg3 || "fa-exclamation-triangle";
+                btnText = arg4 || "Confirm";
+                btnClass = arg5 || "bg-rose-600 hover:bg-rose-500";
+                callback = arg6;
+            }
+
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerHTML = message;
+            
+            const iconEl = document.getElementById('confirmIcon');
+            if (iconEl) {
+                iconEl.className = `text-5xl text-rose-500 mb-4 drop-shadow-[0_0_15px_rgba(244,63,94,0.4)]`;
+                iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            }
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            if (confirmBtn) {
+                confirmBtn.innerText = btnText;
+                confirmBtn.className = `w-1/2 py-3.5 rounded-xl text-white font-black transition shadow-lg text-xs uppercase tracking-wider ${btnClass}`;
+            }
+
+            confirmActionCallback = callback;
+            
+            const modal = document.getElementById('customConfirmModal');
+            const box = document.getElementById('confirmModalBox');
+            if (modal && box) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    box.classList.remove('scale-95', 'opacity-0');
+                    box.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        };
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('customConfirmModal');
+            const box = document.getElementById('confirmModalBox');
+            box.classList.remove('scale-100', 'opacity-100');
+            box.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            confirmActionCallback = null;
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            if (confirmActionCallback) { confirmActionCallback(); }
+            closeConfirmModal();
+        });
+
+        // 🟢 NEW POPUP JAVASCRIPT: Bot Saved Lists Loader
+        async function openBotSavedListsModal(uid, botName) {
+            if(!uid || uid === 'null' || uid === 'undefined' || uid === '') {
+                showToast("Bot is not online yet! Wait for In-game UID.", "error");
+                return;
+            }
+            document.getElementById('savedListsBotName').innerText = botName;
+            document.getElementById('botSavedListsModalWrapper').classList.remove('hidden');
+            
+            const adminsCont = document.getElementById('savedAdminsContainer');
+            const membersCont = document.getElementById('savedMembersContainer');
+            
+            adminsCont.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-xs font-bold animate-pulse">Loading admins...</div>`;
+            membersCont.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-xs font-bold animate-pulse">Loading members...</div>`;
+            
+            try {
+                const res = await fetch(`/api/bot/saved_lists?uid=${uid}`);
+                const data = await res.json();
+                if(data.success) {
+                    if(data.admins && data.admins.length > 0) {
+                        adminsCont.innerHTML = data.admins.map(admin_uid => `
+                            <div class="flex justify-between items-center bg-[#1e2230] p-2.5 rounded-xl border border-white/5 gap-2">
+                                <span onclick="openProfileModal('${admin_uid}')" class="text-yellow-400 font-bold hover:underline cursor-pointer truncate max-w-[120px]">${admin_uid}</span>
+                                <i class="fas fa-copy text-gray-500 hover:text-white cursor-pointer text-[10px]" onclick="copyToClipboard('${admin_uid}')"></i>
+                            </div>
+                        `).join('');
+                    } else {
+                        adminsCont.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-xs font-bold">No admins saved yet.</div>`;
+                    }
+                    
+                    if(data.members && data.members.length > 0) {
+                        membersCont.innerHTML = data.members.map(member_uid => `
+                            <div class="flex justify-between items-center bg-[#1e2230] p-2.5 rounded-xl border border-white/5 gap-2">
+                                <span onclick="openProfileModal('${member_uid}')" class="text-sky-400 font-bold hover:underline cursor-pointer truncate max-w-[120px]">${member_uid}</span>
+                                <i class="fas fa-copy text-gray-500 hover:text-white cursor-pointer text-[10px]" onclick="copyToClipboard('${member_uid}')"></i>
+                            </div>
+                        `).join('');
+                    } else {
+                        membersCont.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-xs font-bold">No guild members saved yet.</div>`;
+                    }
+                } else {
+                    showToast("Failed to fetch saved lists.", "error");
+                }
+            } catch(e) {
+                showToast("Network Error!", "error");
+            }
+        }
+        function closeBotSavedListsModal() {
+            document.getElementById('botSavedListsModalWrapper').classList.add('hidden');
+        }
+
+        // 🟢 NEW POPUP JAVASCRIPT: Owner List Editor
+        async function openOwnerManagerModal() {
+            document.getElementById('ownerManagerModalWrapper').classList.remove('hidden');
+            loadOwnersList();
+        }
+        function closeOwnerManagerModal() {
+            document.getElementById('ownerManagerModalWrapper').classList.add('hidden');
+        }
+        async function loadOwnersList() {
+            const container = document.getElementById('ownerListContainer');
+            container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs font-bold animate-pulse">Syncing Owner List...</div>`;
+            
+            try {
+                const res = await fetch(`/api/owner`);
+                const data = await res.json();
+                if(data.success && data.owners) {
+                    if(data.owners.length === 0) {
+                        container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs font-bold">No owners saved in owner.json yet.</div>`;
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    for(const uid of data.owners) {
+                        const ownerItem = document.createElement('div');
+                        ownerItem.className = "flex justify-between items-center bg-[#1e2230] p-3 rounded-2xl border border-white/5 gap-3";
+                        ownerItem.innerHTML = `
+                            <div class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group" onclick="openProfileModal('${uid}')">
+                                <div class="w-8 h-8 rounded-lg bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                    <img id="owner-avatar-${uid}" src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png" class="w-full h-full object-cover rounded">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <b id="owner-name-${uid}" class="text-white text-xs group-hover:text-blue-400 transition truncate block max-w-[120px]">Loading...</b>
+                                        <span id="owner-level-${uid}" class="bg-red-500/10 text-red-400 border border-red-500/20 text-[7px] font-black px-1 rounded uppercase font-orbitron">LV.0</span>
+                                    </div>
+                                    <span class="text-[9px] text-gray-400 font-mono block">UID: ${uid} | Guild: <span id="owner-guild-${uid}" class="text-gray-300 font-bold">N/A</span></span>
+                                </div>
+                            </div>
+                            <button onclick="removeOwnerUid('${uid}')" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/20 text-rose-400 rounded-xl transition text-[9px] font-black uppercase font-orbitron">
+                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                            </button>
+                        `;
+                        container.appendChild(ownerItem);
+                        
+                        // Async background lookups to load individual player cards inside modal
+                        fetch(`/api/fetch_profile?uid=${uid}&save=false`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if(d.success && d.data) {
+                                const b = d.data.basicInfo || d.data.basic_info || {};
+                                const c = d.data.clanBasicInfo || d.data.clan_basic_info || {};
+                                document.getElementById(`owner-name-${uid}`).innerText = b.nickname || 'Unknown';
+                                document.getElementById(`owner-level-${uid}`).innerText = `LV.${b.level || 0}`;
+                                document.getElementById(`owner-guild-${uid}`).innerText = c.clanName || 'No Guild';
+                                if(b.headPic) {
+                                    document.getElementById(`owner-avatar-${uid}`).src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${b.headPic}.png`;
+                                }
+                            } else {
+                                document.getElementById(`owner-name-${uid}`).innerText = "Private/Not Found";
+                            }
+                        }).catch(() => {
+                            document.getElementById(`owner-name-${uid}`).innerText = "Offline Cache";
+                        });
+                    }
+                } else {
+                    container.innerHTML = `<div class="text-center py-8 text-rose-500 text-xs font-bold">Failed to load owner list.</div>`;
+                }
+            } catch(e) {
+                container.innerHTML = `<div class="text-center py-8 text-rose-500 text-xs font-bold">Network Error!</div>`;
+            }
+        }
+        async function addOwnerUid() {
+            const uid = document.getElementById('newOwnerUid').value.trim();
+            if(!uid) {
+                showToast("Please enter a valid UID.", "error");
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/owner/action`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: "add", uid: uid })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    showToast("Owner UID added successfully!");
+                    document.getElementById('newOwnerUid').value = '';
+                    loadOwnersList();
+                } else {
+                    showToast(data.msg || "Failed to add UID.", "error");
+                }
+            } catch(e) {
+                showToast("Network Error!", "error");
+            }
+        }
+        async function removeOwnerUid(uid) {
+            showConfirmModal(
+                "Delete Owner?",
+                `Are you sure you want to remove UID <b class="text-rose-400">${uid}</b> from the owner list?`,
+                "fa-crown",
+                "Delete Owner",
+                "bg-red-600 hover:bg-red-500",
+                async () => {
+                    try {
+                        const res = await fetch(`/api/owner/action`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ action: "remove", uid: uid })
+                        });
+                        const data = await res.json();
+                        if(data.success) {
+                            showToast("Owner UID removed.");
+                            loadOwnersList();
+                        } else {
+                            showToast(data.msg || "Failed to remove UID.", "error");
+                        }
+                    } catch(e) {
+                        showToast("Network Error!", "error");
+                    }
+                }
+            );
+        }
+
+        fetchAndRender();
+        setInterval(fetchAndRender, 4000);
+    </script>
+</body>
+</html>

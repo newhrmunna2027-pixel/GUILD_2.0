@@ -1,0 +1,97 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUT OF LAW - Unified Login Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Poppins"', 'sans-serif'],
+                        orbitron: ['"Orbitron"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 50%, #151829 0%, #0b0d17 100%);
+            color: #E0E0E0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .cyber-glass {
+            background: rgba(15, 17, 28, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased p-4">
+
+    <!-- Ambient Glows -->
+    <div class="fixed top-[-10%] left-[-10%] w-[350px] h-[350px] bg-blue-600/10 rounded-full blur-[110px] pointer-events-none z-[-1]"></div>
+    <div class="fixed bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none z-[-1]"></div>
+
+    <div class="cyber-glass p-8 rounded-[2rem] w-full max-w-sm relative overflow-hidden">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-orbitron font-black tracking-widest text-white">
+                OUT <span class="text-yellow-400">OF</span> LAW
+            </h1>
+            <p class="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">Unified Command Portal</p>
+        </div>
+
+        {% if error %}
+        <div class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold p-3.5 rounded-xl text-center mb-4">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/login" class="space-y-4">
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Username (Login ID)</label>
+                <div class="relative">
+                    <i class="fas fa-user-shield absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" name="username" required placeholder="Enter Login ID" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="password" name="password" required placeholder="Enter Password" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-lg mt-4">
+                AUTHENTICATE SESSION
+            </button>
+        </form>
+    </div>
+</body>
+</html>
