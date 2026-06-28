@@ -257,6 +257,8 @@ async def handle_0500_events(bot, hex_data):
 async def delayed_graceful_exit(bot):
     if getattr(bot, 'is_in_room', False) or getattr(bot, 'is_joining_room', False):
         return
+
+    bot.is_creating_lobby = True 
         
     print(f"[{bot.bot_name}] 🛠️ Upgrading team size to 5 members before leaving...")
     try:
@@ -303,12 +305,13 @@ async def _on_leader_change(bot, data):
     f2 = get_val(data, "2", {})
     leader_uid = get_val(f2, "1")
     
-    if leader_uid and str(leader_uid).lower() not in["none", "null", ""]:
-        await manage_team_file(bot, "set_leader", t_uid=leader_uid)
-        
-        if str(leader_uid) == str(bot.my_uid):
-            print(f"[{bot.bot_name}] 👑 Leader Crown received! Upgrading to 5-member & Going solo instantly...")
-            asyncio.create_task(delayed_graceful_exit(bot))
+    if str(leader_uid) == str(bot.my_uid):
+            # 🟢 ফ্ল্যাগ চেক: বট নিজে লবি ক্রিয়েট করার কারণে লিডার হলে সোলো যাওয়া ইগনোর করবে
+            if not getattr(bot, 'is_creating_lobby', False):
+                print(f"[{bot.bot_name}] 👑 Leader Crown received randomly! Upgrading to 5-member & Going solo...")
+                asyncio.create_task(delayed_graceful_exit(bot))
+            else:
+                print(f"[{bot.bot_name}] 👑 Leader Crown received during /5 or /6. Ignoring auto-solo logic.")
 
 async def _on_member_add(bot, data):
     f6 = get_val(data, "6", {})
@@ -386,8 +389,11 @@ async def _on_chat_code_update(bot, data):
         return
 
     if new_owner_uid == str(bot.my_uid):
-        print(f"[{bot.bot_name}] 👑 Bot became leader via Chat Code update! Upgrading and going solo...")
-        asyncio.create_task(delayed_graceful_exit(bot))
+        if not getattr(bot, 'is_creating_lobby', False):
+            print(f"[{bot.bot_name}] 👑 Bot became leader via Chat Code update! Upgrading and going solo...")
+            asyncio.create_task(delayed_graceful_exit(bot))
+        else:
+            print(f"[{bot.bot_name}] 👑 Bot became leader via Chat Code during lobby creation. Ignoring auto-solo logic.")
         return
 
     is_new_chat = (bot.current_chat_code != new_chat_code)
