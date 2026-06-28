@@ -8,7 +8,8 @@ import jwt
 import asyncio
 import aiosqlite
 import threading
-import garena_api as bot_module
+# নতুন নিরাপদ ইম্পোর্ট
+import bot_core as bot_module
 from app.database import get_db
 
 MANAGER_HOST = '127.0.0.1'
