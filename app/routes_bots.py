@@ -6,15 +6,14 @@ import json
 import os
 import threading
 import aiohttp
-# নতুন নিরাপদ ইম্পোর্ট
 import bot_core as bot_module
 import mongo_sync
 from app.database import get_db
 from app.decorators import login_required
 from app.helpers import (
     is_authorized, get_bot_credentials, send_manager_command,
-    format_ff_data, sync_friends_to_bot_admins, fetch_profile_native,
-    SYNCED_BOTS_SESSION
+    format_ff_data, sync_friends_to_bot_admins, sync_guild_members_local,
+    fetch_profile_native, SYNCED_BOTS_SESSION
 )
 
 bots_bp = Blueprint('bots_bp', __name__)
@@ -108,11 +107,19 @@ async def get_bots():
                                     await db_conn.commit()
                                     threading.Thread(target=mongo_sync.push_admin_to_mongo, args=(bot['name'], admin_data)).start()
 
-                        if bot['name'] not in SYNCED_BOTS_SESSION and mgr_info.get('state') == 'ON':
-                            garena_token, t_err = bot_module.get_active_token(bot['name'])
-                            if garena_token:
-                                await sync_friends_to_bot_admins(bot['name'], current_ingame_uid, garena_token)
-                                SYNCED_BOTS_SESSION.add(bot['name'])
+                        # 🟢 [OFF -> ON Transition Trigger]
+                        # যখনই কোনো বটের স্ট্যাটাস OFF থেকে ON হবে, মেমোরি ডিটেক্ট করে ইনস্ট্যান্টলি ডাটা সিঙ্ক করবে
+                        if mgr_info.get('state') == 'ON':
+                            if bot['name'] not in SYNCED_BOTS_SESSION:
+                                print(f"[*] State change detected (OFF -> ON) for {bot['name']}. Triggering live data caching...")
+                                garena_token, t_err = bot_module.get_active_token(bot['name'])
+                                if garena_token:
+                                    await sync_friends_to_bot_admins(bot['name'], current_ingame_uid, garena_token)
+                                    await sync_guild_members_local(bot['name'], current_ingame_uid, garena_token)
+                                    SYNCED_BOTS_SESSION.add(bot['name'])
+                        else:
+                            # যদি বটের স্টেট অফ হয়ে যায়, মেমোরি সেশন ক্লিয়ার করে দেওয়া যাতে পুনরায় অন হলে অনাবিলভাবে ট্রিগার হতে পারে
+                            SYNCED_BOTS_SESSION.discard(bot['name'])
 
                 bot_list.append({
                     "name": bot['name'], "login_uid": bot['login_uid'], "login_pass": bot['password'],
@@ -159,8 +166,13 @@ async def save_bot():
         formatted_profile = format_ff_data(res_raw)
         ingame_uid = str(author_uid)
         
+        # 🟢 [Onboarding Pipeline]
+        # নতুন বট রেজিস্ট্রেশনের নিশ্চিত করার সাথে সাথেই ফ্রেন্ড ও মেম্বারদের কাঁচা লিস্ট এপিআই দিয়ে ফাইলে সেভ করে নেবে
         bot_module.save_session({"uid": login_uid, "password": password, "token": token}, name)
         bot_module.refresh_self_profile_cache(token, name)
+        
+        await sync_friends_to_bot_admins(name, ingame_uid, token)
+        await sync_guild_members_local(name, ingame_uid, token)
         
         async with get_db() as db:
             await db.execute("""INSERT INTO bots (name, login_uid, password, ingame_uid, owner, folder, bot_number) VALUES (?, ?, ?, ?, ?, ?, ?)""",
