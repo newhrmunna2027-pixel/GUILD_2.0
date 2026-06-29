@@ -14,7 +14,8 @@ from app.decorators import bp_login_required
 
 garena_bp = Blueprint('garena_bp', __name__)
 BASE_DIR_LOCAL = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR_LOCAL, '..', '..'))
+# 🟢 PATH RESOLUTION BUG FIXED: '..' points correctly to the project root
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR_LOCAL, '..'))
 DB_PATH_LOCAL = os.path.join(ROOT_DIR, 'config', 'database.db')
 
 async def get_bot_token_smart(bot_name):
@@ -45,7 +46,6 @@ async def get_bot_token_smart(bot_name):
     return new_token, None
 
 async def query_local_profile_cache(uid):
-    """SQLite প্রোফাইল ক্যাশ ডাটাবেজ থেকে রিয়েল-টাইমে মেম্বারদের বিবরণ রিটার্ন করার ফাস্ট প্রক্সি মেথড"""
     async with aiosqlite.connect(DB_PATH_LOCAL) as db:
         async with db.execute("SELECT data FROM profiles WHERE ingame_uid=?", (str(uid),)) as cur:
             row = await cur.fetchone()
@@ -94,7 +94,7 @@ async def api_bot_refresh_direct():
         return jsonify({"success": True, "msg": "Live Garena Cache Refreshed!"})
     return jsonify({"success": False, "msg": "Live Garena Gateway handshake timeout."})
 
-# 🟢 [শতভাগ অফলাইন ফ্রেন্ড রেন্ডারিং]
+# 🟢 [লোকাল ক্যাশ থেকে ইনস্ট্যান্ট ফ্রেন্ড রেন্ডারিং]
 @garena_bp.route('/api/friends/list')
 @bp_login_required
 async def api_friends_list_direct():
@@ -107,29 +107,24 @@ async def api_friends_list_direct():
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'admins', f"{ingame_uid}.json")
-    friends_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                uids = json.load(f).get("Admins", [])
-            for uid in uids:
-                cached = await query_local_profile_cache(uid)
-                friends_list.append({
-                    "uid": str(uid),
-                    "nickname": cached.get("basicInfo", {}).get("nickname", f"User {uid}") if cached else f"User {uid}",
-                    "level": cached.get("basicInfo", {}).get("level", "--") if cached else "--",
-                    "region": cached.get("basicInfo", {}).get("region", "BD") if cached else "BD",
-                    "guild_name": cached.get("clanBasicInfo", {}).get("clanName", "No Guild") if cached else "No Guild"
+                data = json.load(f)
+            if data.get("friends"):
+                return jsonify({
+                    "success": True,
+                    "friends": data["friends"]
                 })
-        except Exception as e: print(f"Error reading friend offline cache: {e}")
-        
-    return jsonify({"success": True, "friends": friends_list})
+        except Exception as e: 
+            print(f"Error reading friend offline cache: {e}")
+            
+    return jsonify({"success": False, "msg": "No offline friends cache available. Please wait for sync."})
 
 @garena_bp.route('/api/friends/pending')
 @bp_login_required
 async def api_friends_pending_direct():
-    # ফ্রেন্ড পেন্ডিং মূলত লাইভ এপিআই এবং ভ্যালিডেশনে কাজ করে
-    bot_name = session.get('current_manage_bot')
+    bot_name = session.get('current_manage_bot') or request.args.get("bot_name")
     token, err = await get_bot_token_smart(bot_name)
     if err: return jsonify({"success": False, "msg": err}), 401
     res = bot_module.get_pending_request_list(token)
@@ -199,7 +194,7 @@ async def api_guild_info_direct(clan_id):
         }})
     return jsonify({"status": "error", "msg": res.get("message")})
 
-# 🟢 [শতভাগ অফলাইন গিল্ড মেম্বার রেন্ডারিং]
+# 🟢 [জাভাস্ক্রিপ্ট ক্র্যাশ প্রটেক্টেড গিল্ড মেম্বার রেন্ডারিং]
 @garena_bp.route('/api/guild/members/<clan_id>')
 @bp_login_required
 async def api_guild_members_direct(clan_id):
@@ -212,24 +207,17 @@ async def api_guild_members_direct(clan_id):
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'guild_members', f"{ingame_uid}.json")
-    members_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                uids = json.load(f).get("members", [])
-            for uid in uids:
-                cached = await query_local_profile_cache(uid)
-                members_list.append({
-                    "uid": str(uid),
-                    "name": cached.get("basicInfo", {}).get("nickname", f"Member {uid}") if cached else f"Member {uid}",
-                    "level": cached.get("basicInfo", {}).get("level", "--") if cached else "--",
-                    "total_glory": cached.get("basicInfo", {}).get("liked", 0) if cached else 0,
-                    "weekly_glory": 0,
-                    "role_code": 0
-                })
-        except Exception as e: print(f"Error reading guild offline cache: {e}")
+                data = json.load(f)
+            # ডাইনামিকালি ম্যাপড জেসন ডাটা রিটার্ন করা হচ্ছে
+            if data.get("success"):
+                return jsonify(data)
+        except Exception as e: 
+            print(f"Error reading guild offline cache: {e}")
         
-    return jsonify({"success": True, "members": members_list, "total_members": len(members_list)})
+    return jsonify({"success": False, "msg": "No offline guild member cache available. Please wait for sync."})
 
 @garena_bp.route('/api/guild/join', methods=['POST'])
 @bp_login_required
@@ -283,7 +271,6 @@ async def api_bot_duo_direct():
     res = bot_module.check_duo_native(token, uid)
     return jsonify(res)
 
-# Fallbacks for Query parameters compatibility (Static local loads)
 @garena_bp.route('/api/guild/info')
 @bp_login_required
 async def api_guild_info_query():
@@ -303,6 +290,7 @@ async def api_guild_info_query():
         }})
     return jsonify({"status": "error", "msg": "Guild scan rejected."})
 
+# 🟢 [ক্যাস্ট-সেফ ও অফলাইন-ফাস্ট গিল্ড মেম্বার প্রক্সি রেন্ডারিং]
 @garena_bp.route('/api/guild/fetch')
 @bp_login_required
 async def api_guild_fetch_members():
@@ -314,21 +302,52 @@ async def api_guild_fetch_members():
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'guild_members', f"{ingame_uid}.json")
-    members_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                uids = json.load(f).get("members", [])
-            for uid in uids:
-                cached = await query_local_profile_cache(uid)
-                members_list.append({
-                    "Role": "Member",
-                    "Nickname": cached.get("basicInfo", {}).get("nickname", f"Member {uid}") if cached else f"Member {uid}",
-                    "Uid": str(uid), "Level": cached.get("basicInfo", {}).get("level", "--") if cached else "--",
-                    "AvatarId": "902000003"
-                })
+                data = json.load(f)
+            all_m = []
+            if data.get("leader"):
+                l = data["leader"].copy()
+                l["Role"] = "Leader"
+                l["Nickname"] = l.get("name", "Unknown")
+                l["Uid"] = l.get("uid")
+                l["Level"] = l.get("level")
+                l["AvatarId"] = l.get("avatar_id")
+                all_m.append(l)
+            if data.get("acting_leader"):
+                al = data["acting_leader"].copy()
+                al["Role"] = "ActingLeader"
+                al["Nickname"] = al.get("name", "Unknown")
+                al["Uid"] = al.get("uid")
+                al["Level"] = al.get("level")
+                al["AvatarId"] = al.get("avatar_id")
+                all_m.append(al)
+            for off in data.get("officers", []):
+                o = off.copy()
+                o["Role"] = "Officer"
+                o["Nickname"] = o.get("name", "Unknown")
+                o["Uid"] = o.get("uid")
+                o["Level"] = o.get("level")
+                o["AvatarId"] = o.get("avatar_id")
+                all_m.append(o)
+            for mem in data.get("members", []):
+                m = mem.copy()
+                m["Role"] = "Member"
+                m["Nickname"] = m.get("name", "Unknown")
+                m["Uid"] = m.get("uid")
+                m["Level"] = m.get("level")
+                m["AvatarId"] = m.get("avatar_id")
+                all_m.append(m)
+                
+            return jsonify({
+                "status": "success",
+                "data": {
+                    "members": all_m
+                }
+            })
         except Exception: pass
-    return jsonify({"status": "success", "data": {"members": members_list}})
+    return jsonify({"status": "error", "msg": "No offline guild member cache available."})
 
 @garena_bp.route('/api/friends/fetch')
 @bp_login_required
@@ -341,21 +360,29 @@ async def api_friends_fetch():
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'admins', f"{ingame_uid}.json")
-    friends_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                uids = json.load(f).get("Admins", [])
-            for uid in uids:
-                cached = await query_local_profile_cache(uid)
-                friends_list.append({
-                    "uid": str(uid),
-                    "nickname": cached.get("basicInfo", {}).get("nickname", f"User {uid}") if cached else f"User {uid}",
-                    "level": cached.get("basicInfo", {}).get("level", "--") if cached else "--",
-                    "avatarId": "902000003"
+                data = json.load(f)
+            if data.get("friends"):
+                mapped_friends = []
+                for f in data["friends"]:
+                    mapped_friends.append({
+                        "uid": f["uid"],
+                        "nickname": f["nickname"],
+                        "level": f["level"],
+                        "avatar_id": f.get("avatar_id", "902000003"),
+                        "avatarId": f.get("avatar_id", "902000003")
+                    })
+                return jsonify({
+                    "status": "success",
+                    "data": {
+                        "friends": mapped_friends,
+                        "total_friends": len(mapped_friends)
+                    }
                 })
         except Exception: pass
-    return jsonify({"status": "success", "data": {"friends": friends_list, "total_friends": len(friends_list)}})
+    return jsonify({"status": "error", "msg": "No offline cache available."})
 
 @garena_bp.route('/api/friends/action', methods=['POST'])
 @bp_login_required
