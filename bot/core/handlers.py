@@ -567,10 +567,20 @@ async def _on_team_invite(bot, data):
         bot.is_in_team = True
         bot.team_chat_authed = False 
         
+        # bot/core/handlers.py ফাইলের একদম শেষের দিকে এই অংশটুকু সংশোধন করুন
+
         # 🟢 বট সাকসেসফুলি টিমে ঢোকার সাথে সাথে একবার ইনস্ট্যান্ট লুক চেঞ্জ করবে
         async def delayed_look_change():
             await asyncio.sleep(0.5)
             if getattr(bot, 'auto_look_enabled', True) and not bot.suppress_auto_actions:
                 from bot.commands import actions_look
+                # ১. প্রথমে ইনস্ট্যান্ট র‍্যান্ডম লুক চেঞ্জ হবে
                 await actions_look.equip_random_bundle(bot, None)
+                
+                # ২. এরপর ঠিক ০.১ সেকেন্ড অপেক্ষা করবে
+                await asyncio.sleep(0.1)
+                
+                # ৩. স্বয়ংক্রিয়ভাবে /l 10 কমান্ডটি রান করাবে
+                await actions_look.handle_look_change(bot, None, ["/l", "10"])
+                
         asyncio.create_task(delayed_look_change())
