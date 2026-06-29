@@ -425,6 +425,8 @@ async def _on_team_invite(bot, data):
     if getattr(bot, 'is_in_room', False) or getattr(bot, 'is_joining_room', False):
         return
 
+    import os
+    import json
     from bot.core.manager import send_online_packet
     
     leader_val = get_val(data, '1', '')
@@ -438,8 +440,49 @@ async def _on_team_invite(bot, data):
         raw_inviter = leader_uid
     inviter_uid = "".join(c for c in str(raw_inviter) if c.isdigit())
     
+    # 🟢 [অনুমোদন ভ্যালিডেটর ফাংশন]
+    # ইনভাইটার বা লবির প্লেয়ার আমাদের ৩টি ক্যাশ ফাইলের কোনো একটিতে আছে কিনা তা চেক করবে
+    def is_uid_authorized_to_join(bot_uid, target_uid):
+        target_uid_str = str(target_uid).strip()
+        bot_uid_str = str(bot_uid).strip()
+        
+        # ১. ওনার লিস্ট ভ্যালিডেশন (owner.json)
+        try:
+            if os.path.exists('config/owner.json'):
+                with open('config/owner.json', 'r', encoding='utf-8') as f:
+                    owners = json.load(f).get("Owners", [])
+                    if any(str(o).strip() == target_uid_str for o in owners):
+                        return True
+        except Exception as e:
+            print(f"[{bot_uid_str}] Error reading owner.json: {e}")
+
+        # ২. বটের সেভ করা ক্যাশ ফ্রেন্ড/অ্যাডমিন ভ্যালিডেশন
+        try:
+            admin_path = f'config/admins/{bot_uid_str}.json'
+            if os.path.exists(admin_path):
+                with open(admin_path, 'r', encoding='utf-8') as f:
+                    admins = json.load(f).get("Admins", [])
+                    if any(str(a).strip() == target_uid_str for a in admins):
+                        return True
+        except Exception as e:
+            print(f"[{bot_uid_str}] Error reading admins file: {e}")
+
+        # ৩. বটের সেভ করা ক্যাশ গিল্ড মেম্বার ভ্যালিডেশন
+        try:
+            member_path = f'config/guild_members/{bot_uid_str}.json'
+            if os.path.exists(member_path):
+                with open(member_path, 'r', encoding='utf-8') as f:
+                    members = json.load(f).get("members", [])
+                    if any(str(m).strip() == target_uid_str for m in members):
+                        return True
+        except Exception as e:
+            print(f"[{bot_uid_str}] Error reading guild members file: {e}")
+            
+        return False
+
+    # লক স্ট্যাটাস কন্ডিশন ভ্যালিডেশন
     if getattr(bot, 'is_locked', False):
-        if not (admin_manager.is_owner(inviter_uid) or inviter_uid in admin_manager.get_admins(bot.my_uid)):
+        if not (is_uid_authorized_to_join(bot.my_uid, inviter_uid) or admin_manager.is_owner(inviter_uid) or inviter_uid in admin_manager.get_admins(bot.my_uid)):
             return 
         else:
             bot.is_locked = False 
@@ -452,8 +495,9 @@ async def _on_team_invite(bot, data):
             
     should_join = False
     
+    # লবিতে থাকা প্লেয়ারদের মাঝে আমাদের অনুমোদিত কোনো প্লেয়ার আছে কিনা তা চেক করা হচ্ছে
     for uid in potential_uids:
-        if admin_manager.can_auto_join(bot.my_uid, uid):
+        if is_uid_authorized_to_join(bot.my_uid, uid) or admin_manager.can_auto_join(bot.my_uid, uid):
             should_join = True
             break
 
@@ -473,5 +517,6 @@ async def _on_team_invite(bot, data):
         async def delayed_look_change():
             await asyncio.sleep(0.5)
             if getattr(bot, 'auto_look_enabled', True) and not bot.suppress_auto_actions:
-                await equip_random_bundle(bot, None)
+                from bot.commands import actions_look
+                await actions_look.equip_random_bundle(bot, None)
         asyncio.create_task(delayed_look_change())
