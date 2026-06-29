@@ -1,11 +1,12 @@
-# main.py
+# filepath: main.py
+# -*- coding: utf-8 -*-
+
 import asyncio
 import sys
 import json
 import os
 import sqlite3
 
-# 🟢 Superfast CPU Event Loop (Linux Only)
 try:
     import uvloop
     if sys.platform != 'win32':
@@ -20,11 +21,9 @@ from utils.device_manager import get_or_create_device_config
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'config', 'database.db')
 
-# 🟢 গ্লোবাল ডিকশনারি, যেখানে অ্যাক্টিভ বটের অবজেক্ট স্টোর থাকবে
 ACTIVE_BOT_INSTANCES = {}
 
 async def stop_bot_instance(bot_name):
-    """বটকে ফোর্স-কিল করার আগে পারফেক্টলি লগআউট করার লজিক"""
     bot = ACTIVE_BOT_INSTANCES.get(bot_name)
     if bot:
         await bot.stop()
@@ -45,7 +44,6 @@ def get_bot_credentials(bot_name):
         return None
 
 async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=None):
-    # Safety guard against Null/None names
     if not bot_name_from_manager or str(bot_name_from_manager).strip().lower() in ['none', 'null', 'undefined', '']:
         print("[ERROR] Attempted to start a bot with an invalid or None name.")
         return
@@ -54,7 +52,6 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
     bot_display_name = bot_name_from_manager 
 
     try:
-        # যদি সরাসরি JSON ফাইল পাস করা হয় (Test mode)
         if bot_name_from_manager.endswith('.json') and os.path.exists(bot_name_from_manager):
             config = get_or_create_device_config(bot_name_from_manager)
             if not isinstance(config, dict): 
@@ -62,7 +59,6 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
                     config = json.load(f)
             bot_display_name = os.path.basename(bot_name_from_manager).replace('.json', '') 
         else:
-            # ডাটাবেস থেকে বটের ক্রিডেনশিয়ালস আনা
             loop = asyncio.get_event_loop()
             credentials = await loop.run_in_executor(None, get_bot_credentials, bot_name_from_manager)
             
@@ -71,14 +67,11 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
                 return
                 
             login_uid = credentials["account"]["uid"]
-            
-            # 🟢 FIX: বটের নাম নয়, বরং "Login UID" দিয়ে ডিভাইস ফাইল সেভ হবে
             device_config_path = os.path.join(BASE_DIR, 'config', 'devices', f"{login_uid}.json")
             old_device_config_path = os.path.join(BASE_DIR, 'config', 'devices', f"{bot_name_from_manager}.json")
             
             os.makedirs(os.path.dirname(device_config_path), exist_ok=True)
             
-            # 🟢 Migration: যদি বটের পুরনো নামের কোনো ডিভাইস ফাইল থাকে, তবে সেটি UID নামে রিনেম করে নেওয়া
             if os.path.exists(old_device_config_path) and not os.path.exists(device_config_path):
                 try:
                     os.rename(old_device_config_path, device_config_path)
@@ -99,6 +92,28 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
             print(f"[FAIL] Login failed for {bot_display_name}. Rate Limited or Bad Pass.")
             return
 
+        try:
+            import bot_core
+            jwt_token = None
+            auth_obj = session.get('auth') if isinstance(session, dict) else getattr(session, 'auth', None)
+            
+            if auth_obj:
+                for attr in ['access_token', 'token', 'jwt', 'jwt_token', '_token']:
+                    val = getattr(auth_obj, attr, None) or (auth_obj.get(attr) if isinstance(auth_obj, dict) else None)
+                    if val and isinstance(val, str) and len(val) > 50:
+                        jwt_token = val
+                        break
+            
+            if jwt_token:
+                bot_core.save_session({
+                    "uid": str(config["account"]["uid"]),
+                    "password": config["account"]["password"],
+                    "token": jwt_token
+                }, bot_display_name)
+                print(f"[✓] {bot_display_name} JWT Token successfully written to session JSON by main.py")
+        except Exception as t_err:
+            print(f"[!] Warning: Failed to cache JWT in main.py: {t_err}")
+
         if active_uid_map is not None:
             active_uid_map[bot_display_name] = str(session['auth'].account_uid) 
 
@@ -106,7 +121,6 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
         if shared_emote_book is not None:
             bot.emote_book = shared_emote_book
             
-        # বটের অবজেক্ট সেভ করা হলো যাতে ডিলিটের সময় কাজে লাগে
         ACTIVE_BOT_INSTANCES[bot_display_name] = bot
             
         print(f"[SUCCESS] {bot_display_name} Authenticated! Starting connection...")
@@ -119,7 +133,6 @@ async def run_bot(bot_name_from_manager, shared_emote_book=None, active_uid_map=
         print(f"[ERROR] {bot_display_name} Fatal Exception: {e}")
         raise
     finally:
-        # প্রসেস শেষ হলে গ্লোবাল লিস্ট থেকে মুছে দেওয়া
         if bot_display_name in ACTIVE_BOT_INSTANCES:
             del ACTIVE_BOT_INSTANCES[bot_display_name]
 
