@@ -189,6 +189,9 @@ def start_auto_sync_scheduler():
             
     threading.Thread(target=run_schedule, daemon=True).start()
 
+# filepath: mongo_sync.py
+# (mongo_sync.py ফাইলে থাকা পুরাতন pull_all_from_mongo ফাংশনটি সম্পূর্ণ রিপ্লেস করুন)
+
 def pull_all_from_mongo():
     try:
         init_sqlite()
@@ -198,6 +201,7 @@ def pull_all_from_mongo():
         bot_owners = {}
         bot_numbers = {}
         
+        # ১. MongoDB system_configs থেকে ওনার এবং অন্যান্য ইউজার ডেটা লোকাল ফাইলে সিঙ্ক
         for doc in col_system.find():
             filename = doc['_id']
             data = doc.get('data', {})
@@ -209,11 +213,22 @@ def pull_all_from_mongo():
                     cursor.execute("INSERT OR REPLACE INTO profiles (ingame_uid, data) VALUES (?, ?)", (ingame_uid, json.dumps(pdata)))
             elif filename == 'bot_owners.json': bot_owners = data
             elif filename == 'bot_numbers.json': bot_numbers = data
+            elif filename == 'owner.json':
+                # 👑 owner.json ফাইলটি ক্লাউড থেকে লোকাল ড্রাইভে রিস্টোর করা হচ্ছে
+                try:
+                    owner_path = os.path.join(BASE_DIR, 'config', 'owner.json')
+                    os.makedirs(os.path.dirname(owner_path), exist_ok=True)
+                    with open(owner_path, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, indent=4)
+                    print("[✓] Restored config/owner.json successfully from MongoDB")
+                except Exception as e:
+                    print(f"Restore owner.json error: {e}")
 
         cursor.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
             cursor.execute("INSERT INTO users (username, password, role, uid) VALUES (?, ?, ?, ?)", ("owner", "owner", "owner", str(random.randint(10000, 99999))))
 
+        # MongoDB থেকে বটের অ্যাকাউন্টগুলো SQLite-এ রি-সিঙ্ক করা হচ্ছে
         for doc in col_accounts.find():
             name = doc['_id']
             if not name or str(name).strip().lower() in ['none', 'null', 'undefined', '']:
@@ -247,9 +262,51 @@ def pull_all_from_mongo():
             cursor.execute("INSERT OR REPLACE INTO admins (bot_name, guild_id, data) VALUES (?, ?, ?)", (name, str(data.get('Guild_ID', '')), json.dumps(data)))
             
         cursor.execute("DELETE FROM bots WHERE name IS NULL OR name = '' OR name = 'null' OR name = 'None' OR name = 'undefined'")
-                           
         conn.commit()
+
+        # 🟢 [ডাটা লস প্রিভেনশন লজিক]
+        # রিস্টার্টের পর জেসন ফাইল রিকনস্ট্রাকশন করতে SQLite থেকে বটের UIDs নেওয়া হচ্ছে
+        try:
+            cursor.execute("SELECT name, ingame_uid FROM bots WHERE ingame_uid IS NOT NULL AND ingame_uid != ''")
+            bot_uid_map = {row[0]: row[1] for row in cursor.fetchall() if row[0] and row[1]}
+        except Exception:
+            bot_uid_map = {}
+            
         conn.close()
+
+        # ২. MongoDB থেকে অ্যাডমিনদের ফ্রেন্ডলিস্ট ক্যাশ জেসন ফাইল রিস্টোর করা হচ্ছে
+        for doc in col_admins.find():
+            name = doc['_id']
+            if name in bot_uid_map:
+                ingame_uid = bot_uid_map[name]
+                raw_data = doc.get('data', {})
+                admins_list = raw_data.get('Admins', [])
+                try:
+                    admin_dir = os.path.join(BASE_DIR, 'config', 'admins')
+                    os.makedirs(admin_dir, exist_ok=True)
+                    file_path = os.path.join(admin_dir, f"{ingame_uid}.json")
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        json.dump({"Admins": admins_list}, f, indent=4)
+                    print(f"[✓] Restored config/admins/{ingame_uid}.json from MongoDB")
+                except Exception as e:
+                    print(f"Failed to restore admins JSON for {name}: {e}")
+
+        # ৩. MongoDB থেকে গিল্ড মেম্বার ক্যাশ জেসন ফাইল রিস্টোর করা হচ্ছে
+        for doc in col_guild_members.find():
+            name = doc['_id']
+            if name in bot_uid_map:
+                ingame_uid = bot_uid_map[name]
+                members_list = doc.get('members', [])
+                try:
+                    guild_dir = os.path.join(BASE_DIR, 'config', 'guild_members')
+                    os.makedirs(guild_dir, exist_ok=True)
+                    file_path = os.path.join(guild_dir, f"{ingame_uid}.json")
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        json.dump({"members": members_list}, f, indent=4)
+                    print(f"[✓] Restored config/guild_members/{ingame_uid}.json from MongoDB")
+                except Exception as e:
+                    print(f"Failed to restore guild members JSON for {name}: {e}")
+
     except Exception as e:
         print(f"[SYNC ERROR] {e}")
 
