@@ -98,12 +98,14 @@ def format_ff_data(api_data):
     raw_login = b_info.get('lastLoginAt') or b_info.get('last_login_at')
     if not raw_login:
         for k, v in b_info.items():
-            if 'login' in k.lower(): raw_login = v; break
+            if 'login' in k.lower() and any(c.isdigit() for c in str(v)):
+                raw_login = v; break
             
     raw_create = b_info.get('createAt') or b_info.get('create_at')
     if not raw_create:
         for k, v in b_info.items():
-            if 'create' in k.lower(): raw_create = v; break
+            if 'create' in k.lower() and any(c.isdigit() for c in str(v)):
+                raw_create = v; break
 
     return {
         "basicInfo": {
@@ -135,6 +137,10 @@ async def sync_friends_to_bot_admins(bot_name, ingame_uid, token):
         
         friend_uids = [str(f["uid"]).strip() for f in res["friends"] if f.get("uid") and str(f["uid"]) != str(ingame_uid)]
         
+        raw_proto_parsed = bot_module.parse_proto_bytes(res.get("friends_raw_bytes", b""))
+        serializable_json = bot_module.make_serializable(raw_proto_parsed)
+        name_json_data = bot_module.map_proto_to_named(serializable_json, "Friend")
+
         async with get_db() as db:
             async with db.execute("SELECT data FROM profiles WHERE ingame_uid=?", (ingame_uid,)) as cur:
                 prow = await cur.fetchone()
@@ -160,8 +166,13 @@ async def sync_friends_to_bot_admins(bot_name, ingame_uid, token):
             os.makedirs(dir_path, exist_ok=True)
             file_path = os.path.join(dir_path, f"{ingame_uid}.json")
             with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump({"Admins": friend_uids}, f, indent=4)
-            print(f"[ADMIN AUTO-SYNC] 🔄 Saved {len(friend_uids)} admins to separate JSON file: {file_path}")
+                json.dump({
+                    "Admins": friend_uids,
+                    "friends": res["friends"],
+                    "json_data": serializable_json,
+                    "name_json_data": name_json_data
+                }, f, indent=4)
+            print(f"[ADMIN AUTO-SYNC] 🔄 Saved {len(friend_uids)} admins with structure to separate JSON file: {file_path}")
         except Exception as file_err:
             print(f"[ADMIN AUTO-SYNC] Error saving separate admin file: {file_err}")
 
@@ -177,7 +188,7 @@ async def sync_friends_to_bot_admins(bot_name, ingame_uid, token):
         print(f"[ADMIN AUTO-SYNC ERROR] Failed to overwrite admins for bot {bot_name}: {e}")
         return False
 
-# 🟢 [ইনস্ট্যান্ট গিল্ড ক্যাশার লজিক]
+# 🟢 [স্ট্যান্ডার্ড গিল্ড ক্যাশ মেম্বার জেসন রাইটার]
 async def sync_guild_members_local(bot_name, ingame_uid, token):
     if not ingame_uid or not token:
         return False
@@ -192,6 +203,11 @@ async def sync_guild_members_local(bot_name, ingame_uid, token):
             
         res_guild = await asyncio.get_event_loop().run_in_executor(None, bot_module.get_guild_member_list, token, str(clan_id))
         if res_guild.get("success"):
+            raw_proto_parsed = bot_module.parse_proto_bytes(res_guild.get("members_raw_bytes", b""))
+            serializable_json = bot_module.make_serializable(raw_proto_parsed)
+            name_json_data = bot_module.map_proto_to_named(serializable_json, "Guild")
+
+            # MongoDB এর জন্য লাইটওয়েট ইউআইডি তালিকা তৈরি
             member_uids = []
             if res_guild.get("leader") and "uid" in res_guild["leader"]:
                 member_uids.append(str(res_guild["leader"]["uid"]))
@@ -208,8 +224,20 @@ async def sync_guild_members_local(bot_name, ingame_uid, token):
                 dir_path = os.path.join(ROOT_DIR, 'config', 'guild_members')
                 os.makedirs(dir_path, exist_ok=True)
                 file_path = os.path.join(dir_path, f"{ingame_uid}.json")
+                
+                # সম্পূর্ণ স্ট্রাকচারাল গ্যারেনা জেসন ডাটা ফাইলে রাইট করা হচ্ছে
+                file_data = {
+                    "success": True,
+                    "leader": res_guild.get("leader"),
+                    "acting_leader": res_guild.get("acting_leader"),
+                    "officers": res_guild.get("officers", []),
+                    "members": res_guild.get("members", []),
+                    "total_members": res_guild.get("total_members", 0),
+                    "json_data": serializable_json,
+                    "name_json_data": name_json_data
+                }
                 with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump({"members": member_uids}, f, indent=4)
+                    json.dump(file_data, f, indent=4)
                     
                 try:
                     import mongo_sync
@@ -219,7 +247,7 @@ async def sync_guild_members_local(bot_name, ingame_uid, token):
                         upsert=True
                     )
                 except Exception: pass
-                print(f"[GUILD AUTO-SYNC] ✅ Successfully cached {len(member_uids)} members to separate JSON file: {file_path}")
+                print(f"[GUILD AUTO-SYNC] ✅ Successfully cached {len(member_uids)} members with full structure to file: {file_path}")
                 return True
     except Exception as e:
         print(f"[GUILD AUTO-SYNC ERROR] Failed: {e}")
@@ -277,7 +305,7 @@ async def get_bot_token_smart(bot_name):
         except: pass
     
     if not uid or not password:
-        async with aiosqlite.connect(DB_PATH) as db:
+        async with aiosqlite.connect(DB_PATH_LOCAL) as db:
             async with db.execute("SELECT login_uid, password FROM bots WHERE name=?", (bot_name,)) as cur:
                 row = await cur.fetchone()
                 if row:
@@ -296,7 +324,7 @@ def trigger_instant_friend_sync(bot_name, token):
     try:
         SYNCED_BOTS_SESSION.discard(bot_name)
         async def run_bg_sync():
-            async with aiosqlite.connect(DB_PATH) as db:
+            async with aiosqlite.connect(DB_PATH_LOCAL) as db:
                 async with db.execute("SELECT ingame_uid FROM bots WHERE name=?", (bot_name,)) as cur:
                     row = await cur.fetchone()
                     if row and row[0]:
