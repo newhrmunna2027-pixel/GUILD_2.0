@@ -54,6 +54,8 @@ async def execute_solo_logic(bot):
         
     bot.is_locked = False
     bot.is_creating_lobby = False
+    bot.joined_look_done = False
+    
     if bot.is_in_team:
         leave_pkt = await team_packets.create_leave_team_packet(bot.my_uid, bot.key, bot.iv)
         await send_online_packet(bot, leave_pkt)
