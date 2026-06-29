@@ -13,7 +13,7 @@ DB_PATH = os.path.join(BASE_DIR, 'config', 'database.db')
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-import garena_api as bot_module
+import bot_core as bot_module
 
 async def retrieve_active_bot_token():
     """ডাটাবেস থেকে সক্রিয় বোতের সেশন টোকেন রিট্রিভ করার জন্য মেথড (ডাবল-লেয়ার ফলব্যাক সহ)"""
