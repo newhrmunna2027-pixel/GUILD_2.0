@@ -8,7 +8,6 @@ import jwt
 import asyncio
 import aiosqlite
 import threading
-# নতুন নিরাপদ ইম্পোর্ট
 import bot_core as bot_module
 from app.database import get_db
 
@@ -178,6 +177,54 @@ async def sync_friends_to_bot_admins(bot_name, ingame_uid, token):
         print(f"[ADMIN AUTO-SYNC ERROR] Failed to overwrite admins for bot {bot_name}: {e}")
         return False
 
+# 🟢 [ইনস্ট্যান্ট গিল্ড ক্যাশার লজিক]
+async def sync_guild_members_local(bot_name, ingame_uid, token):
+    if not ingame_uid or not token:
+        return False
+    try:
+        profile_res = await asyncio.get_event_loop().run_in_executor(None, bot_module.get_player_info_detailed, str(ingame_uid), token)
+        if not profile_res or not profile_res.get("success"):
+            return False
+            
+        clan_id = profile_res.get("clan_id")
+        if not clan_id or clan_id == "N/A" or str(clan_id) == "0":
+            return False
+            
+        res_guild = await asyncio.get_event_loop().run_in_executor(None, bot_module.get_guild_member_list, token, str(clan_id))
+        if res_guild.get("success"):
+            member_uids = []
+            if res_guild.get("leader") and "uid" in res_guild["leader"]:
+                member_uids.append(str(res_guild["leader"]["uid"]))
+            if res_guild.get("acting_leader") and "uid" in res_guild["acting_leader"]:
+                member_uids.append(str(res_guild["acting_leader"]["uid"]))
+            for officer in res_guild.get("officers", []):
+                if "uid" in officer:
+                    member_uids.append(str(officer["uid"]))
+            for member in res_guild.get("members", []):
+                if "uid" in member:
+                    member_uids.append(str(member["uid"]))
+                    
+            if member_uids:
+                dir_path = os.path.join(ROOT_DIR, 'config', 'guild_members')
+                os.makedirs(dir_path, exist_ok=True)
+                file_path = os.path.join(dir_path, f"{ingame_uid}.json")
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump({"members": member_uids}, f, indent=4)
+                    
+                try:
+                    import mongo_sync
+                    mongo_sync.col_guild_members.update_one(
+                        {'_id': bot_name},
+                        {'$set': {'clan_id': str(clan_id), 'members': member_uids, 'last_update': time.time()}},
+                        upsert=True
+                    )
+                except Exception: pass
+                print(f"[GUILD AUTO-SYNC] ✅ Successfully cached {len(member_uids)} members to separate JSON file: {file_path}")
+                return True
+    except Exception as e:
+        print(f"[GUILD AUTO-SYNC ERROR] Failed: {e}")
+    return False
+
 async def fetch_profile_native(target_uid):
     token = None
     bot_name = None
@@ -254,6 +301,7 @@ def trigger_instant_friend_sync(bot_name, token):
                     row = await cur.fetchone()
                     if row and row[0]:
                         await sync_friends_to_bot_admins(bot_name, row[0], token)
+                        await sync_guild_members_local(bot_name, row[0], token)
         
         try:
             loop = asyncio.get_running_loop()
