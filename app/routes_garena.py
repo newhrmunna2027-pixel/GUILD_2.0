@@ -9,12 +9,11 @@ import asyncio
 import aiosqlite
 import json
 import threading
-import bot_core as bot_module
+import garena_api as bot_module
 from app.decorators import bp_login_required
 
 garena_bp = Blueprint('garena_bp', __name__)
 BASE_DIR_LOCAL = os.path.dirname(os.path.abspath(__file__))
-# 🟢 PATH RESOLUTION BUG FIXED: '..' points correctly to the project root
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR_LOCAL, '..'))
 DB_PATH_LOCAL = os.path.join(ROOT_DIR, 'config', 'database.db')
 
@@ -94,7 +93,7 @@ async def api_bot_refresh_direct():
         return jsonify({"success": True, "msg": "Live Garena Cache Refreshed!"})
     return jsonify({"success": False, "msg": "Live Garena Gateway handshake timeout."})
 
-# 🟢 [লোকাল ক্যাশ থেকে ইনস্ট্যান্ট ফ্রেন্ড রেন্ডারিং]
+# 🟢 [জাভাস্ক্রিপ্ট ক্র্যাশ প্রটেক্টেড ডাইনামিক ফ্রেন্ড লিস্ট]
 @garena_bp.route('/api/friends/list')
 @bp_login_required
 async def api_friends_list_direct():
@@ -114,7 +113,9 @@ async def api_friends_list_direct():
             if data.get("friends"):
                 return jsonify({
                     "success": True,
-                    "friends": data["friends"]
+                    "friends": data.get("friends", []),
+                    "json_data": data.get("json_data", {}),
+                    "name_json_data": data.get("name_json_data", {})
                 })
         except Exception as e: 
             print(f"Error reading friend offline cache: {e}")
@@ -211,7 +212,7 @@ async def api_guild_members_direct(clan_id):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            # ডাইনামিকালি ম্যাপড জেসন ডাটা রিটার্ন করা হচ্ছে
+            # ডাইনামিকালি ফুল মেম্বার জেসন ম্যাপড ডাটা রিটার্ন করা হচ্ছে
             if data.get("success"):
                 return jsonify(data)
         except Exception as e: 
@@ -290,7 +291,7 @@ async def api_guild_info_query():
         }})
     return jsonify({"status": "error", "msg": "Guild scan rejected."})
 
-# 🟢 [ক্যাস্ট-সেফ ও অফলাইন-ফাস্ট গিল্ড মেম্বার প্রক্সি রেন্ডারিং]
+# 🟢 [স্ট্যান্ডার্ড গিল্ড ক্যাশ মেম্বার প্রক্সি রেন্ডারিং]
 @garena_bp.route('/api/guild/fetch')
 @bp_login_required
 async def api_guild_fetch_members():
@@ -302,52 +303,29 @@ async def api_guild_fetch_members():
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'guild_members', f"{ingame_uid}.json")
+    members_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            all_m = []
-            if data.get("leader"):
-                l = data["leader"].copy()
-                l["Role"] = "Leader"
-                l["Nickname"] = l.get("name", "Unknown")
-                l["Uid"] = l.get("uid")
-                l["Level"] = l.get("level")
-                l["AvatarId"] = l.get("avatar_id")
-                all_m.append(l)
-            if data.get("acting_leader"):
-                al = data["acting_leader"].copy()
-                al["Role"] = "ActingLeader"
-                al["Nickname"] = al.get("name", "Unknown")
-                al["Uid"] = al.get("uid")
-                al["Level"] = al.get("level")
-                al["AvatarId"] = al.get("avatar_id")
-                all_m.append(al)
-            for off in data.get("officers", []):
-                o = off.copy()
-                o["Role"] = "Officer"
-                o["Nickname"] = o.get("name", "Unknown")
-                o["Uid"] = o.get("uid")
-                o["Level"] = o.get("level")
-                o["AvatarId"] = o.get("avatar_id")
-                all_m.append(o)
-            for mem in data.get("members", []):
-                m = mem.copy()
-                m["Role"] = "Member"
-                m["Nickname"] = m.get("name", "Unknown")
-                m["Uid"] = m.get("uid")
-                m["Level"] = m.get("level")
-                m["AvatarId"] = m.get("avatar_id")
-                all_m.append(m)
+            
+            # Leader, Officers, Members মেম্বারদের একক ক্যাশ লিস্টে মার্জ করা হচ্ছে
+            all_source_members = []
+            if data.get("leader"): all_source_members.append(data.get("leader"))
+            if data.get("acting_leader"): all_source_members.append(data.get("acting_leader"))
+            for off in data.get("officers", []): all_source_members.append(off)
+            for mem in data.get("members", []): all_source_members.append(mem)
                 
-            return jsonify({
-                "status": "success",
-                "data": {
-                    "members": all_m
-                }
-            })
+            for m in all_source_members:
+                members_list.append({
+                    "Role": "Member" if m.get("role_code") != 3 else "Leader",
+                    "Nickname": m.get("name", f"Member {m.get('uid')}"),
+                    "Uid": str(m.get("uid")), 
+                    "Level": m.get("level", "--"),
+                    "AvatarId": str(m.get("avatar_id", "902000003"))
+                })
         except Exception: pass
-    return jsonify({"status": "error", "msg": "No offline guild member cache available."})
+    return jsonify({"status": "success", "data": {"members": members_list}})
 
 @garena_bp.route('/api/friends/fetch')
 @bp_login_required
@@ -360,29 +338,20 @@ async def api_friends_fetch():
             ingame_uid = str(row[0])
             
     file_path = os.path.join(ROOT_DIR, 'config', 'admins', f"{ingame_uid}.json")
+    friends_list = []
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            if data.get("friends"):
-                mapped_friends = []
-                for f in data["friends"]:
-                    mapped_friends.append({
-                        "uid": f["uid"],
-                        "nickname": f["nickname"],
-                        "level": f["level"],
-                        "avatar_id": f.get("avatar_id", "902000003"),
-                        "avatarId": f.get("avatar_id", "902000003")
-                    })
-                return jsonify({
-                    "status": "success",
-                    "data": {
-                        "friends": mapped_friends,
-                        "total_friends": len(mapped_friends)
-                    }
+            for f_obj in data.get("friends", []):
+                friends_list.append({
+                    "uid": str(f_obj.get("uid")),
+                    "nickname": f_obj.get("nickname", f"User {f_obj.get('uid')}"),
+                    "level": f_obj.get("level", "--"),
+                    "avatarId": str(f_obj.get("avatar_id", "902000003"))
                 })
         except Exception: pass
-    return jsonify({"status": "error", "msg": "No offline cache available."})
+    return jsonify({"status": "success", "data": {"friends": friends_list, "total_friends": len(friends_list)}})
 
 @garena_bp.route('/api/friends/action', methods=['POST'])
 @bp_login_required
@@ -443,7 +412,14 @@ async def api_bot_saved_lists():
     if os.path.exists(members_path):
         try:
             with open(members_path, 'r', encoding='utf-8') as f:
-                members = json.load(f).get("members", [])
+                members_list_raw = json.load(f).get("members", [])
+                # যদি ফুল রেসপন্স জেসন থাকে, তবে তার 'members' ডিকশনারি থেকে uids বের করবে
+                if isinstance(members_list_raw, list):
+                    for m in members_list_raw:
+                        if isinstance(m, dict):
+                            members.append(str(m.get("uid")))
+                        else:
+                            members.append(str(m))
         except: pass
     
     return jsonify({"success": True, "admins": admins, "members": members})
