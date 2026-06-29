@@ -149,19 +149,20 @@ async def handle_join_team(client, ctx, args):
         client.last_joined_team_code = team_code
         if ctx: await client.send_chat_message(t(client, "join_req", code=team_code), ctx)
         
+        # filepath: bot/commands/actions_team.py
+# (handle_join_team ফাংশনের ভেতরের delayed_join_look টাস্কটি সংশোধন করুন)
+
         if not getattr(client, 'suppress_auto_actions', False):
             async def delayed_join_look():
                 await asyncio.sleep(0.5)
+                # ফ্ল্যাগ যদি ইতিমধ্যেই True থাকে, তবে দ্বিতীয়বার রান করবে না
+                if getattr(client, 'joined_look_done', False):
+                    return
                 from bot.commands import actions_look
-                # ১. প্রথমে লবিতে ঢুকে র‍্যান্ডম লুক চেঞ্জ হবে
+                client.joined_look_done = True # ফ্ল্যাগ True করে দেওয়া হলো
                 await actions_look.equip_random_bundle(client, ctx)
-                
-                # ২. এরপর ঠিক ০.১ সেকেন্ড অপেক্ষা করবে
                 await asyncio.sleep(0.1)
-                
-                # ৩. স্বয়ংক্রিয়ভাবে /l 10 কমান্ডটি রান করাবে
                 await actions_look.handle_look_change(client, ctx, ["/l", "10"])
-                
             asyncio.create_task(delayed_join_look())
     except Exception as e: 
         print(f"[{client.bot_name}] Join Error: {e}")
