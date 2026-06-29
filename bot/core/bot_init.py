@@ -45,6 +45,7 @@ def init_bot_state(bot, config, session_data):
     bot.is_in_room = False
     bot.is_creating_lobby = False
     bot.bot_name = f"Bot_{bot.my_uid}"
+    bot.joined_look_done = False
     
     bot.cached_ping_game, bot.is_joining = None, False
     bot.current_bundle_id, bot.saved_uids = None, []
