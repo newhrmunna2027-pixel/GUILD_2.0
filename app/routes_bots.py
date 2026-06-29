@@ -109,16 +109,21 @@ async def get_bots():
 
                         # 🟢 [OFF -> ON Transition Trigger]
                         # যখনই কোনো বটের স্ট্যাটাস OFF থেকে ON হবে, মেমোরি ডিটেক্ট করে ইনস্ট্যান্টলি ডাটা সিঙ্ক করবে
+                        # filepath: app/routes_bots.py
+# (app/routes_bots.py ফাইলের get_bots ফাংশনের ভেতর OFF -> ON ব্লকের কোডটুকু পরিবর্তন করুন)
+
+                        # 🟢 [নন-ব্লকিং সিকোয়েনশিয়াল কিউ টাস্ক]
+                        # বটের স্ট্যাটাস OFF থেকে ON হলে আমরা await দিয়ে ওয়েব প্যানেলকে ব্লক করব না।
+                        # আমরা কেবল ব্যাকগ্রাউন্ডে sequential_first_time_sync টাস্কটি পুশ করে দেব।
                         if mgr_info.get('state') == 'ON':
                             if bot['name'] not in SYNCED_BOTS_SESSION:
-                                print(f"[*] State change detected (OFF -> ON) for {bot['name']}. Triggering live data caching...")
                                 garena_token, t_err = bot_module.get_active_token(bot['name'])
                                 if garena_token:
-                                    await sync_friends_to_bot_admins(bot['name'], current_ingame_uid, garena_token)
-                                    await sync_guild_members_local(bot['name'], current_ingame_uid, garena_token)
+                                    from app.helpers import sequential_first_time_sync
+                                    # এপিআই রিকোয়েস্ট ব্যাকগ্রাউন্ড কিউতে ছেড়ে দেওয়া হলো (ব্রাউজার মুহূর্তেই রেন্ডার হবে)
+                                    asyncio.create_task(sequential_first_time_sync(bot['name'], current_ingame_uid, garena_token))
                                     SYNCED_BOTS_SESSION.add(bot['name'])
                         else:
-                            # যদি বটের স্টেট অফ হয়ে যায়, মেমোরি সেশন ক্লিয়ার করে দেওয়া যাতে পুনরায় অন হলে অনাবিলভাবে ট্রিগার হতে পারে
                             SYNCED_BOTS_SESSION.discard(bot['name'])
 
                 bot_list.append({
