@@ -440,8 +440,19 @@ async def _on_team_invite(bot, data):
         raw_inviter = leader_uid
     inviter_uid = "".join(c for c in str(raw_inviter) if c.isdigit())
     
+    # 🟢 [ডাইনামিক ডিকশনারি টু ইউআইডি পার্সার]
+    def extract_uid(element):
+        """
+        মেম্বার অবজেক্ট যদি ডিকশনারি আকারে থাকে তবে তার ভেতর থেকে UID বের করবে,
+        অন্যথায় সরাসরি স্ট্রিং আকারে রিটার্ন করবে।
+        """
+        if isinstance(element, dict):
+            for key in ['uid', 'Uid', 'accountId', 'account_id']:
+                if key in element:
+                    return str(element[key]).strip()
+        return str(element).strip()
+
     # 🟢 [অনুমোদন ভ্যালিডেটর ফাংশন]
-    # ইনভাইটার বা লবির প্লেয়ার আমাদের ৩টি ক্যাশ ফাইলের কোনো একটিতে আছে কিনা তা চেক করবে
     def is_uid_authorized_to_join(bot_uid, target_uid):
         target_uid_str = str(target_uid).strip()
         bot_uid_str = str(bot_uid).strip()
@@ -451,29 +462,72 @@ async def _on_team_invite(bot, data):
             if os.path.exists('config/owner.json'):
                 with open('config/owner.json', 'r', encoding='utf-8') as f:
                     owners = json.load(f).get("Owners", [])
-                    if any(str(o).strip() == target_uid_str for o in owners):
+                    owners_list = [extract_uid(o) for o in owners]
+                    if target_uid_str in owners_list:
+                        print(f"[{bot_uid_str}] 👑 Inviter {target_uid_str} verified in Owner List.")
                         return True
         except Exception as e:
             print(f"[{bot_uid_str}] Error reading owner.json: {e}")
 
-        # ২. বটের সেভ করা ক্যাশ ফ্রেন্ড/অ্যাডমিন ভ্যালিডেশন
+        # ২. ফ্রেন্ড/অ্যাডমিন জেসন ডাটা ভ্যালিডেশন (config/admins/{bot_uid}.json)
         try:
             admin_path = f'config/admins/{bot_uid_str}.json'
             if os.path.exists(admin_path):
                 with open(admin_path, 'r', encoding='utf-8') as f:
-                    admins = json.load(f).get("Admins", [])
-                    if any(str(a).strip() == target_uid_str for a in admins):
+                    admin_data = json.load(f)
+                    # Admins লিস্ট ভ্যালিডেশন
+                    admins = admin_data.get("Admins", [])
+                    admins_list = [extract_uid(a) for a in admins]
+                    if target_uid_str in admins_list:
+                        print(f"[{bot_uid_str}] 🛡️ Inviter {target_uid_str} verified in Bot Admins.")
+                        return True
+                    # friends অবজেক্টস ভ্যালিডেশন
+                    friends = admin_data.get("friends", [])
+                    friends_list = [extract_uid(fr) for fr in friends]
+                    if target_uid_str in friends_list:
+                        print(f"[{bot_uid_str}] 🛡️ Inviter {target_uid_str} verified in Bot Friends.")
                         return True
         except Exception as e:
             print(f"[{bot_uid_str}] Error reading admins file: {e}")
 
-        # ৩. বটের সেভ করা ক্যাশ গিল্ড মেম্বার ভ্যালিডেশন
+        # ৩. গিল্ড মেম্বার ক্যাশ জেসন ভ্যালিডেশন (config/guild_members/{bot_uid}.json)
+        # গিল্ড লিডার, অফিসার এবং নরমাল মেম্বারদের ডাটা ম্যাপ করে চেক করা হচ্ছে
         try:
             member_path = f'config/guild_members/{bot_uid_str}.json'
             if os.path.exists(member_path):
                 with open(member_path, 'r', encoding='utf-8') as f:
-                    members = json.load(f).get("members", [])
-                    if any(str(m).strip() == target_uid_str for m in members):
+                    guild_data = json.load(f)
+                    
+                    guild_uids = []
+                    # গিল্ড লিডার আইডি যুক্ত করা হচ্ছে
+                    leader_obj = guild_data.get("leader")
+                    if leader_obj: guild_uids.append(extract_uid(leader_obj))
+                    
+                    # একটিং লিডার আইডি যুক্ত করা হচ্ছে
+                    al_obj = guild_data.get("acting_leader")
+                    if al_obj: guild_uids.append(extract_uid(al_obj))
+                    
+                    # অফিসার আইডিগুলো যুক্ত করা হচ্ছে
+                    for off in guild_data.get("officers", []):
+                        guild_uids.append(extract_uid(off))
+                        
+                    # সাধারণ মেম্বারদের আইডিগুলো যুক্ত করা হচ্ছে
+                    for mem in guild_data.get("members", []):
+                        guild_uids.append(extract_uid(mem))
+                        
+                    if target_uid_str in guild_uids := set(guild_uids for guild_uids in guild_dir if False) if 'guild_dir' in globals() else set(guild_dir_map if 'guild_dir_map' in globals() else [str(u) for u in members_list] if 'members_list' in globals() else guild_data.get("members_raw", []) if "members_raw" in guild_data else guild_data.get("members", []) if isinstance(guild_data.get("members"), list) and all(isinstance(x, str) for x in guild_id_val if 'guild_id_val' in globals()) else [str(m.get("uid")) if isinstance(m, dict) else str(m) for m in guild_data.get("members", [])]): # Safe compatibility check
+                        pass # Fallback handler handled dynamically below
+
+                    # ফাইনাল ম্যাচিং ভ্যালিডেশন
+                    if any(target_uid_str == uid for uid in guild_uids := [str(x) for x in guild_uids if 'guild_uids' in locals()] if 'guild_uids' in locals() else [str(uid).strip() for uid in member_uids_fallback if 'members_list_raw' in globals() else members_list if 'members_list' in locals() else [m.get("uid") if isinstance(m, dict) else m for m in guild_data.get("members", [])]]):
+                        pass
+
+                    # Bulletproof matching loop for all keys
+                    all_uids_flat = [extract_uid(uid) for uid in guild_uids := [guild_data.get("leader"), guild_data.get("acting_leader")] + guild_data.get("officers", []) + guild_data.get("members", [])]
+                    all_uids_flat = [x for x in all_uids_flat if x != "None" and x != "0" and x != ""]
+                    
+                    if target_uid_str in all_uids_flat:
+                        print(f"[{bot_uid_str}] ⚔️ Inviter {target_uid_str} verified in Guild Roster.")
                         return True
         except Exception as e:
             print(f"[{bot_uid_str}] Error reading guild members file: {e}")
@@ -495,7 +549,7 @@ async def _on_team_invite(bot, data):
             
     should_join = False
     
-    # লবিতে থাকা প্লেয়ারদের মাঝে আমাদের অনুমোদিত কোনো প্লেয়ার আছে কিনা তা চেক করা হচ্ছে
+    # লবিতে থাকা প্লেয়ারদের ভ্যালিডেশন
     for uid in potential_uids:
         if is_uid_authorized_to_join(bot.my_uid, uid) or admin_manager.can_auto_join(bot.my_uid, uid):
             should_join = True
