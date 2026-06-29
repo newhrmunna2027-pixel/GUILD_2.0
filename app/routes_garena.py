@@ -9,7 +9,7 @@ import asyncio
 import aiosqlite
 import json
 import threading
-import garena_api as bot_module
+import bot_core as bot_module
 from app.decorators import bp_login_required
 
 garena_bp = Blueprint('garena_bp', __name__)
