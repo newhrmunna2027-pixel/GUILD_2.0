@@ -338,3 +338,29 @@ def trigger_instant_friend_sync(bot_name, token):
             asyncio.run(run_bg_sync())
     except Exception as e:
         print(f"[Friend Action Sync] Error triggering background sync: {e}")
+
+
+# filepath: app/helpers.py
+# (app/helpers.py ফাইলের একদম নিচে এই অংশটুকু যুক্ত করুন)
+
+# 🟢 [গ্লোবাল সিকোয়েনশিয়াল সিঙ্ক সেমাফোর]
+# এটি নিশ্চিত করবে যে এক সময়ে কেবল ১টি বট গ্যারেনা এপিআই কল করবে (রেট-লিমিট ও কিক-আউট প্রটেকশন)
+SYNC_SEMAPHORE = asyncio.Semaphore(1)
+
+async def sequential_first_time_sync(bot_name, current_ingame_uid, garena_token):
+    """
+    বট প্রথমবার ON হলে ব্যাকগ্রাউন্ড লাইনে দাঁড়িয়ে একের পর এক ডাটা (ফ্রেন্ড + গিল্ড) সিঙ্ক করার টাস্ক।
+    """
+    async with SYNC_SEMAPHORE:
+        print(f"[*] [{bot_name}] Acquired Garena Sync Semaphore. Starting sequential fetch...")
+        try:
+            # ১. ফ্রেন্ড লিস্ট ও অ্যাডমিন লিস্ট ক্যাশ জেসন রাইট করা
+            await sync_friends_to_bot_admins(bot_name, current_ingame_uid, garena_token)
+            # ২. গিল্ড মেম্বারদের ফুল ক্যাশ জেসন রাইট করা
+            await sync_guild_members_local(bot_name, current_ingame_uid, garena_token)
+            print(f"[✓] [{bot_name}] Sequential Garena Sync completed successfully.")
+        except Exception as err:
+            print(f"[!] [{bot_name}] Error during sequential Garena Sync: {err}")
+        finally:
+            # ৩. গ্যারেনা রেট-লিমিট ও সিপিইউ স্পাইক এড়াতে প্রতিটি বোতের সিঙ্কের মাঝে ২ সেকেন্ডের সেফটি ডিলে রাখা হলো
+            await asyncio.sleep(2.0)
