@@ -1,6 +1,6 @@
 # filepath: mongo_sync.py
 # -*- coding: utf-8 -*-
-# START OF FILE mongo_sync.py
+
 import asyncio
 import os
 import json
@@ -8,49 +8,24 @@ import sqlite3
 import random
 import threading
 import time
-import uuid
-import ssl
 import sys
-import re
-from datetime import datetime
+import dns.resolver
 
-# পরম পাথ (Absolute Path) ও ডিরেক্টরি রেজোলিউশন প্যাচ
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-# 🟢 টার্মাক্স এবং অ্যান্ড্রয়েড এনভায়রনমেন্ট ডিএনএস প্যাচ (resolv.conf ক্র্যাশ এড়াতে)
-import dns.resolver
 try:
     dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
     dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
-except Exception as e:
+except Exception:
     pass
 
-# Safe PyMono Import
-try:
-    from pymongo import MongoClient
-except ImportError:
-    print("[!] 'pymongo' is not installed. Please run 'pip install pymongo'")
+from pymongo import MongoClient
+import certifi
+import aiohttp
+import bot_core as bot_module
 
-# Safe Crypto Import for Garena Handshakes
-try:
-    from Crypto.Cipher import AES
-    from Crypto.Util.Padding import pad, unpad
-    import certifi
-    import aiohttp
-    CRYPTO_AVAILABLE = True
-except ImportError:
-    CRYPTO_AVAILABLE = False
-    print("[!] Cryptographic libraries are missing. Run 'pip install pycryptodome aiohttp certifi'")
-
-# 🟢 Garena API ইমপোর্ট লিঙ্ক এবং ফলব্যাক হ্যান্ডলার
-try:
-    import garena_api as bot_module
-except ImportError:
-    print("[!] 'garena_api.py' not found in same folder. Local imports might be restricted.")
-
-# MongoDB Connection String Configuration
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://newhrmunna2027_db_user:munna2288@cluster0.xoaeyib.mongodb.net/?appName=Cluster0")
 
 try:
@@ -66,9 +41,6 @@ except Exception as e:
 
 DB_PATH = os.path.join(BASE_DIR, 'config', 'database.db')
 
-# ==========================================
-# SQLITE INTERACTIVE FUNCTIONS
-# ==========================================
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL;")
@@ -91,27 +63,19 @@ def get_all_active_bots_local():
     init_sqlite()
     conn = get_db_connection()
     cursor = conn.cursor()
-    # 🟢 ইন-গেম ইউআইডি ওভাররাইটার সেফটি কলাম যুক্ত করা হয়েছে
     cursor.execute("SELECT name, login_uid, password, ingame_uid FROM bots WHERE login_uid IS NOT NULL AND login_uid != ''")
     rows = cursor.fetchall()
     conn.close()
     return [{"name": r[0], "uid": r[1], "password": r[2], "ingame_uid": r[3]} for r in rows]
 
-# ========================================================
-# 🚀 CORE GARENA API SYNC JOBS (NATIVE INTEGRATION WITH garena_api)
-# ========================================================
 async def fetch_bot_guild_members(name, bot_uid, bot_pass, ingame_uid=None):
-    """গিল্ড মেম্বারদের লিস্ট সংগ্রহ করে ক্লাউড মঙ্গোডিবি এবং লোকাল ফাইলে সিঙ্ক করার ফাংশন"""
     try:
         loop = asyncio.get_event_loop()
-        
-        # ১. সচল টোকেন সংগ্রহ করা
         token, err = await loop.run_in_executor(None, bot_module.get_token_from_uid_password, bot_uid, bot_pass)
         if not token:
             print(f"[!] Guild Sync Failed for {name}: Garena Auth failed: {err}")
             return
             
-        # ২. বটের গেম প্রোফাইল থেকে কারেন্ট গিল্ড আইডি বের করা
         profile_res = await loop.run_in_executor(None, bot_module.get_player_info_detailed, str(bot_uid), token)
         if not profile_res or not profile_res.get("success"):
             print(f"[!] Guild Sync Failed for {name}: Could not fetch bot profile.")
@@ -121,7 +85,6 @@ async def fetch_bot_guild_members(name, bot_uid, bot_pass, ingame_uid=None):
         if not clan_id or clan_id == "N/A" or str(clan_id) == "0":
             return
             
-        # ৩. গিল্ডের সমস্ত মেম্বারদের ডাটা ফেচ করা
         res_guild = await loop.run_in_executor(None, bot_module.get_guild_member_list, token, str(clan_id))
         if res_guild.get("success"):
             member_uids = []
@@ -137,7 +100,6 @@ async def fetch_bot_guild_members(name, bot_uid, bot_pass, ingame_uid=None):
                     member_uids.append(str(member["uid"]))
                 
             if member_uids:
-                # মঙ্গোডিবি ক্লাউড আপডেট
                 col_guild_members.update_one(
                     {'_id': name},
                     {'$set': {'clan_id': str(clan_id), 'members': member_uids, 'last_update': time.time()}},
@@ -145,11 +107,9 @@ async def fetch_bot_guild_members(name, bot_uid, bot_pass, ingame_uid=None):
                 )
                 print(f"[✓] Guild members synced to MongoDB for {name}. Total: {len(member_uids)}")
                 
-                # 🟢 লোকাল মেম্বার ফাইল ফুল ওভাররাইট/রিপ্লেস সেফটি প্যাচ
                 try:
                     file_dir = os.path.join(BASE_DIR, 'config', 'guild_members')
                     os.makedirs(file_dir, exist_ok=True)
-                    
                     resolved_uid = ingame_uid or profile_res.get("uid") or bot_uid
                     clean_uid = "".join(c for c in str(resolved_uid) if c.isdigit())
                     file_path = os.path.join(file_dir, f"{clean_uid}.json")
@@ -162,18 +122,14 @@ async def fetch_bot_guild_members(name, bot_uid, bot_pass, ingame_uid=None):
     except Exception as e:
         print(f"[!] Guild Sync Exception for {name}: {e}")
 
-async def sync_bot_friends_list(name, bot_uid, bot_pass):
-    """ফ্রেন্ডলিস্ট সংগ্রহ করে ক্লাউড মঙ্গোডিবিতে সিঙ্ক করার ফাংশন"""
+async def sync_bot_friends_list(name, bot_uid, bot_pass, ingame_uid=None):
     try:
         loop = asyncio.get_event_loop()
-        
-        # ১. সচল টোকেন সংগ্রহ করা
         token, err = await loop.run_in_executor(None, bot_module.get_token_from_uid_password, bot_uid, bot_pass)
         if not token:
             print(f"[!] Friends Sync Failed for {name}: Garena Auth failed: {err}")
             return
             
-        # ২. ফ্রেন্ডলিস্ট ফেচ এবং মঙ্গোডিবি সিঙ্ক করা
         res_friends = await loop.run_in_executor(None, bot_module.get_active_friend_list, token)
         if res_friends.get("success"):
             friend_uids = [str(f["uid"]) for f in res_friends["friends"]]
@@ -185,14 +141,22 @@ async def sync_bot_friends_list(name, bot_uid, bot_pass):
                     upsert=True
                 )
                 print(f"[✓] Friends list synced for {name}. Total: {len(friend_uids)}")
+                
+                try:
+                    file_dir = os.path.join(BASE_DIR, 'config', 'admins')
+                    os.makedirs(file_dir, exist_ok=True)
+                    resolved_uid = ingame_uid or bot_uid
+                    clean_uid = "".join(c for c in str(resolved_uid) if c.isdigit())
+                    file_path = os.path.join(file_dir, f"{clean_uid}.json")
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        json.dump({"Admins": friend_uids}, f, indent=4)
+                    print(f"[✓] Friends saved locally for {name} ({clean_uid}.json). Total: {len(friend_uids)}")
+                except Exception as file_err:
+                     print(f"[!] Local file write error in friends mongo_sync for {name}: {file_err}")
     except Exception as e:
         print(f"[!] Friends Sync Exception for {name}: {e}")
 
-# ==========================================
-# DYNAMIC BACKGROUND SYNC SCHEDULER
-# ==========================================
 async def sync_all_bots_data_loop():
-    """সকল রানিং বোতের ফ্রেন্ড এবং গিল্ড ডাটা ডাটাবেজে সিঙ্ক করার লুপ"""
     bots = get_all_active_bots_local()
     if not bots:
         return
@@ -200,11 +164,8 @@ async def sync_all_bots_data_loop():
     print(f"\n[*] Executing Scheduled Data Sync for {len(bots)} Bots...")
     for b in bots:
         try:
-            # 1. Sync Friends List
-            await sync_bot_friends_list(b['name'], b['uid'], b['password'])
+            await sync_bot_friends_list(b['name'], b['uid'], b['password'], b.get('ingame_uid'))
             await asyncio.sleep(1.0)
-            
-            # 2. Sync Guild Members (লোকাল ডাইনামিক ইন-গেম ইউআইডি ওভাররাইটার সহ)
             await fetch_bot_guild_members(b['name'], b['uid'], b['password'], b.get('ingame_uid'))
             await asyncio.sleep(1.0)
         except Exception as e:
@@ -217,7 +178,6 @@ def run_sync_all_bots():
     loop.close()
 
 def start_auto_sync_scheduler():
-    """১০ মিনিট অন্তর সিঙ্ক করার ব্যাকগ্রাউন্ড শিডিউলার থ্রেড"""
     def run_schedule():
         print("[MONGO] Scheduled Sync Daemon Active (10m interval)")
         while True:
@@ -225,13 +185,10 @@ def start_auto_sync_scheduler():
                 run_sync_all_bots()
             except Exception as e:
                 print(f"[!] Scheduler error: {e}")
-            time.sleep(600) # Sleep 10 minutes
+            time.sleep(600)
             
     threading.Thread(target=run_schedule, daemon=True).start()
 
-# ==========================================
-# STANDARD CO-ORDINATOR MIGRATION CODES
-# ==========================================
 def pull_all_from_mongo():
     try:
         init_sqlite()
@@ -257,10 +214,8 @@ def pull_all_from_mongo():
         if cursor.fetchone()[0] == 0:
             cursor.execute("INSERT INTO users (username, password, role, uid) VALUES (?, ?, ?, ?)", ("owner", "owner", "owner", str(random.randint(10000, 99999))))
 
-        # MongoDB থেকে সক্রিয় বোতের তালিকা সিঙ্ক এবং ফ্যান্টম বট ক্লিয়ারেন্স লুপ
         for doc in col_accounts.find():
             name = doc['_id']
-            
             if not name or str(name).strip().lower() in ['none', 'null', 'undefined', '']:
                 try:
                     col_accounts.delete_one({'_id': name})
@@ -390,9 +345,16 @@ def rename_bot_in_mongo(old_name, new_name):
         conn.close()
     except: pass
 
-# Automatically sync on startup
+def push_owner_to_mongo():
+    try:
+        owner_path = os.path.join(BASE_DIR, 'config', 'owner.json')
+        if os.path.exists(owner_path):
+            with open(owner_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            col_system.update_one({'_id': 'owner.json'}, {'$set': {'data': data}}, upsert=True)
+    except Exception as e:
+        print(f"[MONGO OWNER PUSH ERROR] {e}")
+
 pull_all_from_mongo()
 start_change_stream()
 start_auto_sync_scheduler()
-
-# END OF FILE mongo_sync.py
