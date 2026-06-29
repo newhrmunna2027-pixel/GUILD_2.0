@@ -42,7 +42,8 @@ class GameBot:
         'last_invite_code',
         'last_lobby_session_id',
         'room_id', 'room_secret_code', 'is_in_room',
-        'is_creating_lobby'
+        'is_creating_lobby',
+        'joined_look_done'
     ]
 
     def __init__(self, config, session_data, bot_display_name_from_manager: str):
