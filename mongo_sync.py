@@ -30,7 +30,7 @@ MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://newhrmunna2027_db_user:mu
 
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    db_mongo = client['Esports_Bot_Panel_2']
+    db_mongo = client['Esports_Bot_Panel_3']
     col_system = db_mongo['system_configs']  
     col_accounts = db_mongo['bot_accounts']  
     col_admins = db_mongo['bot_admins']
