@@ -532,3 +532,128 @@ async def handle_duo(client, ctx, args):
                     await client.send_chat_message(f"[FF0000]Duo fetch failed. Garena HTTP Error {resp.status}", ctx)
     except Exception as e:
         await client.send_chat_message(f"[FF0000]Duo Scraper Error: {e}", ctx)
+
+
+
+# filepath: bot/commands/actions_info.py
+# (actions_info.py ফাইলের একদম নিচে এই কাস্টম টিম ফাইল রিড/রাইট লজিক ফাংশন ৩টি পেস্ট করুন)
+
+TEAM_JSON_FILE = 'config/Team.json'
+
+async def handle_add_uid(client, ctx, args):
+    """
+    /add কমান্ড লজিক: এটি ওনার ও অ্যাডমিনদের বটের অ্যাক্টিভ লবি/টিম লিস্টে (config/Team.json) 
+    ম্যানুয়ালি প্লেয়ারদের ইউআইডি যোগ করার অনুমতি দেয়।
+    """
+    sender_uid = str(ctx['uid'])
+    is_owner = admin_manager.is_owner(sender_uid)
+    is_admin = sender_uid in admin_manager.get_admins(client.my_uid)
+    
+    if not (is_owner or is_admin):
+        await client.send_chat_message(t(client, 'no_permission'), ctx)
+        return
+
+    target_uids = await resolve_uids(client, args[1:], ctx)
+    if not target_uids:
+        await client.send_chat_message(t(client, 'invalid_usage', usage="/add [uid]"), ctx)
+        return
+
+    try:
+        data = {}
+        if os.path.exists(TEAM_JSON_FILE):
+            try:
+                with open(TEAM_JSON_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except: pass
+
+        bot_key = str(client.my_uid)
+        if bot_key not in data:
+            data[bot_key] = []
+
+        added_count = 0
+        for uid in target_uids:
+            uid_str = str(uid)
+            if uid_str not in data[bot_key]:
+                data[bot_key].append(uid_str)
+                added_count += 1
+
+        with open(TEAM_JSON_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        await client.send_chat_message(f"[00FF00]Successfully added {added_count} member(s) manually to Team list.", ctx)
+    except Exception as e:
+        await client.send_chat_message(f"[FF0000]Sys Error while adding: {e}", ctx)
+
+async def handle_remove_uid(client, ctx, args):
+    """
+    /rev কমান্ড লজিক: এটি বটের অ্যাক্টিভ টিম লিস্ট (config/Team.json) থেকে 
+    ম্যানুয়ালি প্লেয়ারদের ইউআইডি রিমুভ করে।
+    """
+    sender_uid = str(ctx['uid'])
+    is_owner = admin_manager.is_owner(sender_uid)
+    is_admin = sender_uid in admin_manager.get_admins(client.my_uid)
+    
+    if not (is_owner or is_admin):
+        await client.send_chat_message(t(client, 'no_permission'), ctx)
+        return
+
+    target_uids = await resolve_uids(client, args[1:], ctx)
+    if not target_uids:
+        await client.send_chat_message(t(client, 'invalid_usage', usage="/rev [uid]"), ctx)
+        return
+
+    try:
+        data = {}
+        if os.path.exists(TEAM_JSON_FILE):
+            try:
+                with open(TEAM_JSON_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except: pass
+
+        bot_key = str(client.my_uid)
+        if bot_key not in data:
+            data[bot_key] = []
+
+        removed_count = 0
+        for uid in target_uids:
+            uid_str = str(uid)
+            if uid_str in data[bot_key]:
+                data[bot_key].remove(uid_str)
+                removed_count += 1
+
+        with open(TEAM_JSON_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        await client.send_chat_message(f"[00FF00]Successfully removed {removed_count} member(s) manually from Team list.", ctx)
+    except Exception as e:
+        await client.send_chat_message(f"[FF0000]Sys Error while removing: {e}", ctx)
+
+async def handle_show_list(client, ctx, args):
+    """
+    /list কমান্ড লজিক: এটি বটের অ্যাক্টিভ লবি মেম্বারদের তালিকার (config/Team.json) সব প্লেয়ারদের রেন্ডার করে।
+    """
+    try:
+        TEAM_JSON_FILE = 'config/Team.json'
+        if not os.path.exists(TEAM_JSON_FILE):
+            await client.send_chat_message("[FFFF00]The active team member list is currently empty.", ctx)
+            return
+
+        with open(TEAM_JSON_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        bot_key = str(client.my_uid)
+        members = data.get(bot_key, [])
+
+        if not members:
+            await client.send_chat_message("[FFFF00]The active team member list is currently empty.", ctx)
+            return
+
+        list_body = ""
+        for i, uid in enumerate(members):
+            fmt = await format_uid_for_chat(uid)
+            list_body += f"[FFFFFF]{i+1}. {fmt}\n"
+
+        final_box = f"[b][c][00FFFF]╭━━━ ACTIVE TEAM LIST ━━━╮\n\n{list_body}\n[b][c]╰━━━━━━━━━━━━━━━━╯"
+        await client.send_chat_message(final_box, ctx)
+    except Exception as e:
+        await client.send_chat_message(f"[FF0000]Sys Error while fetching list: {e}", ctx)
