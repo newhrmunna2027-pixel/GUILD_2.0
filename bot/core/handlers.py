@@ -422,6 +422,9 @@ async def _on_team_invite(bot, data):
     if getattr(bot, 'is_in_room', False) or getattr(bot, 'is_joining_room', False):
         return
 
+    if getattr(bot, 'is_in_team', False):
+        return
+
     import os
     from bot.core.manager import send_online_packet
     
@@ -558,15 +561,16 @@ async def _on_team_invite(bot, data):
         bot.is_in_team = True
         bot.team_chat_authed = False 
         
-        # 🟢 বট সাকসেসফুলি টিমে ঢোকার সাথে সাথে একবার ইনস্ট্যান্ট লুক চেঞ্জ করবে এবং /l 10 রান করবে
+        # 🟢 [স্ট্যাটাস চেক এবং ওয়ান-টাইম ইমিডিয়েট ট্র্যাকার]
         async def delayed_look_change():
             await asyncio.sleep(0.5)
+            # ফ্ল্যাগ যদি ইতিমধ্যেই True থাকে, তবে দ্বিতীয়বার রান করবে না
+            if getattr(bot, 'joined_look_done', False):
+                return
             if getattr(bot, 'auto_look_enabled', True) and not bot.suppress_auto_actions:
+                bot.joined_look_done = True # ফ্ল্যাগ True করে দেওয়া হলো
                 from bot.commands import actions_look
-                # ১. প্রথমে র‍্যান্ডম ড্রেস চেঞ্জ
                 await actions_look.equip_random_bundle(bot, None)
-                # ২. ০.১ সেকেন্ড অপেক্ষা
                 await asyncio.sleep(0.1)
-                # ৩. /l 10 অ্যানিমেশনসহ ইকুইপ রান
                 await actions_look.handle_look_change(bot, None, ["/l", "10"])
         asyncio.create_task(delayed_look_change())
